@@ -32,6 +32,10 @@ plus **kontrola jakości kodu Agenta Gabriela** (naprawianie błędów, które p
 | 0.3 | DataStore w Studio rzuca błędy | Konsola | Włączyć „Enable Studio Access to API Services” w Game Settings (zrobi to właściciel plejsu) |
 | 0.4 | Plejs `wersjafinal` ma w logu dziesiątki „Infinite yield” ze **starej, innej gry** (SafeZone, Guardian, Farm…) | Konsola | Sprawdzić, czy te stare skrypty dalej siedzą w plejsie, i jeśli tak, usunąć je za zgodą kolegi |
 
+| 0.5 | Skrzynki (losowe skiny za monety, a monety da się kupić za Robuxy) **nie pokazują szans**. Roblox wymaga ujawniania szans w płatnych losowaniach | `GameConfig.Crates` (Weight) vs `ShopGui` | Wyświetlić % szans przy każdej skrzynce (liczone z `Weight`) |
+| 0.6 | Dźwięki memów (`rbxassetid://91142…`) wyglądają na wpisane z głowy, a nie sprawdzone | `GameConfig.Memes` | Sprawdzić każde ID w Toolboxie i podmienić na pasujące darmowe dźwięki |
+| 0.7 | Nazwy prawdziwych marek w grze („Kukirin”, „Prince Polo”) mogą zostać zgłoszone na Robloxie | `GameConfig.Memes`, `KukirinService` | Zostawić klimat, ale zmienić nazwy na parodie („Kukurin”, „Książę Polo”) – do decyzji właściciela |
+
 Po etapie 0: pełny test rundy (Lobby → InGame → zebranie → werdykt) i lista kolejnych błędów.
 
 ---
@@ -98,6 +102,11 @@ kozłem i proporcami. Na zewnątrz plac apelowy z masztem i boisko.
 
 Gra ma być „szkoła z lat 90. + dzisiejsza młodzież”. Źródło słownictwa: finał
 **Młodzieżowego Słowa Roku 2025** (wygrał **„szponcić / szpont”**).
+
+**Co już jest od Gabriela** (commit `defb275`): hulajnogi Kukirin jako wierzchowce, soundboard polskich memów
+(„Dzwonek jest dla nauczyciela!”, kartkówka, sklepik, „NP”, ściąga). **Mój wkład:** model 3D hulajnogi
+(Toolbox albo własny), VFX i dźwięk jazdy, miejsce parkowania pod szkołą i tablica „ZAKAZ JAZDY NA HULAJNODZE PO KORYTARZU”,
+której wszyscy nie przestrzegają. Do tego nowe memy z listy poniżej, podpięte pod soundboard Gabriela (bez przepisywania jego GUI).
 
 **Gdzie memy siedzą w grze (wszystko w `src/shared/MemeText.luau`, losowane, łatwe do podmiany):**
 - **Szczęśliwy numerek** na tablicy w korytarzu. Gracz z tym numerem ma bonus +5 zł. A jak wypadnie **67**: konfetti, dźwięk i napis „SIX SEVEN 🤲”
