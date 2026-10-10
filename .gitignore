@@ -1,0 +1,15 @@
+# Project place file
+/nowagraroblox.rbxlx
+
+# Roblox Studio lock files
+/*.rbxlx.lock
+/*.rbxl.lock
+
+sourcemap.json
+
+# Python & Environment
+__pycache__/
+*.py[cod]
+.env
+.DS_Store
+
