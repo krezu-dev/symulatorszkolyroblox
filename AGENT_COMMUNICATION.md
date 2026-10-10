@@ -23,6 +23,19 @@ Repozytorium: `https://github.com/krezu-dev/symulatorszkolyroblox.git`
 - [x] **Mechanika Monet MM2 (`src/server/CoinService.luau`)**:
   - Dynamiczny spawn monet 5 zł na korytarzach, w klasach i pod ławkami.
   - Limit sakwy monet, odgłos podnoszenia, licznik w HUD.
+- [x] **Grywalne Minigry Zadań (`src/client/TasksGui.luau`)**:
+  - Matematyka (kartkówka z tabliczką mnożenia i opcjami do kliknięcia).
+  - Język Polski (dyktando ortograficzne z wyborem pisowni).
+  - Stołówka (interaktywny talerz z 5 pierogami do zjedzenia).
+  - Szafki (układanie podręczników na półce).
+- [x] **Mechanika Ukrywania się w Szafkach (`src/server/HidingService.luau`)**:
+  - Chowanie się w szafkach na korytarzu (przezroczystość, kotwiczenie, zasadzki dla Rozrabiaki).
+- [x] **Unikalna Mechanika Woźnej (`src/server/CleaningService.luau`)**:
+  - Spawnowanie rozlanych plam (kompot, zupa, błoto); Woźna zmywa je mopem, nabijając postęp zadań i monety!
+- [x] **Szkolny Radiowęzeł Dyrektora (`src/server/RadioService.luau`)**:
+  - Mikrofon w gabinecie dyrektora umożliwiający nadawanie oficjalnych ogłoszeń z dzwonkiem do całej szkoły.
+- [x] **System Statystyk i Wyników (`src/server/LeaderboardService.luau`)**:
+  - leaderstats: Szkolne Monety, Wygrane Lekcje, Punkty Zachowania.
 - [x] **Pętla Gry i Stan Maszyny (`src/server/RoundManager.luau`)**:
   - Obsługa Lobby, InGame, Meeting, GameOver, zadań (0-100%) i warunków wygranej.
 - [x] **Rozbudowany Interfejs Klienta (`src/client/init.client.luau`)**:
