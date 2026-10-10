@@ -26,16 +26,16 @@ end
 -- ========================================================
 
 -- A) Szkolny Dziennik dla Dyrektora
-function WeaponsService.createDyrektorDziennik(): Tool
+function WeaponsService.createDyrektorDziennik(skinColor: Color3?, skinName: string?): Tool
 	local tool = Instance.new("Tool")
-	tool.Name = "Szkolny Dziennik"
+	tool.Name = skinName or "Szkolny Dziennik"
 	tool.CanBeDropped = false
 	tool.ToolTip = "Rzuć w podejrzanego! Pomyłka = sam odpadasz!"
 
 	local handle = Instance.new("Part")
 	handle.Name = "Handle"
 	handle.Size = Vector3.new(1.2, 0.4, 1.6)
-	handle.Color = Color3.fromRGB(180, 20, 20) -- Czerwona okładka dziennika
+	handle.Color = skinColor or Color3.fromRGB(180, 20, 20) -- Czerwona lub wybrany skin
 	handle.Material = Enum.Material.SmoothPlastic
 	handle.CanCollide = false
 	handle.Parent = tool
@@ -118,16 +118,16 @@ function WeaponsService.createDyrektorDziennik(): Tool
 end
 
 -- B) Plastikowy Nóż dla Rozrabiaki
-function WeaponsService.createRozrabiakaNoz(): Tool
+function WeaponsService.createRozrabiakaNoz(skinColor: Color3?, skinName: string?): Tool
 	local tool = Instance.new("Tool")
-	tool.Name = "Plastikowy Nóż-Zabawka"
+	tool.Name = skinName or "Plastikowy Nóż-Zabawka"
 	tool.CanBeDropped = false
 	tool.ToolTip = "Podejdź i po cichu wyeliminuj ucznia!"
 
 	local handle = Instance.new("Part")
 	handle.Name = "Handle"
 	handle.Size = Vector3.new(0.4, 0.4, 1.8)
-	handle.Color = Color3.fromRGB(255, 105, 180) -- Różowy plastikowy nóż zabawkowy (100% Roblox safe)
+	handle.Color = skinColor or Color3.fromRGB(255, 105, 180) -- Różowy lub wybrany skin
 	handle.Material = Enum.Material.Plastic
 	handle.CanCollide = false
 	handle.Parent = tool

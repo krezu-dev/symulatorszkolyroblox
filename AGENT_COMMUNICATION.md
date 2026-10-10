@@ -34,8 +34,14 @@ Repozytorium: `https://github.com/krezu-dev/symulatorszkolyroblox.git`
   - Spawnowanie rozlanych plam (kompot, zupa, błoto); Woźna zmywa je mopem, nabijając postęp zadań i monety!
 - [x] **Szkolny Radiowęzeł Dyrektora (`src/server/RadioService.luau`)**:
   - Mikrofon w gabinecie dyrektora umożliwiający nadawanie oficjalnych ogłoszeń z dzwonkiem do całej szkoły.
-- [x] **System Statystyk i Wyników (`src/server/LeaderboardService.luau`)**:
-  - leaderstats: Szkolne Monety, Wygrane Lekcje, Punkty Zachowania.
+- [x] **System Sklepu i Skrzynek MM2 (`src/server/ShopService.luau`, `src/client/ShopGui.luau`)**:
+  - 4 zakładki: Skrzynki ze skinami z animacją unboxingu, Ulepszenia za monety (Kondycja, Cichobiegi, Radar), Sklep Robux i Ekwipunek.
+  - Skiny rzadkości: Common, Rare, Epic, Legendary, Godly z dynamicznym nakładaniem na broń!
+- [x] **Monetyzacja Robux & MarketplaceService (`src/server/MonetizationService.luau`)**:
+  - Bezpieczny `ProcessReceipt` dla pakietów monet za Robux (100, 500, 2000 monet).
+  - Gamepassy: VIP Przewodniczący Szkoły (x2 monety, złoty tag), Adidasy (+25% prędkości), Plecak (limit 100 monet), Szansa na Rolę x2, Szkolny Boombox.
+- [x] **Trwały Zapis Danych Gracza (`src/server/ProfileDataService.luau`)**:
+  - DataStoreService: zapis stanu monet, wygranych, wykupionych ulepszeń i odblokowanych skinów z fallbackiem na Studio.
 - [x] **Pętla Gry i Stan Maszyny (`src/server/RoundManager.luau`)**:
   - Obsługa Lobby, InGame, Meeting, GameOver, zadań (0-100%) i warunków wygranej.
 - [x] **Rozbudowany Interfejs Klienta (`src/client/init.client.luau`)**:

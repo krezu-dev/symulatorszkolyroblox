@@ -24,6 +24,9 @@ local Remotes = require(Shared:WaitForChild("Remotes"))
 local tasksGuiModule = script:FindFirstChild("TasksGui") or (script.Parent and script.Parent:FindFirstChild("TasksGui")) or script:WaitForChild("TasksGui")
 local TasksGui = require(tasksGuiModule :: ModuleScript)
 
+local shopGuiModule = script:FindFirstChild("ShopGui") or (script.Parent and script.Parent:FindFirstChild("ShopGui")) or script:WaitForChild("ShopGui")
+local ShopGui = require(shopGuiModule :: ModuleScript)
+
 -- Główny ScreenGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "SzkolnyDetektywGui"
@@ -33,6 +36,30 @@ screenGui.Parent = playerGui
 
 -- Inicjalizacja minigier zadań szkolnych
 TasksGui.init(screenGui)
+
+-- Inicjalizacja sklepu i monetyzacji Robux
+ShopGui.init(screenGui)
+
+-- Pływający przycisk Sklepu (dolny lewy róg)
+local shopFloatingBtn = Instance.new("TextButton")
+shopFloatingBtn.Name = "ShopFloatingBtn"
+shopFloatingBtn.Size = UDim2.new(0, 160, 0, 42)
+shopFloatingBtn.Position = UDim2.new(0, 15, 1, -55)
+shopFloatingBtn.BackgroundColor3 = Color3.fromRGB(255, 180, 0)
+shopFloatingBtn.Text = "🛍️ SKLEP & ROBUX"
+shopFloatingBtn.TextColor3 = Color3.fromRGB(20, 20, 20)
+shopFloatingBtn.Font = Enum.Font.GothamBlack
+shopFloatingBtn.TextSize = 13
+shopFloatingBtn.ZIndex = 25
+shopFloatingBtn.Parent = screenGui
+Instance.new("UICorner", shopFloatingBtn).CornerRadius = UDim.new(0, 8)
+local sStroke = Instance.new("UIStroke", shopFloatingBtn)
+sStroke.Color = Color3.fromRGB(255, 255, 255)
+sStroke.Thickness = 1.5
+
+shopFloatingBtn.MouseButton1Click:Connect(function()
+	ShopGui.toggle()
+end)
 
 -- ========================================================
 -- 1. GÓRNY PASEK HUD (TOP HUD)

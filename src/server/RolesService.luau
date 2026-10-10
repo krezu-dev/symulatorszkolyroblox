@@ -8,6 +8,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameConfig = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("GameConfig"))
 local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
 local WeaponsService = require(script.Parent:WaitForChild("WeaponsService"))
+local MonetizationService = require(script.Parent:WaitForChild("MonetizationService"))
+local ProfileDataService = require(script.Parent:WaitForChild("ProfileDataService"))
 
 local RolesService = {}
 
@@ -42,11 +44,28 @@ function RolesService.assignRoles(playerList: {Player})
 	local count = #playerList
 	if count == 0 then return end
 
-	-- Przemieszaj listę graczy (Fisher-Yates)
-	local shuffled = table.clone(playerList)
-	for i = #shuffled, 2, -1 do
-		local j = math.random(i)
-		shuffled[i], shuffled[j] = shuffled[j], shuffled[i]
+	-- Przemieszaj listę graczy (z uwzględnieniem Gamepassa DoubleRoleChance)
+	local pool: {Player} = {}
+	for _, p in ipairs(playerList) do
+		table.insert(pool, p)
+		if MonetizationService.hasGamepass(p, "DoubleRoleChance") then
+			table.insert(pool, p) -- Podwójna szansa
+		end
+	end
+
+	local shuffled: {Player} = {}
+	while #pool > 0 do
+		local idx = math.random(1, #pool)
+		local picked = pool[idx]
+		if not table.find(shuffled, picked) then
+			table.insert(shuffled, picked)
+		end
+		table.remove(pool, idx)
+	end
+	for _, p in ipairs(playerList) do
+		if not table.find(shuffled, p) then
+			table.insert(shuffled, p)
+		end
 	end
 
 	-- Wyznacz role w zależności od liczby graczy
@@ -92,9 +111,19 @@ function RolesService.assignRoles(playerList: {Player})
 		local char = player.Character
 		player.Backpack:ClearAllChildren()
 
+		local data = ProfileDataService.getData(player)
+
 		-- Przydział narzędzi i tagów
 		if role == GameConfig.Roles.Dyrektor then
-			local dziennik = WeaponsService.createDyrektorDziennik()
+			local gunSkinId = data.EquippedGun
+			local gunDef: any = nil
+			for _, cr in pairs(GameConfig.Crates) do
+				for _, it in ipairs(cr.Items) do
+					if it.Id == gunSkinId then gunDef = it break end
+				end
+			end
+
+			local dziennik = WeaponsService.createDyrektorDziennik(gunDef and gunDef.Color, gunDef and gunDef.Name)
 			dziennik.Parent = player.Backpack
 			if char then
 				applyPublicTag(char, "👑 [DYREKTOR SZKOŁY]", Color3.fromRGB(255, 60, 60))
@@ -108,7 +137,15 @@ function RolesService.assignRoles(playerList: {Player})
 			end
 
 		elseif role == GameConfig.Roles.Rozrabiaka then
-			local noz = WeaponsService.createRozrabiakaNoz()
+			local knifeSkinId = data.EquippedKnife
+			local knifeDef: any = nil
+			for _, cr in pairs(GameConfig.Crates) do
+				for _, it in ipairs(cr.Items) do
+					if it.Id == knifeSkinId then knifeDef = it break end
+				end
+			end
+
+			local noz = WeaponsService.createRozrabiakaNoz(knifeDef and knifeDef.Color, knifeDef and knifeDef.Name)
 			noz.Parent = player.Backpack
 			-- Brak publicznego taga (rola ukryta!)
 

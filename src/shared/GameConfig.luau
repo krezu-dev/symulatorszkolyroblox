@@ -46,7 +46,8 @@ GameConfig.Coins = {
 	MaxSpawns = 35, -- Maksymalna liczba monet na mapie
 	SpawnInterval = 12, -- Co ile sekund pojawiają się nowe monety
 	CoinValue = 5, -- Każda moneta to 5 Szkolnych Złotych
-	MaxBagCapacity = 50, -- Limit monet zebranych w jednej rundzie
+	MaxBagCapacity = 50, -- Domyślny limit monet zebranych w jednej rundzie
+	VIPBagCapacity = 100, -- Limit dla posiadaczy Gamepassa Plecaka
 }
 
 -- Zadania szkolne (Tasks)
@@ -55,14 +56,14 @@ GameConfig.Tasks = {
 		Id = "Matematyka",
 		Name = "Test z Matematyki",
 		Location = "Klasa Matematyczna (Sala 201)",
-		Description = "Rozwiąż szybkie równanie (np. 2 + 2 = ?)",
+		Description = "Rozwiąż szybkie równanie (np. 7 × 8 = ?)",
 		CoinsReward = 15,
 	},
 	JezykPolski = {
 		Id = "JezykPolski",
 		Name = "Dyktando z Języka Polskiego",
 		Location = "Klasa Humanistyczna (Sala 202)",
-		Description = "Przepisz słowo z tablicy bez błędu",
+		Description = "Wybierz bezbłędną pisownię słowa",
 		CoinsReward = 15,
 	},
 	StolowkaPierogi = {
@@ -76,8 +77,126 @@ GameConfig.Tasks = {
 		Id = "SzafkiKsiazki",
 		Name = "Uporządkuj Szafkę",
 		Location = "Główny Korytarz",
-		Description = "Ułóż podręczniki od największego do najmniejszego",
+		Description = "Ułóż podręczniki na półce w kolejności",
 		CoinsReward = 20,
+	},
+}
+
+-- ========================================================
+-- MONETYZACJA, GAMEPASSY & PRODUKTY ZA ROBUX (ROBUX SHOP)
+-- ========================================================
+GameConfig.Gamepasses = {
+	VIP = {
+		Id = 1827361,
+		Name = "👑 Przewodniczący Szkoły (VIP)",
+		Price = 249,
+		Icon = "👑",
+		Description = "Złoty tag [VIP] na czacie i nad głową, stały bonus x2 monety, wstęp do Klubu Samorządu Uczniowskiego!",
+	},
+	RadioBoombox = {
+		Id = 1827362,
+		Name = "📻 Szkolny Radiomagnetofon (Boombox)",
+		Price = 199,
+		Icon = "📻",
+		Description = "Puszczaj ulubioną muzykę na korytarzach szkoły i stołówce!",
+	},
+	SpeedShoes = {
+		Id = 1827363,
+		Name = "👟 Adidasy Wuefisty (+25% Prędkości)",
+		Price = 149,
+		Icon = "👟",
+		Description = "Zwiększa Twoją prędkość chodzenia o +4 WalkSpeed na zawsze!",
+	},
+	BigCoinBag = {
+		Id = 1827364,
+		Name = "🎒 Plecak Turystyczny (Limit 100 monet)",
+		Price = 99,
+		Icon = "🎒",
+		Description = "Zwiększa limit zebranych monet na rundę z 50 do 100!",
+	},
+	DoubleRoleChance = {
+		Id = 1827365,
+		Name = "🎲 Podwójna Szansa na Rolę (x2 Chance)",
+		Price = 199,
+		Icon = "🎲",
+		Description = "Podwaja Twoją szansę na wylosowanie Dyrektora lub Rozrabiaki!",
+	},
+}
+
+-- Pakiety Szkolnych Monet za Robux (Developer Products)
+GameConfig.DevProducts = {
+	CoinsSmall = {
+		Id = 2938471,
+		Name = "🪙 Kieszonkowe (100 Monet)",
+		Price = 49,
+		Coins = 100,
+		Icon = "🪙",
+	},
+	CoinsMedium = {
+		Id = 2938472,
+		Name = "💰 Wyprawka Szkolna (500 Monet)",
+		Price = 149,
+		Coins = 500,
+		Icon = "💰",
+	},
+	CoinsLarge = {
+		Id = 2938473,
+		Name = "💎 Stypendium Dyrektora (2000 Monet)",
+		Price = 399,
+		Coins = 2000,
+		Icon = "💎",
+	},
+}
+
+-- Ulepszenia postaci za Szkolne Monety (In-game Upgrades)
+GameConfig.Upgrades = {
+	Speed = {
+		Id = "Speed",
+		Name = "Kondycja z WF",
+		MaxLevel = 3,
+		CostPerLevel = 120,
+		Stat = "WalkSpeed",
+		BoostPerLevel = 1.0,
+		Icon = "🏃",
+		Description = "+1.0 do Prędkości za każdy poziom",
+	},
+	Stealth = {
+		Id = "Stealth",
+		Name = "Cichobiegi na Korytarzu",
+		MaxLevel = 2,
+		CostPerLevel = 160,
+		Stat = "FootstepQuiet",
+		BoostPerLevel = 0.5,
+		Icon = "🤫",
+		Description = "Cichszy odgłos kroków - trudniej cię wytropić!",
+	},
+	CoinRadar = {
+		Id = "CoinRadar",
+		Name = "Wzrok Sokoli na Monety",
+		MaxLevel = 1,
+		CostPerLevel = 250,
+		Stat = "CoinRadar",
+		BoostPerLevel = 1.0,
+		Icon = "👁️",
+		Description = "Podświetla złote monety w zasięgu wzroku!",
+	},
+}
+
+-- Skrzynki ze skinami broni (MM2 Mystery Crates)
+GameConfig.Crates = {
+	PiornikCrate = {
+		Id = "PiornikCrate",
+		Name = "Skrzynka Piórnikowa",
+		Cost = 50, -- 50 monet
+		Icon = "✏️",
+		Items = {
+			{ Id = "Skin_Linijka", Name = "Drewniana Linijka", Type = "Knife", Rarity = "Common", Color = Color3.fromRGB(180, 140, 90), Weight = 50 },
+			{ Id = "Skin_DziennikZielony", Name = "Dziennik Przyrodniczy", Type = "Gun", Rarity = "Common", Color = Color3.fromRGB(34, 139, 34), Weight = 50 },
+			{ Id = "Skin_Ekierka", Name = "Aluminiowa Ekierka", Type = "Knife", Rarity = "Rare", Color = Color3.fromRGB(160, 170, 190), Weight = 30 },
+			{ Id = "Skin_DziennikZloty", Name = "Złoty Dziennik Laureata", Type = "Gun", Rarity = "Epic", Color = Color3.fromRGB(255, 215, 0), Weight = 15 },
+			{ Id = "Skin_CyrkielLaserowy", Name = "Laserowy Cyrkiel Zabójcy", Type = "Knife", Rarity = "Legendary", Color = Color3.fromRGB(255, 40, 160), Weight = 4 },
+			{ Id = "Skin_DziennikOgnisty", Name = "Płonący Dziennik Dyrekcji", Type = "Gun", Rarity = "Godly", Color = Color3.fromRGB(255, 80, 0), Weight = 1 },
+		},
 	},
 }
 
@@ -98,6 +217,7 @@ GameConfig.SoundIds = {
 	CoinPickup = "rbxassetid://9114225010", -- Dźwięk podniesienia monety
 	VentWhoosh = "rbxassetid://9114225890", -- Skrzypnięcie kratki wentylacyjnej
 	Blackout = "rbxassetid://9114226340", -- Wyłączenie korków / trzask bezpiecznika
+	UnboxChime = "rbxassetid://9114227555", -- Dźwięk otwarcia skrzynki MM2
 }
 
 -- Nazwy RemoteEvents
@@ -110,7 +230,6 @@ GameConfig.RemoteEvents = {
 	RoleAssigned = "RoleAssigned",
 	GameStateChanged = "GameStateChanged",
 	ReportBody = "ReportBody",
-	-- Nowe mechaniki MM2 + Among Us:
 	TriggerSabotage = "TriggerSabotage",
 	SabotageActive = "SabotageActive",
 	SabotageFixed = "SabotageFixed",
@@ -120,6 +239,15 @@ GameConfig.RemoteEvents = {
 	CollectCoin = "CollectCoin",
 	UpdateCoins = "UpdateCoins",
 	OpenTaskGui = "OpenTaskGui",
+	-- Nowe zdarzenia Sklepu i Monetyzacji:
+	OpenShop = "OpenShop",
+	BuyCrate = "BuyCrate",
+	CrateOpened = "CrateOpened",
+	BuyUpgrade = "BuyUpgrade",
+	EquipSkin = "EquipSkin",
+	PromptGamePass = "PromptGamePass",
+	PromptDevProduct = "PromptDevProduct",
+	SyncPlayerData = "SyncPlayerData",
 }
 
 return GameConfig

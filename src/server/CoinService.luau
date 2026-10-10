@@ -11,6 +11,8 @@ local TweenService = game:GetService("TweenService")
 
 local GameConfig = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("GameConfig"))
 local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
+local MonetizationService = require(script.Parent:WaitForChild("MonetizationService"))
+local ProfileDataService = require(script.Parent:WaitForChild("ProfileDataService"))
 
 local CoinService = {}
 local activeCoins: { BasePart } = {}
@@ -70,10 +72,22 @@ local function spawnSingleCoin(pos: Vector3)
 		if player and player:GetAttribute("IsAlive") == true then
 			debounce = true
 
+			local hasBigBag = MonetizationService.hasGamepass(player, "BigCoinBag") or MonetizationService.hasGamepass(player, "VIP")
+			local maxCap = if hasBigBag then GameConfig.Coins.VIPBagCapacity else GameConfig.Coins.MaxBagCapacity
+			local isVIP = MonetizationService.hasGamepass(player, "VIP")
+			local coinVal = if isVIP then GameConfig.Coins.CoinValue * 2 else GameConfig.Coins.CoinValue
+
 			local current = playerCoins[player] or 0
-			if current < GameConfig.Coins.MaxBagCapacity then
-				current += GameConfig.Coins.CoinValue
+			if current < maxCap then
+				current = math.min(maxCap, current + coinVal)
 				playerCoins[player] = current
+
+				-- Zapis do profilu i statystyk
+				local data = ProfileDataService.getData(player)
+				data.Coins += coinVal
+				local stats = player:FindFirstChild("leaderstats")
+				local cVal = stats and stats:FindFirstChild("Monety") :: IntValue?
+				if cVal then cVal.Value = data.Coins end
 
 				-- Powiadomienie klienta o stanie monet
 				local updateRemote = Remotes.get(GameConfig.RemoteEvents.UpdateCoins)
