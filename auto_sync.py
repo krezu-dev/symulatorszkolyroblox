@@ -80,9 +80,14 @@ def check_and_pull():
                     log(f"   ↳ {line}", YELLOW)
             log(f"🔄 Rojo natychmiast zaktualizowało Roblox Studio!", CYAN)
 
-    # 3. Sprawdź gałąź partnera (drugiego agenta) i wykonaj bezpieczny auto-merge
-    sibling_branch = "agent-antigravity" if current_branch == "agent-gabriel" else ("agent-gabriel" if current_branch == "agent-antigravity" else None)
-    if sibling_branch:
+    # 3. Sprawdź gałęzie partnera (drugiego agenta: agent-claude lub agent-antigravity) i wykonaj bezpieczny auto-merge
+    sibling_branches = []
+    if current_branch == "agent-gabriel":
+        sibling_branches = ["agent-claude", "agent-antigravity"]
+    elif current_branch in ("agent-claude", "agent-antigravity"):
+        sibling_branches = ["agent-gabriel"]
+
+    for sibling_branch in sibling_branches:
         code, count_out, _ = run_git(["rev-list", f"HEAD..origin/{sibling_branch}", "--count"])
         if code == 0 and count_out.isdigit() and int(count_out) > 0:
             log(f"Wykryto {count_out} nowych zmian z gałęzi partnera ('{sibling_branch}')! Scalanie...", CYAN)

@@ -12,6 +12,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
 local GameConfig = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("GameConfig"))
+local GunDropService = require(script.Parent:WaitForChild("GunDropService"))
 
 local WeaponsService = {}
 local eliminationCallback: ((Player, Player?, string?) -> ())?
@@ -102,8 +103,9 @@ function WeaponsService.createDyrektorDziennik(): Tool
 						eliminationCallback(hitPlayer, player, "Trafiony Dziennikiem Dyrektora")
 					end
 				else
-					-- Błąd: Dyrektor trafił niewinnego! Dyrektor sam odpada
+					-- Błąd: Dyrektor trafił niewinnego! Dyrektor sam odpada i upuszcza Dziennik
 					print(`[Dyrektor] {player.Name} trafił niewinnego {hitPlayer.Name}! Dyrektor sam odpada!`)
+					GunDropService.dropDziennik(rootPart.Position)
 					if eliminationCallback then
 						eliminationCallback(player, nil, GameConfig.SummaryTexts.DyrektorMiss)
 					end
@@ -222,5 +224,8 @@ function WeaponsService.createStudentSmartphone(): Tool
 
 	return tool
 end
+
+-- Połączenie z GunDropService
+GunDropService.setCreateToolFunction(WeaponsService.createDyrektorDziennik)
 
 return WeaponsService

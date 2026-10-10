@@ -1,136 +1,92 @@
 # 📡 HUB KOMUNIKACJI MIĘDZY AGENTAMI AI (AGENT_COMMUNICATION.md)
 
-Projekt: **"Szkolny Detektyw" / "Symulator Szkoły: Kto zepsuł lekcję?"**  
-Gatunek: Asymetryczna gra deduction (Murder Mystery + Among Us w realiach polskiej szkoły Tysiąclatki).
+Projekt: **"Szkolny Detektyw"** (Murder Mystery 2 + Among Us w realiach polskiej szkoły Tysiąclatki).  
+Repozytorium: `https://github.com/krezu-dev/symulatorszkolyroblox.git`
 
 ---
 
-## 👥 NOWY ŚCISŁY PODZIAŁ PRAC (ROLE AGENTÓW)
+## 👥 AKTUALNY PODZIAŁ RÓL I ZADAŃ
 
-### 🎨 🔵 AGENT GABRIEL (`agent-gabriel` – 3D Modeling, Blender & Architektura Świata):
-- [x] **Blender 3D Asset Pipeline (`tools/run_blender.py`, `tools/generate_school_assets.py`)**:
-  - Automatyczny generator headless w Blenderze 5.2.2.
-  - Wygenerowano 14 profesjonalnych modeli FBX i OBJ w `assets/models/`:
-    1. `wielki_dzwon` (z animacją kołysania)
-    2. `szkolny_dziennik` (z animacją rotacji pocisku w locie)
-    3. `szkolna_lawka` (klasyczna z zielonym stelażem)
-    4. `szkolne_krzeslo` (krzesełko ze sklejki)
-    5. `szafka_szkolna` (rząd szafek korytarzowych)
-    6. `talerz_pierogi` (szkolny obiad z pierogami i okrasą)
-    7. `szkolny_plecak` (plecak ofiary - dowód w grze)
-    8. `kajdanki_policja` (metalowe kajdanki policyjne)
-    9. `czapka_policyjna` (czapka posterunkowego z orzełkiem)
-    10. `automat_przekaski` (automat z wafelkami Prince Polo i napojami)
-    11. `komputer_crt` (monitor kineskopowy z pracowni informatycznej)
-    12. `kaloryfer_szkolny` (żeliwny kaloryfer żeberkowy)
-    13. `stojak_chemia` (stojak z probówkami laboratoryjnymi)
-    14. `bramka_boisko` (bramka na boisku szkolnym Orlik)
-- [x] **Wielka Szkoła Podstawowa Tysiąclatka (`src/server/SchoolMapGenerator.luau`)**:
-  - **Plac Apelowy / Lobby Zewnętrzne**: Maszt z flagą Polski, ławki, wielka tablica wejściowa, spawn początkowy.
-  - **Parter**:
-    - Główny korytarz (210 studów) z zieloną lamperią olejną, szafkami i automatami.
-    - Wielka Stołówka (80x80) z ladą wydawania obiadów, pierogami i ołtarzem z Wielkim Złotym Dzwonem.
-    - Pełnowymiarowa Sala Gimnastyczna (90x90, h=26) z parkietem, koszami i drabinkami.
-    - Kanciapa Woźnej z regałami Ludwika i plamą do zmycia.
-  - **I Piętro (dwubiegowe schody)**:
-    - Gabinet Dyrektora z mahoniowym biurkiem i słynnym czerwonym dywanikiem.
-    - Pracownia Matematyczna (Sala 201) z tablicą i ławkami.
-    - Pracownia Języka Polskiego (Sala 202) z lekturami i portretem Mickiewicza.
-    - Pracownia Informatyczna (Sala 203) ze stanowiskami komputerów CRT.
+### 🔵 AGENT GABRIEL (`agent-gabriel` – Host / Architektura Skryptów i Mechaniki Gry):
+- [x] **Projekt i Dokumentacja Game Design (`GAME_DESIGN_PLAN.md`)**:
+  - Szczegółowe porównanie mechanik MM2 vs Among Us vs Szkolny Detektyw.
+  - Projekt pętli gry, ról, sabotaży, upuszczania broni i wentylacji.
+- [x] **Mechanika MM2 Gun-Drop (`src/server/GunDropService.luau`)**:
+  - Po śmierci Dyrektora lub chybieniu w niewinnego Szkolny Dziennik upada na ziemię ze złocistym Highlightem.
+  - Każdy niewinny gracz może go podnieść i zostać Zastępcą Dyrektora.
+- [x] **Mechanika Among Us Vents (`src/server/VentService.luau`)**:
+  - 6 kratek wentylacyjnych w kluczowych zakamarkach szkoły (Kanciapa, Magazynek WF, Zaplecze Chemii, Toalety, Schowek pod schodami, Zmywak).
+  - Skakanie z dźwiękiem i cooldownem dostępne wyłącznie dla Rozrabiaki.
+- [x] **Mechanika Sabotaży (`src/server/SabotageService.luau`)**:
+  - "Awaria Korków": wygaszenie świateł w szkole, mgła, skrzynka bezpiecznikowa w Kanciapie Woźnej.
+  - "Zablokowanie Drzwi": blokada sal lekcyjnych na 15 sekund.
+- [x] **Mechanika Monet MM2 (`src/server/CoinService.luau`)**:
+  - Dynamiczny spawn monet 5 zł na korytarzach, w klasach i pod ławkami.
+  - Limit sakwy monet, odgłos podnoszenia, licznik w HUD.
+- [x] **Pętla Gry i Stan Maszyny (`src/server/RoundManager.luau`)**:
+  - Obsługa Lobby, InGame, Meeting, GameOver, zadań (0-100%) i warunków wygranej.
+- [x] **Rozbudowany Interfejs Klienta (`src/client/init.client.luau`)**:
+  - Pasek zadań, licznik monet, karta roli, menu sabotaży dla Rozrabiaki, ekran zebrania i czarny ekran werdyktu.
+- [x] **Synchronizatory Git (`auto_sync.py`, `ai_agent_client.py`)**:
+  - Pełne wsparcie dla gałęzi `agent-claude`.
 
 ---
 
-### 💻 🟣 AGENT ANTIGRAVITY (`agent-antigravity` – Skrypty, Logika Gry, SFX, VFX, Animacje & GUI):
-- [ ] **Skrypty i Logika Gry**:
-  - Obsługa zadań i interakcji minigier (`OpenTaskGui`).
-  - Logika zgłaszania ciał smartfonem i uderzania w Wielki Dzwon.
-  - Licznik postępu zadań (0-100%) i warunki wygranej.
-- [ ] **VFX i Efekty Cząsteczkowe**:
-  - Bąbelki mydlane i piana przy myciu podłogi mopem przez Woźną.
-  - Efekt komiksowego pyłu i uderzenia przy rzucie Dziennikiem Dyrektora.
-  - Błysk i fala uderzeniowa przy uderzeniu w Wielki Dzwon.
-  - Efekt rozbłysków kogutów policyjnych (niebiesko-czerwone światła).
-- [ ] **SFX i Udźwiękowienie**:
-  - **Smutne przerysowane pianino** na czarnym ekranie (wyrzucenie niewinnego).
-  - **Radosny dzwonek na przerwę** (złapanie Rozrabiaki).
-  - Syrena radiowozu przy wbieganiu Klockowych Policjantów.
-  - Dźwięki zjadania pierogów (chrupanie/mlaskanie), pisania kredą po tablicy, otwierania szafek.
-- [ ] **Animacje Postaci i Rekwizytów**:
-  - Animacja rzutu Dziennikiem przez Dyrektora.
+### 🟣 AGENT CLAUDE (`agent-claude` – Zdalny / Świat 3D, Detale Zakamarków, VFX, SFX, Animacje & Stylizacja UI):
+- [ ] **Rozbudowa i Dekoracja 3D Szkoły**:
+  - Dalsze ubogacanie wielkiej mapy szkoły o rekwizyty z `assets/models/` (szafki, ławki, automaty, kaloryfery, komputery CRT).
+  - Dodanie klimatycznych zakamarków (ukryte pomieszczenia, magazynki, schowki na szczotki, antresole).
+  - Oznaczenia na ścianach: uniwersalne tabliczki ("GABINET DYREKTORA", "STOŁÓWKA", "SALA GIMNASTYCZNA", "SZATNIA", "WYJŚCIE EWAKUACYJNE").
+- [ ] **Efekty Cząsteczkowe (VFX)**:
+  - Cząsteczki bąbelków i mydlin przy zmywaniu podłogi mopem przez Woźną.
+  - Komiksowy pył i gwiazdki przy uderzeniu Dziennikiem rzuconym przez Dyrektora.
+  - Niebiesko-czerwone światła kogutów policyjnych przy aresztowaniu.
+  - Iskry i dym ze skrzynki bezpiecznikowej podczas Awarii Korków.
+- [ ] **Udźwiękowienie (SFX)**:
+  - Podpięcie dźwięków pod akcje: smutne przerysowane pianino przy wyrzuceniu niewinnego, dzwonek szkolny przy złapaniu Rozrabiaki, syrena policyjna.
+- [ ] **Animacje Postaci**:
+  - Płynny rzut Dziennikiem przez Dyrektora.
   - Animacja ataku plastikowym nożem Rozrabiaki.
-  - Animacja wbiegania policjantów i nakładania kajdanek.
-  - Animacja kołysania dzwonu.
-- [ ] **Kompletny Interfejs (GUI)**:
-  - Minigra Matematyka (okno z przyciskami 2+2=?).
-  - Minigra Język Polski (dyktando z wpisywaniem słowa na klawiaturze).
-  - Minigra Stołówka (klikanie pierogów 5 razy).
-  - Minigra Szafka (przeciąganie podręczników).
-  - Interfejs Zebrania w Stołówce (głosowanie, lista graczy, timer 60s, przycisk Pomiń).
-  - **Viralowy Czarny Ekran Podsumowania**: pełne wygaszenie ekranu z memicznym tekstem i muzyką.
+  - Animacja zmywania podłogi mopem.
+  - Komiczna animacja klockowych policjantów nakładających kajdanki.
+- [ ] **Dopracowanie Stylu Graficznego UI**:
+  - Stylizacja ramek zebrania (np. drewniana teczka dyrektora / tablica korkowa).
+  - Minigry zadań szkolnych (kartka z zeszytu w kratkę do zadań z matematyki, talerz z pierogami).
 
 ---
 
-## 🔄 PEŁNY PLAN ROZGRYWKI OD POCZĄTKU DO KOŃCA (GAME LOOP)
+## 🚀 SZYBKI START DLA AGENTA CLAUDE
 
-1. **FAZA 1: LOBBY (Przerwa na Placu Apelowym)**:
-   - Gracze spawnują się na Placu Apelowym przed szkołą.
-   - Mogą eksplorować dziedziniec, biegać wokół masztu, oglądać tablicę.
-   - Timer odlicza 15 sekund: *"Dzwonek na lekcję za: X s"*.
+Kolega uruchamiający Agenta Claude wykonuje na swoim komputerze:
 
-2. **FAZA 2: DZWONEK I ROZDANIE RÓL ("DZWONEK NA LEKCJĘ")**:
-   - Rozlega się głośny dzwonek szkolny.
-   - Ekran na 2 sekundy wyświetla rolę gracza z polskim opisem:
-     - **Dyrektor**: *"Patroluj szkołę! Masz Dziennik Ocen, rzuć w Rozrabiakę!"*
-     - **Woźna**: *"Zmywaj rozlane plamy i pomagaj uczniom!"*
-     - **Rozrabiaka**: *"Eliminuj po cichu uczniów plastikowym nożem, nie daj się złapać Dyrektorowi!"*
-     - **Uczeń**: *"Wykonuj zadania w salach lekcyjnych, by zapełnić pasek w 100%!"*
-   - Wszyscy gracze teleportują się na parter szkoły.
+```bash
+# 1. Klonowanie repozytorium (jeśli jeszcze nie sklonowano)
+git clone https://github.com/krezu-dev/symulatorszkolyroblox.git
+cd symulatorszkolyroblox
 
-3. **FAZA 3: ROZGRYWKA W WIELKIEJ SZKOLE (4.5 min)**:
-   - Uczniowie biegają po parterze i I piętrze, robiąc zadania:
-     - Sala 201: Rozwiązują równanie na tablicy.
-     - Sala 202: Piszą dyktando.
-     - Korytarz: Układają książki w szafkach.
-     - Stołówka: Jedzą pierogi.
-     - Kanciapa: Woźna zmywa rozlaną zupę.
-   - Rozrabiaka poluje w zakamarkach (np. szatnie, sala gimnastyczna, toalety).
-   - Wyeliminowany gracz upuszcza plecak i staje się przezroczystym duchem.
+# 2. Przełączenie na gałąź agent-claude
+python3 ai_agent_client.py switch agent-claude
 
-4. **FAZA 4: ALARM SZKOLNY I ZEBRANIE W STOŁÓWCE**:
-   - Aktywacja: Ktoś uderzy w **Wielki Złoty Dzwon** w stołówce LUB zgłosi plecak ofiary.
-   - Wszyscy żyjący są teleportowani do stołówki wokół ołtarza dzwonu.
-   - 60 sekund na czat i głosowanie w interfejsie.
-   - Gracz z największą liczbą głosów zostaje wyłoniony.
+# 3. Pobranie najnowszego kodu od Gabriela
+python3 ai_agent_client.py sync
 
-5. **FAZA 5: AREWSZTOWANIE I CZARNY EKRAN (VIRAL MOMENT)**:
-   - Wbiegają Klockowi Policjanci, rozlega się syrena, gracz dostaje kajdanki.
-   - Ekran gaśnie do czerni:
-     - Niewinny: Smutne pianino + *"Kamil był Niewinnym Uczniem. Woźna płacze w kącie."*
-     - Rozrabiaka: Radosny dzwonek + *"Sukces! Igor był Rozrabiaką!"*
-
-6. **FAZA 6: KONIEC RUNDY I WYPŁATA OCEN**:
-   - Ekran zwycięstwa (Uczniowie vs Rozrabiacy).
-   - Przyznanie Szkolnych Monet, powrót na Plac Apelowy do Lobby.
+# 4. Po wykonaniu prac nad mapą / VFX / SFX:
+python3 ai_agent_client.py push "Opis zrobionych modeli / efektów"
+```
 
 ---
 
-## 💬 DZIENNIK AGENTÓW (LIVE NOTES)
+## 💬 DZIENNIK ZMIAN (LIVE NOTES)
 
-### [2026-10-10 17:40] - Agent Gabriel
-- **Zrobione (Full 3D & World Architecture)**:
-  - Zbudowano całą wielką 2-piętrową szkołę "Tysiąclatka" w `src/server/SchoolMapGenerator.luau`:
-    - Plac Apelowy / Lobby z masztem i flagą
-    - Korytarz parteru (210 studów) z szafkami i automatami
-    - Stołówka 80x80 z ladą kuchenną i Wielkim Złotym Dzwonem
-    - Sala Gimnastyczna 90x90 z koszami i drabinkami
-    - Schody dwubiegowe na I piętro
-    - Gabinet Dyrektora z mahoniowym biurkiem i dywanikiem
-    - Sale 201 (Matematyka), 202 (Polski), 203 (Informatyka)
-  - Zaktualizowano generator Blendera `tools/generate_school_assets.py` do 14 modeli FBX/OBJ w `assets/models/`.
-- **Dla Agenta Antigravity**:
-  - Masz teraz pełną kontrolę nad:
-    1. Interfejsami (minigry zadań w salach, ekran głosowania, czarny ekran).
-    2. Dźwiękami (SFX) i muzyką (smutne pianino, dzwonek, syrena).
-    3. Efektami cząsteczkowymi (VFX).
-    4. Animacjami postaci.
-  - Wszystkie punkty zadań mają już w świecie gotowe `ProximityPrompt`y podpięte pod event `OpenTaskGui(taskId)`!
+### [2026-10-10 17:50] - Agent Gabriel
+- Wdrożono pełną fuzję mechanik Murder Mystery 2 i Among Us:
+  - Dodano `GAME_DESIGN_PLAN.md` z pełnym projektem gry i analizą porównawczą.
+  - Dodano `GunDropService.luau` (upuszczanie Dziennika przez Dyrektora i awans ucznia na Zastępcę Dyrektora).
+  - Dodano `VentService.luau` (kratki wentylacyjne w 6 zakamarkach szkoły dla Rozrabiaki).
+  - Dodano `SabotageService.luau` (Awaria Korków z ciemnością i naprawą w kanciapie, blokada drzwi sal).
+  - Dodano `CoinService.luau` (złote monety 5 zł na korytarzach i ławkach).
+  - Zbudowano responsywny HUD i GUI klienta w `src/client/init.client.luau`.
+  - Zaktualizowano `auto_sync.py` i `ai_agent_client.py` pod gałąź `agent-claude`.
+- **Dla Agenta Claude**:
+  - Cała logika gry, skrypty, networking i architektura są gotowe, modularne i przetestowane.
+  - Możesz w pełni skupić się na warstwie wizualnej, mapie, zakamarkach, VFX, SFX i animacjach!

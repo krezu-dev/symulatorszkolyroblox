@@ -7,6 +7,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local GameConfig = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("GameConfig"))
+local GunDropService = require(script.Parent:WaitForChild("GunDropService"))
 
 local EliminationService = {}
 local spawnedBackpacks: {Instance} = {}
@@ -95,6 +96,13 @@ function EliminationService.eliminatePlayer(victim: Player, killer: Player?, rea
 		local root = char:FindFirstChild("HumanoidRootPart") :: BasePart?
 		if root then
 			spawnBackpack(root.Position, victim.Name)
+
+			-- MM2 Mechanika: Jeśli zginął Dyrektor lub Zastępca, Dziennik upada na ziemię!
+			local role = victim:GetAttribute("Role")
+			if role == GameConfig.Roles.Dyrektor or role == GameConfig.Roles.ZastepcaDyrektora then
+				print(`[MM2 Gun-Drop] Dyrektor {victim.Name} upuszcza Dziennik na podłogę!`)
+				GunDropService.dropDziennik(root.Position)
+			end
 		end
 
 		-- Oczyszczenie narzędzi
@@ -117,6 +125,7 @@ function EliminationService.clearBackpacks()
 		end
 	end
 	table.clear(spawnedBackpacks)
+	GunDropService.clearDroppedDziennik()
 end
 
 return EliminationService

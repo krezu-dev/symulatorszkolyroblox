@@ -59,10 +59,14 @@ class RobloxProjectManager:
             print(f"[AI CLIENT] Błąd podczas synchronizacji własnego brancha: {err}")
             return False
 
-        # 3. Scalenie zmian z brancha partnera
-        sibling = "agent-antigravity" if current_b == "agent-gabriel" else ("agent-gabriel" if current_b == "agent-antigravity" else None)
-        if sibling:
-            print(f"[AI CLIENT] Sprawdzanie zmian od partnera ('{sibling}')...")
+        # 3. Scalenie zmian z branchy partnera (agent-claude lub agent-antigravity)
+        siblings = []
+        if current_b == "agent-gabriel":
+            siblings = ["agent-claude", "agent-antigravity"]
+        elif current_b in ("agent-claude", "agent-antigravity"):
+            siblings = ["agent-gabriel"]
+
+        for sibling in siblings:
             code, count, _ = self._run_git(["rev-list", f"HEAD..origin/{sibling}", "--count"])
             if code == 0 and count.isdigit() and int(count) > 0:
                 print(f"[AI CLIENT] Scalanie {count} commitów z brancha '{sibling}'...")

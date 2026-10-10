@@ -13,6 +13,9 @@ local EliminationService = require(script.Parent:WaitForChild("EliminationServic
 local MeetingService = require(script.Parent:WaitForChild("MeetingService"))
 local WeaponsService = require(script.Parent:WaitForChild("WeaponsService"))
 local SchoolMapGenerator = require(script.Parent:WaitForChild("SchoolMapGenerator"))
+local VentService = require(script.Parent:WaitForChild("VentService"))
+local SabotageService = require(script.Parent:WaitForChild("SabotageService"))
+local CoinService = require(script.Parent:WaitForChild("CoinService"))
 
 local RoundManager = {}
 
@@ -91,6 +94,8 @@ local function endRound(winnerMessage: string)
 	setState(GameConfig.GameStates.GameOver)
 	print(`[Gra] Koniec rundy: {winnerMessage}`)
 
+	CoinService.stopSpawning()
+	SabotageService.cleanup()
 	EliminationService.clearBackpacks()
 	RolesService.cleanupRoles(Players:GetPlayers())
 
@@ -151,6 +156,7 @@ function RoundManager.startLobby()
 	taskProgress = 0
 	completedTasksCount = 0
 	Remotes.get(GameConfig.RemoteEvents.UpdateTaskProgress):FireAllClients(0)
+	CoinService.resetPlayerCoins()
 
 	teleportPlayers(lobbySpawn, false)
 
@@ -184,6 +190,9 @@ function RoundManager.startRound()
 	-- Losowanie ról
 	RolesService.assignRoles(activePlayers)
 
+	-- Spawnowanie monet na korytarzach (MM2)
+	CoinService.startSpawning()
+
 	-- Teleportacja do szkoły
 	teleportPlayers(schoolSpawn, true)
 
@@ -207,6 +216,12 @@ function RoundManager.init()
 	cafeteriaSpawn = cSpawn
 	lobbySpawn = lSpawn
 	MeetingService.setCafeteriaPosition(cSpawn)
+
+	-- Inicjalizacja kratek wentylacyjnych w zakamarkach (Among Us)
+	VentService.setupVents()
+
+	-- Inicjalizacja systemu sabotaży (Among Us)
+	SabotageService.init()
 
 	WeaponsService.setEliminationCallback(onPlayerEliminated)
 	EliminationService.setMeetingCallback(function(reporter, reason)
