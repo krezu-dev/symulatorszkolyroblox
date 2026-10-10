@@ -103,6 +103,11 @@ function SchoolMapGenerator.setupMap(onBellRing: (Player) -> ()): (Vector3, Vect
 		end
 	end
 
+	-- fix(agent-claude): ceilingLight było wywoływane w kroku 6/8, ale nigdy nie zdefiniowane -> crash mapy
+	local function ceilingLight(pos: Vector3)
+		light(pos, 40, 1.4)
+	end
+
 	-- Ściana z wyciętym przejściem drzwiowym (brak zablokowanych przejść!)
 	local function wallWithDoor(name: string, totalWidth: number, height: number, cf: CFrame, doorOffset: number, color: Color3, mat: Enum.Material?)
 		local wallModel = Instance.new("Model")

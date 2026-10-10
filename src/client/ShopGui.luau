@@ -187,6 +187,30 @@ local function renderCratesTab(parent: Frame)
 		desc.TextXAlignment = Enum.TextXAlignment.Left
 		desc.Parent = crateCard
 
+		-- fix(agent-claude): Roblox wymaga ujawnienia szans w płatnych losowaniach (monety da się kupić za Robux)
+		local totalWeight = 0
+		for _, item in ipairs(crate.Items) do
+			totalWeight += item.Weight
+		end
+		local oddsParts = {}
+		for _, item in ipairs(crate.Items) do
+			local pct = if totalWeight > 0 then item.Weight / totalWeight * 100 else 0
+			table.insert(oddsParts, `{item.Name}: {string.format("%.1f", pct)}%`)
+		end
+		local odds = Instance.new("TextLabel")
+		odds.Name = "Szanse"
+		odds.Size = UDim2.new(0.55, 0, 0, 38)
+		odds.Position = UDim2.new(0, 105, 0, 88)
+		odds.BackgroundTransparency = 1
+		odds.Text = "🎲 Szanse: " .. table.concat(oddsParts, " • ")
+		odds.TextColor3 = Color3.fromRGB(255, 220, 120)
+		odds.Font = Enum.Font.Gotham
+		odds.TextSize = 10
+		odds.TextWrapped = true
+		odds.TextXAlignment = Enum.TextXAlignment.Left
+		odds.TextYAlignment = Enum.TextYAlignment.Top
+		odds.Parent = crateCard
+
 		local buyBtn = Instance.new("TextButton")
 		buyBtn.Size = UDim2.new(0, 150, 0, 42)
 		buyBtn.Position = UDim2.new(1, -165, 0.5, -21)

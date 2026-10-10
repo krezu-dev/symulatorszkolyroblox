@@ -136,3 +136,7 @@ której wszyscy nie przestrzegają. Do tego nowe memy z listy poniżej, podpięt
 
 ## 🛠️ Naprawione błędy Agenta Gabriela (log)
 _(uzupełniane na bieżąco)_
+
+- **0.1 `SchoolMapGenerator.luau`**: dodana brakująca funkcja `ceilingLight`, więc mapa buduje się już dalej niż krok 6/8.
+- **0.2 `MonetizationService.luau:94`**: fałszywy alarm analizatora typów, nic nie psuje. **Za to:** ID produktów w `GameConfig.DevProducts` (2938471–2938473) są zmyślone. Właściciel musi utworzyć prawdziwe Developer Products w Creator Hub i wpisać ich ID.
+- **0.5 `ShopGui.luau`**: przy każdej skrzynce są teraz pokazane szanse w % (liczone z `Weight`).
