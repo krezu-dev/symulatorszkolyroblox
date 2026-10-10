@@ -1,6 +1,18 @@
-# Instrukcje dla Agenta AI (Roblox + Rojo)
+# Instrukcje dla Agentów AI (Multi-Agent Roblox + Rojo)
 
-Ten dokument zawiera specyfikację techniczną projektu dla Agenta AI edytującego grę Roblox z zewnętrznej maszyny.
+Ten dokument zawiera specyfikację techniczną projektu dla Agentów AI współpracujących nad tą samą grą Roblox na różnych komputerach.
+
+---
+
+## 🔀 Przydział gałęzi (Branches)
+
+Projekt został podzielony na dwie niezależne gałęzie robocze:
+
+1. **`agent-gabriel`** &rarr; Gałąź dla Agenta AI Gabriela (Host / komputer główny)
+2. **`agent-antigravity`** &rarr; Gałąź dla Agenta AI Kolegi (Zdalny komputer)
+3. **`main`** &rarr; Główna gałąź stabilna
+
+Dzięki temu agenci nigdy nie nadpisują sobie kodu ani nie blokują się nawzajem. Każdy agent commituje i pushuje na swój dedykowany branch!
 
 ---
 
@@ -20,45 +32,40 @@ Kod gry znajduje się w katalogu `src/` i jest automatycznie mapowany przez Rojo
 
 Rojo rozpoznaje przeznaczenie pliku na podstawie rozszerzenia:
 
-- `*.server.luau` (lub `.server.lua`) -> **Script** (wykonywany wyłącznie przez serwer).
-- `*.client.luau` (lub `.client.lua`) -> **LocalScript** (wykonywany wyłącznie przez klienta).
-- `*.luau` (lub `.lua`) -> **ModuleScript** (moduł zwracający tabelę / funkcję).
-- `init.server.luau` / `init.client.luau` / `init.luau` -> zamienia cały folder w dany typ skryptu, a pliki wewnątrz folderu stają się jego dziećmi (child instances).
+- `*.server.luau` &rarr; **Script** (wykonywany wyłącznie przez serwer).
+- `*.client.luau` &rarr; **LocalScript** (wykonywany wyłącznie przez klienta).
+- `*.luau` &rarr; **ModuleScript** (moduł zwracający tabelę / klasę / funkcję).
+- `init.server.luau` / `init.client.luau` / `init.luau` &rarr; zamienia cały folder w dany typ skryptu.
 
 ---
 
 ## 3. Workflow pracy Agenta AI
 
-Zanim przystąpisz do pisania kodu, wykonaj:
-
+### Dla Agenta Kolegi (`agent-antigravity`):
+Po sklonowaniu repozytorium przełącz się na swój branch:
 ```bash
-# 1. Pobierz najnowszy stan projektu
-python3 ai_agent_client.py sync
-# lub tradycyjnie: git pull --rebase
+python3 ai_agent_client.py switch agent-antigravity
 ```
 
-Następnie:
-1. Zmodyfikuj lub utwórz odpowiednie skrypty w `src/server`, `src/client` lub `src/shared`.
-2. Stosuj `--!strict` na początku plików Luau.
-3. Gdy skończysz edycję, wyślij zmiany na GitHub:
+### Codzienna praca:
+1. **Pobierz najnowszy stan (swój i partnera):**
+   ```bash
+   python3 ai_agent_client.py sync
+   ```
+   *(Pobiera Twoje commity oraz automatycznie scala najnowszy kod partnera)*.
 
-```bash
-# 2. Wyślij zmiany
-python3 ai_agent_client.py push "Opis wprowadzonych modyfikacji"
-# lub:
-# git add src/
-# git commit -m "AI: Opis zmian"
-# git pull --rebase
-# git push
-```
+2. **Pisz kod w folderze `src/`** (np. `src/server/` lub `src/shared/`).
 
-Gdy zmiany trafią na GitHub, serwer hostujący Roblox Studio automatycznie pobierze je i zaktualizuje grę w czasie rzeczywistym.
+3. **Wyślij zmiany na swój branch:**
+   ```bash
+   python3 ai_agent_client.py push "Dodano system zadań i questów"
+   ```
 
 ---
 
 ## 4. Dobre praktyki Luau / Roblox
 
-1. **Komunikacja Klient <-> Serwer**: Używaj `RemoteEvent` lub `RemoteFunction` umieszczonych w `ReplicatedStorage`.
+1. **Komunikacja Klient <-> Serwer**: Używaj `RemoteEvent` lub `RemoteFunction` w `ReplicatedStorage`.
 2. **Pobieranie serwisów**: Zawsze używaj `game:GetService("NazwaSerwisu")`.
 3. **Pobieranie modułów współdzielonych**:
    ```luau
@@ -66,4 +73,4 @@ Gdy zmiany trafią na GitHub, serwer hostujący Roblox Studio automatycznie pobi
    local Shared = ReplicatedStorage:WaitForChild("Shared")
    local MyModule = require(Shared:WaitForChild("MyModule"))
    ```
-4. **Zapobieganie wyciekom pamięci**: Czyść połączenia zdarzeń (`connection:Disconnect()`), gdy obiekt przestaje istnieć.
+4. **Rozdzielność plików**: Aby uniknąć jakichkolwiek konfliktów merge, staraj się tworzyć nowe skrypty i moduły w dedykowanych plikach.

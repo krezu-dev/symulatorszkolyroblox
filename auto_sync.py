@@ -2,10 +2,10 @@
 """
 auto_sync.py
 Automatyczny synchronizator GitHub -> Roblox Studio przez Rojo.
-
-Działa na komputerze hostującym Roblox Studio:
-1. Pobiera na bieżąco zmiany przesyłane przez Agentów AI na GitHuba (git pull).
-2. Gdy pojawią się nowe zmiany, Rojo automatycznie aktualizuje grę w otwartym Roblox Studio.
+Obsługuje współpracę wieloagentową na osobnych branchach:
+- agent-gabriel
+- agent-antigravity
+- main
 """
 
 import os
@@ -46,41 +46,55 @@ def has_remote():
     code, out, _ = run_git(["remote"])
     return code == 0 and len(out) > 0
 
-def check_and_pull():
-    """Sprawdza czy są nowe commity na remote i robi pull."""
-    if not has_remote():
-        return False, "Brak skonfigurowanego 'origin'. Dodaj: git remote add origin <URL>"
+def get_current_branch():
+    code, out, _ = run_git(["rev-parse", "--abbrev-ref", "HEAD"])
+    return out if code == 0 else "main"
 
-    # 1. Fetch
-    code, _, err = run_git(["fetch", "origin"])
+def check_and_pull():
+    """Sprawdza czy są nowe commity na remote i robi pull/merge."""
+    if not has_remote():
+        return False, "Brak skonfigurowanego 'origin'."
+
+    # 1. Fetch wszystkich branchy
+    code, _, err = run_git(["fetch", "--all"])
     if code != 0:
         return False, f"Błąd fetch: {err}"
 
-    # 2. Porównaj lokalny branch ze zdalnym
+    current_branch = get_current_branch()
+
+    # 2. Porównaj lokalny branch ze zdalnym upstream
     code, local_head, _ = run_git(["rev-parse", "HEAD"])
     code2, remote_head, _ = run_git(["rev-parse", "@{u}"])
 
-    if code != 0 or code2 != 0:
-        # Może brakować upstream brancha
-        return False, "Brak ustawionego upstream (uruchom: git push -u origin main)"
+    if code == 0 and code2 == 0 and local_head != remote_head:
+        # Są nowe zmiany na bieżącym branchu
+        log(f"Wykryto nowe commity na branchu '{current_branch}'! Pobieranie...", CYAN)
+        code, out, err = run_git(["pull", "--rebase"])
+        if code != 0:
+            log(f"Błąd git pull ({current_branch}): {err}", RED)
+        else:
+            _, log_out, _ = run_git(["log", "--oneline", f"{local_head}..{remote_head}"])
+            log(f"✅ Zaktualizowano branch '{current_branch}' z GitHub!", GREEN + BOLD)
+            if log_out:
+                for line in log_out.splitlines():
+                    log(f"   ↳ {line}", YELLOW)
+            log(f"🔄 Rojo natychmiast zaktualizowało Roblox Studio!", CYAN)
 
-    if local_head == remote_head:
-        return False, None  # Brak nowych zmian
+    # 3. Sprawdź gałąź partnera (drugiego agenta) i wykonaj bezpieczny auto-merge
+    sibling_branch = "agent-antigravity" if current_branch == "agent-gabriel" else ("agent-gabriel" if current_branch == "agent-antigravity" else None)
+    if sibling_branch:
+        code, count_out, _ = run_git(["rev-list", f"HEAD..origin/{sibling_branch}", "--count"])
+        if code == 0 and count_out.isdigit() and int(count_out) > 0:
+            log(f"Wykryto {count_out} nowych zmian z gałęzi partnera ('{sibling_branch}')! Scalanie...", CYAN)
+            code, out, err = run_git(["merge", f"origin/{sibling_branch}", "--no-edit", "-m", f"Auto-merge zmian od {sibling_branch}"])
+            if code == 0:
+                log(f"✅ Pomyślnie zintegrowano zmiany od agenta '{sibling_branch}'!", GREEN + BOLD)
+                log(f"🔄 Rojo natychmiast zaaplikowało nowy kod kolegi w Roblox Studio!", CYAN)
+            else:
+                log(f"⚠️ Konflikt przy próbie scalenia z '{sibling_branch}': {err}", YELLOW)
+                # Anuluj nieudany merge, aby nie uszkodzić drzewa roboczego
+                run_git(["merge", "--abort"])
 
-    # 3. Są nowe zmiany! Wykonaj pull
-    log(f"Wykryto nowe commity od AI! Pobieranie...", CYAN)
-    code, out, err = run_git(["pull", "--rebase"])
-    if code != 0:
-        log(f"Błąd git pull: {err}. Spróbuj rozwiązać konflikt.", RED)
-        return False, err
-
-    # 4. Pokaż co się zmieniło
-    _, log_out, _ = run_git(["log", "--oneline", f"{local_head}..{remote_head}"])
-    log(f"✅ Zsynchronizowano pomyślnie z GitHub!", GREEN + BOLD)
-    if log_out:
-        for line in log_out.splitlines():
-            log(f"   ↳ {line}", YELLOW)
-    log(f"🔄 Rojo natychmiast zaktualizowało instancje w Roblox Studio!", CYAN)
     return True, None
 
 class WebhookHandler(BaseHTTPRequestHandler):
@@ -96,7 +110,6 @@ class WebhookHandler(BaseHTTPRequestHandler):
         self.wfile.write(b'{"status":"ok"}')
 
     def log_message(self, format, *args):
-        # Wycisz domyślne logi HTTP serwera
         return
 
 def start_webhook_server(port):
@@ -108,20 +121,21 @@ def main():
     parser = argparse.ArgumentParser(description="Synchronizator GitHub <-> Rojo dla Roblox Studio")
     parser.add_argument("--interval", type=int, default=3, help="Częstotliwość sprawdzania zmian (sekundy) [domyślnie: 3]")
     parser.add_argument("--port", type=int, default=8080, help="Port serwera webhooków [domyślnie: 8080]")
-    parser.add_argument("--no-webhook", action="store_true", help="Wyłącz serwer webhooków, używaj tylko pollera")
-    parser.add_argument("--no-poll", action="store_true", help="Wyłącz poller, polegaj wyłącznie na webhookach")
+    parser.add_argument("--no-webhook", action="store_true", help="Wyłącz serwer webhooków")
+    parser.add_argument("--no-poll", action="store_true", help="Wyłącz poller")
 
     args = parser.parse_args()
 
     print(f"{BOLD}===================================================={RESET}")
-    print(f"{BOLD}{GREEN}  Roblox + Rojo + GitHub Live AI Synchronizer{RESET}")
+    print(f"{BOLD}{GREEN}  Roblox + Rojo + Multi-Branch AI Synchronizer{RESET}")
     print(f"{BOLD}===================================================={RESET}")
-
-    if not has_remote():
-        log("UWAGA: Nie wykryto zdalnego repozytorium GitHub ('origin')!", YELLOW)
-        log("Aby połączyć z GitHubem, wykonaj:", YELLOW)
-        log("  git remote add origin https://github.com/<twoj-user>/<twoje-repo>.git", YELLOW)
-        log("  git push -u origin main\n", YELLOW)
+    cur_b = get_current_branch()
+    print(f"Aktywna gałąź robocza: {BOLD}{CYAN}{cur_b}{RESET}")
+    if cur_b == "agent-gabriel":
+        print(f"Partner AI: {BOLD}{YELLOW}agent-antigravity{RESET} (automatyczne scalanie aktywne)")
+    elif cur_b == "agent-antigravity":
+        print(f"Partner AI: {BOLD}{YELLOW}agent-gabriel{RESET} (automatyczne scalanie aktywne)")
+    print(f"----------------------------------------------------\n")
 
     if not args.no_webhook:
         t = threading.Thread(target=start_webhook_server, args=(args.port,), daemon=True)
@@ -129,14 +143,9 @@ def main():
 
     if not args.no_poll:
         log(f"Aktywny monitor GitHub (sprawdzanie co {args.interval}s)...", GREEN)
-        warned_remote = False
         while True:
             try:
-                if has_remote():
-                    check_and_pull()
-                elif not warned_remote:
-                    log("Oczekiwanie na skonfigurowanie repozytorium zdalnego (origin)...", YELLOW)
-                    warned_remote = True
+                check_and_pull()
                 time.sleep(args.interval)
             except KeyboardInterrupt:
                 log("Zatrzymano synchronizator.", YELLOW)
@@ -144,13 +153,6 @@ def main():
             except Exception as e:
                 log(f"Błąd pętli: {e}", RED)
                 time.sleep(args.interval)
-    else:
-        # Czekaj na sygnał zakończenia jeśli tylko webhook działa
-        try:
-            while True:
-                time.sleep(1)
-        except KeyboardInterrupt:
-            log("Zatrzymano synchronizator.", YELLOW)
 
 if __name__ == "__main__":
     main()
