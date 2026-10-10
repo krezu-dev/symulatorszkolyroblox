@@ -29,7 +29,7 @@ local Mat = Enum.Material
 local NowaSzkola = {}
 
 local WERSJA = 1
-local GODLO_TEKSTURA = "rbxassetid://112300454073912"
+local GODLO_TEKSTURA = "rbxassetid://130518454145773" -- obraz z decala Toolbox 112300454073912
 do
 	local pf = ServerStorage:FindFirstChild("Prefaby")
 	local g = pf and pf:FindFirstChild("Godlo")
@@ -941,9 +941,9 @@ local function budujSchodyISzatnie(map: Folder)
 			end
 			local front = (z0 > 0) and z0 or z1
 			-- ścianki z siatki (przezroczyste)
-			K.box("Siatka", x0, x0 + 0.15, YB + 0.2, YB + 8, z0, z1, siatka, Mat.DiamondPlate, fs, { Transparency = 0.55 })
-			K.box("Siatka", x0, x1, YB + 0.2, YB + 8, front - 0.07, front + 0.07, siatka, Mat.DiamondPlate, fs, { Transparency = 0.55 })
-			K.box("Furtka", x0 + 4, x0 + 7.5, YB + 0.2, YB + 7.5, front - 0.12, front + 0.12, siatka, Mat.DiamondPlate, fs, { Transparency = 0.35 })
+			K.box("Siatka", x0, x0 + 0.15, YB + 0.2, YB + 8, z0, z1, siatka, Mat.DiamondPlate, fs, { Transparency = 0.72 })
+			K.box("Siatka", x0, x1, YB + 0.2, YB + 8, front - 0.07, front + 0.07, siatka, Mat.DiamondPlate, fs, { Transparency = 0.72 })
+			K.box("Furtka", x0 + 4, x0 + 7.5, YB + 0.2, YB + 7.5, front - 0.12, front + 0.12, siatka, Mat.DiamondPlate, fs, { Transparency = 0.6 })
 			-- wieszaki z kurtkami i workami na kapcie
 			local back = (z0 > 0) and z1 - 1 or z0 + 1
 			K.box("DrazekWieszaka", x0 + 0.5, x1 - 0.5, YB + 6.4, YB + 6.6, back - 0.1, back + 0.1, C.Metal, Mat.Metal, fs)

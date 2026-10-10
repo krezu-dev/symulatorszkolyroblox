@@ -12,6 +12,8 @@ local TweenService = game:GetService("TweenService")
 local Debris = game:GetService("Debris")
 
 local GameConfig = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("GameConfig"))
+local __layout = game:GetService("ReplicatedStorage"):WaitForChild("Shared"):FindFirstChild("SchoolLayout")
+local SchoolLayout = __layout and (require(__layout) :: any) or nil -- agent-claude: pozycje nowej szkoły
 local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
 
 local SabotageService = {}
@@ -49,7 +51,7 @@ local function triggerBlackout()
 	local fuseBox = Instance.new("Part")
 	fuseBox.Name = "SkrzynkaBezpiecznikowa"
 	fuseBox.Size = Vector3.new(1.8, 2.5, 0.8)
-	fuseBox.Position = Vector3.new(-70, 5, 29) -- Na ścianie kanciapy
+	fuseBox.Position = (SchoolLayout and SchoolLayout.SkrzynkaBezpiecznikow) or Vector3.new(-70, 5, 29) -- Na ścianie kanciapy
 	fuseBox.Color = Color3.fromRGB(80, 80, 80)
 	fuseBox.Material = Enum.Material.Metal
 	fuseBox.Anchored = true
@@ -116,6 +118,9 @@ local function triggerDoorLock()
 		Vector3.new(20, 5, 0), -- Wejście do sal lekcyjnych
 		Vector3.new(-20, 5, -30), -- Wejście do stołówki
 	}
+	if SchoolLayout then
+		doorPositions = SchoolLayout.BlokadyDrzwi
+	end
 
 	for _, pos in ipairs(doorPositions) do
 		local door = Instance.new("Part")

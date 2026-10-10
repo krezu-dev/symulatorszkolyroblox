@@ -139,4 +139,5 @@ _(uzupełniane na bieżąco)_
 
 - **0.1 `SchoolMapGenerator.luau`**: dodana brakująca funkcja `ceilingLight`, więc mapa buduje się już dalej niż krok 6/8.
 - **0.2 `MonetizationService.luau:94`**: fałszywy alarm analizatora typów, nic nie psuje. **Za to:** ID produktów w `GameConfig.DevProducts` (2938471–2938473) są zmyślone. Właściciel musi utworzyć prawdziwe Developer Products w Creator Hub i wpisać ich ID.
+- **Nowa szkoła (zamiast starej mapy):** `workspace.SchoolMap` jest teraz STATYCZNA (zbudowana w Studio modułem `src/server/NowaSzkola`, zapisana w plejsie). `SchoolMapGenerator.setupMap` przekierowuje do `NowaSzkola.setupMap`, które w trakcie gry tylko podpina zadania, dzwon, kryjówki, radiowęzeł i migające światła. Pozycje kratek, monet, plam, skrzynki bezpieczników i blokad drzwi są w `src/shared/SchoolLayout.luau` (wcześniej były wpisane na sztywno i nie pasowały do żadnej mapy).
 - **0.5 `ShopGui.luau`**: przy każdej skrzynce są teraz pokazane szanse w % (liczone z `Weight`).

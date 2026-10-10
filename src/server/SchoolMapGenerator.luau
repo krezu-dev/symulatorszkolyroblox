@@ -24,6 +24,11 @@ local RadioService = require(script.Parent:WaitForChild("RadioService"))
 local SchoolMapGenerator = {}
 
 function SchoolMapGenerator.setupMap(onBellRing: (Player) -> ()): (Vector3, Vector3, Vector3)
+	-- agent-claude: nowa, statyczna szkoła (workspace.SchoolMap zbudowana w Studio) – patrz src/server/NowaSzkola
+	local nowa = script.Parent:FindFirstChild("NowaSzkola")
+	if nowa then
+		return (require(nowa) :: any).setupMap(onBellRing)
+	end
 	local mapFolder = workspace:FindFirstChild("SchoolMap") :: Folder?
 	if mapFolder then
 		mapFolder:ClearAllChildren()

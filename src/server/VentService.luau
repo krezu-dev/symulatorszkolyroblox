@@ -30,6 +30,14 @@ local VENT_DEFINITIONS = {
 	{ Name = "Zmywak Stołówki", Pos = Vector3.new(20, 1, -85) },
 }
 
+-- agent-claude: pozycje z SchoolLayout (nowa szkoła)
+do
+	local layout = game:GetService("ReplicatedStorage"):WaitForChild("Shared"):FindFirstChild("SchoolLayout")
+	if layout then
+		VENT_DEFINITIONS = (require(layout) :: any).Kratki
+	end
+end
+
 local playerCooldowns: { [Player]: number } = {}
 
 function VentService.setupVents()

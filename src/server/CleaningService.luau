@@ -9,6 +9,8 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local GameConfig = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("GameConfig"))
+local __layout = game:GetService("ReplicatedStorage"):WaitForChild("Shared"):FindFirstChild("SchoolLayout")
+local SchoolLayout = __layout and (require(__layout) :: any) or nil -- agent-claude: pozycje nowej szkoły
 local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
 
 local CleaningService = {}
@@ -107,6 +109,9 @@ function CleaningService.start()
 		Vector3.new(-60, 1.05, -30),
 		Vector3.new(50, 17.05, 0),
 	}
+	if SchoolLayout then
+		samplePositions = SchoolLayout.Plamy
+	end
 
 	for _, pos in ipairs(samplePositions) do
 		spawnPuddle(pos)

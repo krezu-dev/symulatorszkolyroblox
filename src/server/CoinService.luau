@@ -21,6 +21,8 @@ local coinFolder: Folder? = nil
 local isSpawning = false
 
 -- Punkty orientacyjne do spawnowania monet na mapie szkoły
+local __layout = game:GetService("ReplicatedStorage"):WaitForChild("Shared"):FindFirstChild("SchoolLayout")
+local SchoolLayout = __layout and (require(__layout) :: any) or nil -- agent-claude: pozycje nowej szkoły
 local COIN_ZONES = {
 	-- Korytarz parteru
 	{ Min = Vector3.new(-90, 2, -10), Max = Vector3.new(90, 2, 10) },
@@ -33,6 +35,9 @@ local COIN_ZONES = {
 	-- Sale lekcyjne
 	{ Min = Vector3.new(30, 18, -30), Max = Vector3.new(80, 18, 30) },
 }
+if SchoolLayout then
+	COIN_ZONES = SchoolLayout.StrefyMonet
+end
 
 local function spawnSingleCoin(pos: Vector3)
 	if not coinFolder then return end
