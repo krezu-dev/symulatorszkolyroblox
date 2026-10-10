@@ -12,7 +12,11 @@ print("==================================================")
 local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
 local GameConfig = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("GameConfig"))
 
--- 2. Uruchom menedżer rundy
+-- 2. Załaduj tabele wyników i statystyki szkolne
+local LeaderboardService = require(script:WaitForChild("LeaderboardService"))
+LeaderboardService.init()
+
+-- 3. Uruchom menedżer rundy
 local RoundManager = require(script:WaitForChild("RoundManager"))
 RoundManager.init()
 

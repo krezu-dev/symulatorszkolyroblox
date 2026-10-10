@@ -16,6 +16,8 @@ local SchoolMapGenerator = require(script.Parent:WaitForChild("SchoolMapGenerato
 local VentService = require(script.Parent:WaitForChild("VentService"))
 local SabotageService = require(script.Parent:WaitForChild("SabotageService"))
 local CoinService = require(script.Parent:WaitForChild("CoinService"))
+local CleaningService = require(script.Parent:WaitForChild("CleaningService"))
+local LeaderboardService = require(script.Parent:WaitForChild("LeaderboardService"))
 
 local RoundManager = {}
 
@@ -95,9 +97,18 @@ local function endRound(winnerMessage: string)
 	print(`[Gra] Koniec rundy: {winnerMessage}`)
 
 	CoinService.stopSpawning()
+	CleaningService.stop()
 	SabotageService.cleanup()
 	EliminationService.clearBackpacks()
 	RolesService.cleanupRoles(Players:GetPlayers())
+
+	-- Nagrody dla graczy (Szkolne Monety i Wygrane w Leaderstats)
+	for _, p in ipairs(Players:GetPlayers()) do
+		LeaderboardService.addCoins(p, 30)
+		if p:GetAttribute("IsAlive") == true then
+			LeaderboardService.addWin(p)
+		end
+	end
 
 	task.wait(6)
 	RoundManager.startLobby()
@@ -192,6 +203,9 @@ function RoundManager.startRound()
 
 	-- Spawnowanie monet na korytarzach (MM2)
 	CoinService.startSpawning()
+
+	-- Spawnowanie plam do zmycia dla Woźnej
+	CleaningService.start()
 
 	-- Teleportacja do szkoły
 	teleportPlayers(schoolSpawn, true)

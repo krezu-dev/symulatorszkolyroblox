@@ -21,12 +21,18 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local GameConfig = require(Shared:WaitForChild("GameConfig"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 
+local tasksGuiModule = script:FindFirstChild("TasksGui") or (script.Parent and script.Parent:FindFirstChild("TasksGui")) or script:WaitForChild("TasksGui")
+local TasksGui = require(tasksGuiModule :: ModuleScript)
+
 -- Główny ScreenGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "SzkolnyDetektywGui"
 screenGui.ResetOnSpawn = false
 screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 screenGui.Parent = playerGui
+
+-- Inicjalizacja minigier zadań szkolnych
+TasksGui.init(screenGui)
 
 -- ========================================================
 -- 1. GÓRNY PASEK HUD (TOP HUD)

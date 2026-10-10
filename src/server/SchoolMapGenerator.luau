@@ -18,6 +18,8 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local GameConfig = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("GameConfig"))
+local HidingService = require(script.Parent:WaitForChild("HidingService"))
+local RadioService = require(script.Parent:WaitForChild("RadioService"))
 
 local SchoolMapGenerator = {}
 
@@ -227,11 +229,12 @@ function SchoolMapGenerator.setupMap(onBellRing: (Player) -> ()): (Vector3, Vect
 	-- Wejście do Portierni / Szatni (z = 60)
 	wallWithDoor("Drzwi_DoPortierni", 60, 17, CFrame.new(16, 0, 60) * CFrame.Angles(0, math.rad(-90), 0), 0, wallCol, Enum.Material.SmoothPlastic)
 
-	-- Rząd szafek na korytarzu (Zadanie: Uporządkuj Szafkę)
+	-- Rząd szafek na korytarzu (Zadanie: Uporządkuj Szafkę oraz Kryjówki)
 	for i = 1, 10 do
 		local zPos = -20 + (i * 3.8)
 		local locker = part(`Szafka_{i}`, Vector3.new(2, 9, 3.4), CFrame.new(14.8, 5, zPos), Color3.fromRGB(30, 90, 185), Enum.Material.Metal)
 		sign(locker, Enum.NormalId.Left, `SZAFKA\n#{100 + i}`, Color3.fromRGB(20, 50, 120), Color3.fromRGB(255, 255, 255))
+		HidingService.registerLocker(locker)
 	end
 
 	local lockerPromptPart = part("InterakcjaSzafki", Vector3.new(3, 9, 38), CFrame.new(14.8, 5, -3), Color3.fromRGB(30, 90, 185), Enum.Material.Metal)
@@ -458,9 +461,10 @@ function SchoolMapGenerator.setupMap(onBellRing: (Player) -> ()): (Vector3, Vect
 	-- Czerwony dywanik u Dyrektora
 	part("DywanikDyrektora", Vector3.new(20, 0.1, 28), CFrame.new(dirCenter + Vector3.new(0, 1.05, 0)), Color3.fromRGB(180, 20, 20), Enum.Material.Fabric)
 
-	-- Mahoniowe biurko
+	-- Mahoniowe biurko i mikrofon radiowęzła
 	local dirDesk = part("BiurkoDyrektora", Vector3.new(14, 3.4, 6), CFrame.new(dirCenter + Vector3.new(18, 2.7, 0)), Color3.fromRGB(60, 30, 15), Enum.Material.Wood)
 	sign(dirDesk, Enum.NormalId.Left, "👑 GABINET DYREKTORA\n'Wszystko widzę, wszystko wiem!'", Color3.fromRGB(60, 30, 15), Color3.fromRGB(255, 215, 0))
+	RadioService.setupMicrophone(dirDesk.Position)
 
 	-- 🔍 ZAKAMAREK 6: Archiwum akt szkolnych za parawanem w gabinecie dyrektora
 	local archiveAlcove = part("ArchiwumAkt", Vector3.new(16, 16, 14), CFrame.new(dirCenter + Vector3.new(38, 8, 20)), Color3.fromRGB(30, 30, 30))
