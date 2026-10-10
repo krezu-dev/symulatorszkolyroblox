@@ -66,7 +66,7 @@ function ShopGui.init(parentScreenGui: ScreenGui)
 	titleLabel.Size = UDim2.new(0.5, 0, 1, 0)
 	titleLabel.Position = UDim2.new(0, 20, 0, 0)
 	titleLabel.BackgroundTransparency = 1
-	titleLabel.Text = "🛍️ SZKOLNY SKLEP & MONETYZACJA"
+	titleLabel.Text = "🛍️ SKLEP SZKOLNY"
 	titleLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
 	titleLabel.Font = Enum.Font.GothamBlack
 	titleLabel.TextSize = 16
@@ -98,16 +98,14 @@ function ShopGui.init(parentScreenGui: ScreenGui)
 
 	local tabButtons = {
 		{ Id = "Crates", Label = "📦 Skrzynki MM2" },
-		{ Id = "Upgrades", Label = "⚡ Ulepszenia" },
-		{ Id = "Robux", Label = "💎 Sklep Robux" },
-		{ Id = "Inventory", Label = "🎒 Ekwipunek" },
+		{ Id = "Upgrades", Label = "⚡ Ulepszenia za Monety" },
 	}
 
 	for i, tab in ipairs(tabButtons) do
 		local btn = Instance.new("TextButton")
 		btn.Name = `Tab_{tab.Id}`
-		btn.Size = UDim2.new(0.23, 0, 1, 0)
-		btn.Position = UDim2.new((i - 1) * 0.255, 0, 0, 0)
+		btn.Size = UDim2.new(0.48, 0, 1, 0)
+		btn.Position = UDim2.new((i - 1) * 0.52, 0, 0, 0)
 		btn.BackgroundColor3 = Color3.fromRGB(40, 44, 58)
 		btn.Text = tab.Label
 		btn.TextColor3 = Color3.fromRGB(240, 240, 240)
@@ -318,199 +316,6 @@ local function renderUpgradesTab(parent: Frame)
 	end
 end
 
--- ========================================================
--- 3. ZAKŁADKA: SKLEP ROBUX (GAMEPASSY I PAKIETY MONET)
--- ========================================================
-local function renderRobuxTab(parent: Frame)
-	local scroll = Instance.new("ScrollingFrame")
-	scroll.Size = UDim2.new(1, 0, 1, 0)
-	scroll.BackgroundTransparency = 1
-	scroll.CanvasSize = UDim2.new(0, 0, 0, 600)
-	scroll.ScrollBarThickness = 6
-	scroll.Parent = parent
-
-	local list = Instance.new("UIListLayout")
-	list.Padding = UDim.new(0, 10)
-	list.Parent = scroll
-
-	-- Nagłówek Gamepassów
-	local gpHeader = Instance.new("TextLabel")
-	gpHeader.Size = UDim2.new(1, 0, 0, 25)
-	gpHeader.BackgroundTransparency = 1
-	gpHeader.Text = "⭐ OFICJALNE GAMEPASSY ZA ROBUX:"
-	gpHeader.TextColor3 = Color3.fromRGB(255, 215, 0)
-	gpHeader.Font = Enum.Font.GothamBlack
-	gpHeader.TextSize = 14
-	gpHeader.TextXAlignment = Enum.TextXAlignment.Left
-	gpHeader.Parent = scroll
-
-	for key, gp in pairs(GameConfig.Gamepasses) do
-		local card = Instance.new("Frame")
-		card.Size = UDim2.new(1, -10, 0, 65)
-		card.BackgroundColor3 = Color3.fromRGB(35, 38, 50)
-		Instance.new("UICorner", card).CornerRadius = UDim.new(0, 8)
-		card.Parent = scroll
-
-		local title = Instance.new("TextLabel")
-		title.Size = UDim2.new(0.65, 0, 0, 22)
-		title.Position = UDim2.new(0, 12, 0, 8)
-		title.BackgroundTransparency = 1
-		title.Text = gp.Name
-		title.TextColor3 = Color3.fromRGB(255, 255, 255)
-		title.Font = Enum.Font.GothamBold
-		title.TextSize = 14
-		title.TextXAlignment = Enum.TextXAlignment.Left
-		title.Parent = card
-
-		local desc = Instance.new("TextLabel")
-		desc.Size = UDim2.new(0.65, 0, 0, 22)
-		desc.Position = UDim2.new(0, 12, 0, 32)
-		desc.BackgroundTransparency = 1
-		desc.Text = gp.Description
-		desc.TextColor3 = Color3.fromRGB(180, 190, 205)
-		desc.Font = Enum.Font.Gotham
-		desc.TextSize = 11
-		desc.TextXAlignment = Enum.TextXAlignment.Left
-		desc.Parent = card
-
-		local buyBtn = Instance.new("TextButton")
-		buyBtn.Size = UDim2.new(0, 120, 0, 35)
-		buyBtn.Position = UDim2.new(1, -132, 0.5, -17)
-		buyBtn.BackgroundColor3 = Color3.fromRGB(39, 174, 96)
-		buyBtn.Text = `Kup: {gp.Price} R$`
-		buyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-		buyBtn.Font = Enum.Font.GothamBlack
-		buyBtn.TextSize = 13
-		Instance.new("UICorner", buyBtn).CornerRadius = UDim.new(0, 6)
-		buyBtn.Parent = card
-
-		buyBtn.MouseButton1Click:Connect(function()
-			Remotes.get(GameConfig.RemoteEvents.PromptGamePass):FireServer(key)
-		end)
-	end
-
-	-- Nagłówek Monet za Robux
-	local coinsHeader = Instance.new("TextLabel")
-	coinsHeader.Size = UDim2.new(1, 0, 0, 25)
-	coinsHeader.BackgroundTransparency = 1
-	coinsHeader.Text = "🪙 PAKIETY MONET ZA ROBUX:"
-	coinsHeader.TextColor3 = Color3.fromRGB(255, 215, 0)
-	coinsHeader.Font = Enum.Font.GothamBlack
-	coinsHeader.TextSize = 14
-	coinsHeader.TextXAlignment = Enum.TextXAlignment.Left
-	coinsHeader.Parent = scroll
-
-	for key, prod in pairs(GameConfig.DevProducts) do
-		local card = Instance.new("Frame")
-		card.Size = UDim2.new(1, -10, 0, 55)
-		card.BackgroundColor3 = Color3.fromRGB(32, 35, 45)
-		Instance.new("UICorner", card).CornerRadius = UDim.new(0, 8)
-		card.Parent = scroll
-
-		local title = Instance.new("TextLabel")
-		title.Size = UDim2.new(0.65, 0, 1, 0)
-		title.Position = UDim2.new(0, 15, 0, 0)
-		title.BackgroundTransparency = 1
-		title.Text = `{prod.Icon} {prod.Name}`
-		title.TextColor3 = Color3.fromRGB(240, 240, 240)
-		title.Font = Enum.Font.GothamBold
-		title.TextSize = 14
-		title.TextXAlignment = Enum.TextXAlignment.Left
-		title.Parent = card
-
-		local buyBtn = Instance.new("TextButton")
-		buyBtn.Size = UDim2.new(0, 120, 0, 35)
-		buyBtn.Position = UDim2.new(1, -132, 0.5, -17)
-		buyBtn.BackgroundColor3 = Color3.fromRGB(230, 126, 34)
-		buyBtn.Text = `Kup: {prod.Price} R$`
-		buyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-		buyBtn.Font = Enum.Font.GothamBlack
-		buyBtn.TextSize = 13
-		Instance.new("UICorner", buyBtn).CornerRadius = UDim.new(0, 6)
-		buyBtn.Parent = card
-
-		buyBtn.MouseButton1Click:Connect(function()
-			Remotes.get(GameConfig.RemoteEvents.PromptDevProduct):FireServer(key)
-		end)
-	end
-end
-
--- ========================================================
--- 4. ZAKŁADKA: MÓJ EKWIPUNEK
--- ========================================================
-local function renderInventoryTab(parent: Frame)
-	local scroll = Instance.new("ScrollingFrame")
-	scroll.Size = UDim2.new(1, 0, 1, 0)
-	scroll.BackgroundTransparency = 1
-	scroll.CanvasSize = UDim2.new(0, 0, 0, 350)
-	scroll.ScrollBarThickness = 6
-	scroll.Parent = parent
-
-	local grid = Instance.new("UIGridLayout")
-	grid.CellSize = UDim2.new(0, 195, 0, 95)
-	grid.CellPadding = UDim2.new(0, 10, 0, 10)
-	grid.Parent = scroll
-
-	for _, skinId in ipairs(latestData.Inventory) do
-		-- Wyszukaj definicję przedmiotu
-		local itemDef: any = nil
-		for _, crate in pairs(GameConfig.Crates) do
-			for _, item in ipairs(crate.Items) do
-				if item.Id == skinId then
-					itemDef = item
-					break
-				end
-			end
-		end
-
-		if itemDef then
-			local isEquipped = (latestData.EquippedGun == skinId) or (latestData.EquippedKnife == skinId)
-
-			local card = Instance.new("Frame")
-			card.BackgroundColor3 = Color3.fromRGB(35, 38, 50)
-			Instance.new("UICorner", card).CornerRadius = UDim.new(0, 8)
-			card.Parent = scroll
-
-			local name = Instance.new("TextLabel")
-			name.Size = UDim2.new(1, -10, 0, 25)
-			name.Position = UDim2.new(0, 5, 0, 5)
-			name.BackgroundTransparency = 1
-			name.Text = itemDef.Name
-			name.TextColor3 = Color3.fromRGB(255, 255, 255)
-			name.Font = Enum.Font.GothamBold
-			name.TextSize = 13
-			name.Parent = card
-
-			local rarity = Instance.new("TextLabel")
-			rarity.Size = UDim2.new(1, -10, 0, 18)
-			rarity.Position = UDim2.new(0, 5, 0, 30)
-			rarity.BackgroundTransparency = 1
-			rarity.Text = `[{itemDef.Rarity}]`
-			rarity.TextColor3 = itemDef.Color
-			rarity.Font = Enum.Font.Gotham
-			rarity.TextSize = 11
-			rarity.Parent = card
-
-			local equipBtn = Instance.new("TextButton")
-			equipBtn.Size = UDim2.new(1, -20, 0, 28)
-			equipBtn.Position = UDim2.new(0, 10, 1, -33)
-			equipBtn.BackgroundColor3 = if isEquipped then Color3.fromRGB(46, 204, 113) else Color3.fromRGB(52, 152, 219)
-			equipBtn.Text = if isEquipped then "✓ ZAŁOŻONY" else "ZAŁÓŻ"
-			equipBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-			equipBtn.Font = Enum.Font.GothamBold
-			equipBtn.TextSize = 12
-			Instance.new("UICorner", equipBtn).CornerRadius = UDim.new(0, 6)
-			equipBtn.Parent = card
-
-			if not isEquipped then
-				equipBtn.MouseButton1Click:Connect(function()
-					Remotes.get(GameConfig.RemoteEvents.EquipSkin):FireServer(skinId)
-				end)
-			end
-		end
-	end
-end
-
 function ShopGui.refreshContent()
 	if not contentArea then return end
 	contentArea:ClearAllChildren()
@@ -519,10 +324,6 @@ function ShopGui.refreshContent()
 		renderCratesTab(contentArea)
 	elseif currentTab == "Upgrades" then
 		renderUpgradesTab(contentArea)
-	elseif currentTab == "Robux" then
-		renderRobuxTab(contentArea)
-	elseif currentTab == "Inventory" then
-		renderInventoryTab(contentArea)
 	end
 end
 

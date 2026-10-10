@@ -27,6 +27,12 @@ local TasksGui = require(tasksGuiModule :: ModuleScript)
 local shopGuiModule = script:FindFirstChild("ShopGui") or (script.Parent and script.Parent:FindFirstChild("ShopGui")) or script:WaitForChild("ShopGui")
 local ShopGui = require(shopGuiModule :: ModuleScript)
 
+local robuxGuiModule = script:FindFirstChild("RobuxGui") or (script.Parent and script.Parent:FindFirstChild("RobuxGui")) or script:WaitForChild("RobuxGui")
+local RobuxGui = require(robuxGuiModule :: ModuleScript)
+
+local inventoryGuiModule = script:FindFirstChild("InventoryGui") or (script.Parent and script.Parent:FindFirstChild("InventoryGui")) or script:WaitForChild("InventoryGui")
+local InventoryGui = require(inventoryGuiModule :: ModuleScript)
+
 local memesGuiModule = script:FindFirstChild("MemesGui") or (script.Parent and script.Parent:FindFirstChild("MemesGui")) or script:WaitForChild("MemesGui")
 local MemesGui = require(memesGuiModule :: ModuleScript)
 
@@ -37,35 +43,101 @@ screenGui.ResetOnSpawn = false
 screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 screenGui.Parent = playerGui
 
--- Inicjalizacja minigier zadań szkolnych
+-- Inicjalizacja podsystemów GUI
 TasksGui.init(screenGui)
-
--- Inicjalizacja sklepu i monetyzacji Robux
 ShopGui.init(screenGui)
-
--- Inicjalizacja Kukirinów, Polskich Memów i Preferencji Ról
+RobuxGui.init(screenGui)
+InventoryGui.init(screenGui)
 MemesGui.init(screenGui)
 
--- Pływający przycisk Sklepu (dolny lewy róg)
-local shopFloatingBtn = Instance.new("TextButton")
-shopFloatingBtn.Name = "ShopFloatingBtn"
-shopFloatingBtn.Size = UDim2.new(0, 160, 0, 42)
-shopFloatingBtn.Position = UDim2.new(0, 15, 1, -55)
-shopFloatingBtn.BackgroundColor3 = Color3.fromRGB(255, 180, 0)
-shopFloatingBtn.Text = "🛍️ SKLEP & ROBUX"
-shopFloatingBtn.TextColor3 = Color3.fromRGB(20, 20, 20)
-shopFloatingBtn.Font = Enum.Font.GothamBlack
-shopFloatingBtn.TextSize = 13
-shopFloatingBtn.ZIndex = 25
-shopFloatingBtn.Parent = screenGui
-Instance.new("UICorner", shopFloatingBtn).CornerRadius = UDim.new(0, 8)
-local sStroke = Instance.new("UIStroke", shopFloatingBtn)
-sStroke.Color = Color3.fromRGB(255, 255, 255)
-sStroke.Thickness = 1.5
+-- ========================================================
+-- DOK PRZYCISKÓW GŁÓWNYCH (DOLNY LEWY RÓG)
+-- 🛍️ SKLEP | 💎 ROBUX | 🎒 EKWIPUNEK | 🐉 KUKIRIN | 📢 MEMY
+-- ========================================================
+local actionDock = Instance.new("Frame")
+actionDock.Name = "ActionDock"
+actionDock.Size = UDim2.new(0, 160, 0, 220)
+actionDock.Position = UDim2.new(0, 15, 1, -235)
+actionDock.BackgroundTransparency = 1
+actionDock.ZIndex = 25
+actionDock.Parent = screenGui
 
-shopFloatingBtn.MouseButton1Click:Connect(function()
-	ShopGui.toggle()
-end)
+local dockLayout = Instance.new("UIListLayout")
+dockLayout.FillDirection = Enum.FillDirection.Vertical
+dockLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+dockLayout.SortOrder = Enum.SortOrder.LayoutOrder
+dockLayout.Padding = UDim.new(0, 6)
+dockLayout.Parent = actionDock
+
+local dockButtons = {
+	{
+		Order = 1,
+		Name = "MemeBtn",
+		Text = "📢 MEMY",
+		Color = Color3.fromRGB(142, 68, 173),
+		OnClick = function()
+			MemesGui.toggleSoundboard()
+		end,
+	},
+	{
+		Order = 2,
+		Name = "KukirinBtn",
+		Text = "🐉 KUKIRIN",
+		Color = Color3.fromRGB(230, 126, 34),
+		OnClick = function()
+			Remotes.get(GameConfig.RemoteEvents.ToggleKukirin):FireServer()
+		end,
+	},
+	{
+		Order = 3,
+		Name = "InventoryBtn",
+		Text = "🎒 EKWIPUNEK",
+		Color = Color3.fromRGB(39, 174, 96),
+		OnClick = function()
+			InventoryGui.toggle()
+		end,
+	},
+	{
+		Order = 4,
+		Name = "RobuxBtn",
+		Text = "💎 ROBUX",
+		Color = Color3.fromRGB(41, 128, 185),
+		OnClick = function()
+			RobuxGui.toggle()
+		end,
+	},
+	{
+		Order = 5,
+		Name = "ShopBtn",
+		Text = "🛍️ SKLEP",
+		Color = Color3.fromRGB(243, 156, 18),
+		OnClick = function()
+			ShopGui.toggle()
+		end,
+	},
+}
+
+for _, bDef in ipairs(dockButtons) do
+	local btn = Instance.new("TextButton")
+	btn.Name = bDef.Name
+	btn.LayoutOrder = bDef.Order
+	btn.Size = UDim2.new(1, 0, 0, 36)
+	btn.BackgroundColor3 = bDef.Color
+	btn.Text = bDef.Text
+	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	btn.Font = Enum.Font.GothamBlack
+	btn.TextSize = 13
+	btn.ZIndex = 25
+	btn.Parent = actionDock
+
+	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+	local bStroke = Instance.new("UIStroke", btn)
+	bStroke.Color = Color3.fromRGB(255, 255, 255)
+	bStroke.Transparency = 0.7
+	bStroke.Thickness = 1.2
+
+	btn.MouseButton1Click:Connect(bDef.OnClick)
+end
 
 -- ========================================================
 -- 1. GÓRNY PASEK HUD (TOP HUD)

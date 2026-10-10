@@ -21,48 +21,8 @@ local currentPreference = "Random"
 
 function MemesGui.init(parentScreenGui: ScreenGui)
 	-- ========================================================
-	-- 1. PRZYCISK: 🐉 KUKIRIN (LEWY DOLNY RÓG)
+	-- 1. MODAL SOUNDBOARDU POLSKICH MEMÓW
 	-- ========================================================
-	local kukirinBtn = Instance.new("TextButton")
-	kukirinBtn.Name = "KukirinMountBtn"
-	kukirinBtn.Size = UDim2.new(0, 160, 0, 42)
-	kukirinBtn.Position = UDim2.new(0, 15, 1, -105)
-	kukirinBtn.BackgroundColor3 = Color3.fromRGB(240, 185, 20)
-	kukirinBtn.Text = "🐉 KUKIRIN (JAZDA)"
-	kukirinBtn.TextColor3 = Color3.fromRGB(30, 20, 10)
-	kukirinBtn.Font = Enum.Font.GothamBlack
-	kukirinBtn.TextSize = 13
-	kukirinBtn.ZIndex = 25
-	kukirinBtn.Parent = parentScreenGui
-	Instance.new("UICorner", kukirinBtn).CornerRadius = UDim.new(0, 8)
-	local kStroke = Instance.new("UIStroke", kukirinBtn)
-	kStroke.Color = Color3.fromRGB(255, 255, 255)
-	kStroke.Thickness = 1.5
-
-	kukirinBtn.MouseButton1Click:Connect(function()
-		Remotes.get(GameConfig.RemoteEvents.ToggleKukirin):FireServer()
-	end)
-
-	-- ========================================================
-	-- 2. PRZYCISK: 📢 MEMY SZKOLNE
-	-- ========================================================
-	local memeSoundboardBtn = Instance.new("TextButton")
-	memeSoundboardBtn.Name = "MemeSoundboardBtn"
-	memeSoundboardBtn.Size = UDim2.new(0, 160, 0, 42)
-	memeSoundboardBtn.Position = UDim2.new(0, 15, 1, -155)
-	memeSoundboardBtn.BackgroundColor3 = Color3.fromRGB(155, 89, 182)
-	memeSoundboardBtn.Text = "📢 POLSKIE MEMY"
-	memeSoundboardBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-	memeSoundboardBtn.Font = Enum.Font.GothamBlack
-	memeSoundboardBtn.TextSize = 13
-	memeSoundboardBtn.ZIndex = 25
-	memeSoundboardBtn.Parent = parentScreenGui
-	Instance.new("UICorner", memeSoundboardBtn).CornerRadius = UDim.new(0, 8)
-	local mStroke = Instance.new("UIStroke", memeSoundboardBtn)
-	mStroke.Color = Color3.fromRGB(255, 255, 255)
-	mStroke.Thickness = 1.5
-
-	-- Modal Soundboardu Polskich Memów
 	local soundboard = Instance.new("Frame")
 	soundboard.Name = "SoundboardModal"
 	soundboard.Size = UDim2.new(0, 420, 0, 320)
@@ -133,12 +93,8 @@ function MemesGui.init(parentScreenGui: ScreenGui)
 		end)
 	end
 
-	memeSoundboardBtn.MouseButton1Click:Connect(function()
-		soundboard.Visible = not soundboard.Visible
-	end)
-
 	-- ========================================================
-	-- 3. SELEKTOR PREFERENCJI ROLI W LOBBY
+	-- 2. SELEKTOR PREFERENCJI ROLI W LOBBY
 	-- ========================================================
 	local prefFrame = Instance.new("Frame")
 	prefFrame.Name = "RolePreferenceBar"
@@ -205,6 +161,11 @@ function MemesGui.init(parentScreenGui: ScreenGui)
 			prefFrame.Visible = false
 		end
 	end)
+end
+
+function MemesGui.toggleSoundboard()
+	if not memeModal then return end
+	memeModal.Visible = not memeModal.Visible
 end
 
 return MemesGui
