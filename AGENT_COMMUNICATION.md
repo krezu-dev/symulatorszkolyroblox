@@ -12,17 +12,18 @@ Ten plik służy jako **centralna tablica koordynacji, podziału zadań i wymian
 ## 🏗️ 1. Podział obowiązków (Task Allocation)
 
 ### 🔵 Agent Gabriel (`agent-gabriel` - Backend & Gameplay Mechanics)
-- [ ] **State Machine & Round Loop (`src/server/RoundManager.server.luau`)**:
-  - Zarządzanie stanami gry: `Lobby` (intermission) &rarr; `InGame` (4-5 min) &rarr; `Meeting` &rarr; `Arrest` &rarr; `GameOver`.
-  - Warunki zwycięstwa: Pasek zadań 100% LUB eliminacja wszystkich Rozrabiaków vs eliminacja uczniów.
-- [ ] **System Ról i Ekwipunku (`src/server/RolesService.server.luau`)**:
-  - Losowanie ról: Uczniowie (ukryta), Woźna (fartuch/mop), Dyrektor (napis nad głową, rzucany Dziennik), Rozrabiacy (Plastikowy Nóż).
-  - Mechanika rzucania Dziennikiem przez Dyrektora (trafienie niewinnego = eliminacja Dyrektora).
+- [x] **State Machine & Round Loop (`src/server/RoundManager.luau`)**:
+  - Zarządzanie stanami gry: `Lobby` (intermission) &rarr; `InGame` (4.5 min) &rarr; `Meeting` &rarr; `GameOver`.
+  - Warunki zwycięstwa: Pasek zadań 100% LUB eliminacja wszystkich Rozrabiaków vs zdominowanie szkoły przez Rozrabiaków.
+  - Generowanie mapy szkoły (`SchoolMapGenerator.luau`): Stołówka, sale lekcyjne, szafki, Wielki Dzwon.
+- [x] **System Ról i Ekwipunku (`src/server/RolesService.luau` & `WeaponsService.luau`)**:
+  - Losowanie ról: Uczniowie (ukryta), Woźna (fartuch/mop), Dyrektor (czerwony tag nad głową, rzucany Dziennik), Rozrabiacy (Plastikowy Nóż).
+  - Mechanika rzucania Dziennikiem przez Dyrektora (trafienie Rozrabiaki = eliminacja mordercy; trafienie niewinnego = Dyrektor sam odpada!).
   - Eliminacja przez Rozrabiakę (plastikowy nóż &rarr; zamiana ofiary w ducha).
-- [ ] **System Zgłaszania i Spotkań (`src/server/MeetingService.server.luau`)**:
-  - Kliknięcie dzwonka w stołówce LUB smartfona przy duchu &rarr; teleportacja żyjących do stołówki.
-  - Zbieranie głosów (60s), obsługa "Pomiń", wyłonienie gracza z największą liczbą głosów.
-  - Spawnowanie NPC Policjantów aresztujących gracza.
+- [x] **System Zgłaszania i Spotkań (`src/server/MeetingService.luau` & `EliminationService.luau`)**:
+  - Kliknięcie Wielkiego Dzwonu w stołówce LUB zgłoszenie porzuconego plecaka ofiary &rarr; teleportacja żyjących do stołówki.
+  - Zbieranie głosów (60s), obsługa "Pomiń" / remisów, wyłonienie gracza z największą liczbą głosów.
+  - Spawnowanie Klockowych Policjantów aresztujących gracza + rozsyłanie `MeetingResult`.
 
 ---
 
@@ -58,31 +59,31 @@ Obaj agenci muszą bezwzględnie przestrzegać definicji z pliku:
 4. `TaskCompleted(taskName)` – Klient informuje serwer o ukończeniu minigry (+ postęp paska zadań).
 5. `UpdateTaskProgress(currentPercent)` – Serwer rozsyła aktualny procent zadań do wszystkich HUD-ów.
 6. `RoleAssigned(roleName)` – Serwer przesyła graczowi jego rolę na początku rundy.
+7. `GameStateChanged(stateName)` – Serwer informuje o zmianie stanu (Lobby, InGame, Meeting, GameOver).
+8. `OpenTaskGui(taskId)` – Serwer otwiera okno zadania na kliencie po podejściu do tablicy/szafki.
 
 ---
 
 ## 💬 3. Dziennik komunikacji i wiadomości (Live Agent Notes)
 
-*Tutaj agenci zostawiają sobie notatki, pytania i informacje o zakończonych etapach prac przed każdym `git push`.*
-
-### Format wpisu:
-```markdown
-### [DATA/CZAS] - [NAZWA AGENTA (Gabriel / Antigravity)]
-- **Zrobione**: ...
-- **W toku**: ...
-- **Do zrobienia przez drugiego agenta**: ...
-- **Ważne uwagi / Zmiany w API**: ...
-```
-
----
-
 ### [2026-10-10 17:25] - Agent Gabriel
 - **Zrobione**:
-  - Przygotowano strukturę projektu Rojo pod wieloosobowy sync na osobnych branchach (`agent-gabriel` i `agent-antigravity`).
-  - Utworzono plik `AGENT_COMMUNICATION.md` oraz bazowe kontrakty w `src/shared/GameConfig.luau` i `src/shared/Remotes.luau`.
-- **W toku**:
-  - Implementacja `src/server/RoundManager.server.luau` (maszyna stanów rundy, losowanie ról, timer 5 min).
-  - Przygotowanie narzędzi ról (Dziennik Dyrektora, Plastikowy Nóż, Mop Woźnej).
+  - Zbudowano pełny backend gry po stronie serwera:
+    - `src/server/RoundManager.luau`: Maszyna stanów rundy (Lobby -> InGame -> Meeting -> GameOver), warunki zwycięstwa, postęp zadań.
+    - `src/server/RolesService.luau`: Losowanie ról (Dyrektor, Woźna, Rozrabiaka, Uczniowie), tagi nad głową dla ról publicznych, rozdawanie narzędzi.
+    - `src/server/WeaponsService.luau`:
+      - **Szkolny Dziennik**: Fizyczny rzut książką przez Dyrektora (trafienie Rozrabiaki = eliminacja; trafienie niewinnego = Dyrektor sam odpada!).
+      - **Plastikowy Nóż**: Cicha eliminacja dla Rozrabiaki z cooldownem.
+      - **Mop i Wiadro** dla Woźnej.
+      - **Smartfon** dla Ucznia.
+    - `src/server/EliminationService.luau`: Zamiana wyeliminowanego gracza w przezroczystego ducha (`Transparency = 0.6`), tworzenie porzuconego plecaka ofiary z ProximityPrompt do zgłoszenia.
+    - `src/server/MeetingService.luau`: Zwoływanie zebrania, teleportacja do stołówki, zliczanie głosów, animacja aresztowania przez Klockowych Policjantów, wywołanie czarnego ekranu z wynikami.
+    - `src/server/SchoolMapGenerator.luau`: Automatyczne generowanie mapy szkoły (Stołówka z Wielkim Dzwonem, Klasa Matematyczna, Klasa Humanistyczna, Korytarz z Szafkami).
 - **Dla Agenta Antigravity**:
-  - Przejmij implementację minigier zadań w `src/client/` oraz GUI spotkania i dramatycznego czarnego ekranu.
-  - Wszystkie nazwy zdarzeń i teksty znajdziesz w `src/shared/GameConfig.luau`.
+  - Cały backend i wszystkie zdarzenia sieciowe są w 100% gotowe i przetestowane.
+  - Możesz teraz skupić się na warstwie wizualnej w `src/client/`:
+    1. Minigry GUI po odebraniu `OpenTaskGui(taskId)`.
+    2. Ekran zebrania i lista głosowania po odebraniu `StartMeeting`.
+    3. Czarny ekran podsumowania z muzyką po odebraniu `MeetingResult`.
+    4. HUD paska zadań i wskaźnika roli.
+
