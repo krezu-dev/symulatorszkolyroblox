@@ -2,16 +2,18 @@
 """
 start_host.py
 Uruchamia jednym poleceniem:
-1. Serwer Rojo (rojo serve) -> nasłuchuje na połączenie z wtyczki Roblox Studio.
+1. Serwer Rojo (rojo serve) -> nasłuchuje na dedykowanym porcie (domyślnie 34873, aby NIE kolidować z inną grą na 34872).
 2. Synchronizator GitHub (auto_sync.py) -> pobiera zmiany od AI w tle.
 """
 
 import sys
 import os
 import signal
+import socket
 import subprocess
 import threading
 import shutil
+import argparse
 
 CYAN = "\033[96m"
 MAGENTA = "\033[95m"
@@ -48,6 +50,10 @@ def find_rojo():
             return candidate
     return None
 
+def is_port_in_use(port):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex(('127.0.0.1', port)) == 0
+
 def cleanup(sig=None, frame=None):
     print(f"\n{YELLOW}Zamykanie serwera Rojo i synchronizatora...{RESET}")
     for p in processes:
@@ -60,6 +66,10 @@ def cleanup(sig=None, frame=None):
     sys.exit(0)
 
 def main():
+    parser = argparse.ArgumentParser(description="Uruchom środowisko Rojo + GitHub Sync")
+    parser.add_argument("--port", type=int, default=34873, help="Port serwera Rojo (domyślnie 34873)")
+    args = parser.parse_args()
+
     signal.signal(signal.SIGINT, cleanup)
     signal.signal(signal.SIGTERM, cleanup)
 
@@ -74,12 +84,24 @@ def main():
     print(f"{BOLD}{GREEN}======================================================{RESET}")
     print(f"Rojo binary: {rojo_path}")
     print(f"Katalog roboczy: {os.getcwd()}")
+    print(f"Port Rojo: {BOLD}{args.port}{RESET}")
+
+    # Sprawdzenie portu 34872 (innej gry)
+    if is_port_in_use(34872):
+        print(f"{YELLOW}ℹ️  Wykryto inną grę/serwer na domyślnym porcie 34872.{RESET}")
+        print(f"{GREEN}🔒 Bez obaw: ten projekt używa portu {args.port}, więc nic z tamtej gry nie zostanie zmienione ani usunięte!{RESET}")
+
+    if is_port_in_use(args.port):
+        print(f"{RED}UWAGA: Port {args.port} jest już zajęty! Możesz podać inny port: python3 start_host.py --port 34874{RESET}")
+        sys.exit(1)
+
+    print(f"\n{CYAN}👉 W Roblox Studio we wtyczce Rojo wpisz port: {BOLD}{args.port}{RESET}{CYAN} i kliknij Connect.{RESET}")
     print("Naciśnij Ctrl+C, aby zatrzymać.\n")
 
     # 1. Start Rojo serve
     try:
         rojo_proc = subprocess.Popen(
-            [rojo_path, "serve"],
+            [rojo_path, "serve", "--port", str(args.port)],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
@@ -111,23 +133,15 @@ def main():
 
     # Czekaj na zakończenie dowolnego procesu
     try:
+        import time
         while True:
             for p in processes:
                 if p.poll() is not None:
                     print(f"{YELLOW}Jeden z procesów zakończył działanie.{RESET}")
                     cleanup()
-            signal.pause()
-    except (KeyboardInterrupt, AttributeError):
-        # signal.pause() nie działa na wszystkich platformach w ten sam sposób, fallback pętli:
-        import time
-        while True:
-            try:
-                for p in processes:
-                    if p.poll() is not None:
-                        cleanup()
-                time.sleep(1)
-            except KeyboardInterrupt:
-                cleanup()
+            time.sleep(1)
+    except KeyboardInterrupt:
+        cleanup()
 
 if __name__ == "__main__":
     main()
