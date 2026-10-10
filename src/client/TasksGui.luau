@@ -321,6 +321,98 @@ local function buildSzafkiTask(container: Frame)
 	end
 end
 
+-- 5. MINIGRA: TEST PIZZY U KSIĘCIULA (MUALA!)
+local function buildPizzaTask(container: Frame)
+	container.BackgroundColor3 = Color3.fromRGB(36, 28, 24)
+
+	local title = Instance.new("TextLabel")
+	title.Size = UDim2.new(1, -60, 0, 32)
+	title.Position = UDim2.new(0, 15, 0, 10)
+	title.BackgroundTransparency = 1
+	title.Text = "🍕 WIELKI TEST PIZZY KSIĘCIULA (MUALA!)"
+	title.TextColor3 = Color3.fromRGB(255, 200, 50)
+	title.Font = Enum.Font.GothamBlack
+	title.TextSize = 15
+	title.TextXAlignment = Enum.TextXAlignment.Left
+	title.Parent = container
+
+	local subtitle = Instance.new("TextLabel")
+	subtitle.Size = UDim2.new(1, -30, 0, 20)
+	subtitle.Position = UDim2.new(0, 15, 0, 42)
+	subtitle.BackgroundTransparency = 1
+	subtitle.Text = "Sklepik Szkolny • Cena: 6,00 zł • 'Czy to jest warte swojej ceny?!'"
+	subtitle.TextColor3 = Color3.fromRGB(200, 210, 220)
+	subtitle.Font = Enum.Font.Gotham
+	subtitle.TextSize = 12
+	subtitle.TextXAlignment = Enum.TextXAlignment.Left
+	subtitle.Parent = container
+
+	-- Karta podglądu pizzy
+	local pizzaFrame = Instance.new("Frame")
+	pizzaFrame.Size = UDim2.new(0, 130, 0, 130)
+	pizzaFrame.Position = UDim2.new(0.5, -65, 0, 70)
+	pizzaFrame.BackgroundColor3 = Color3.fromRGB(50, 40, 35)
+	Instance.new("UICorner", pizzaFrame).CornerRadius = UDim.new(0, 14)
+	local pStroke = Instance.new("UIStroke", pizzaFrame)
+	pStroke.Color = Color3.fromRGB(243, 156, 18)
+	pStroke.Thickness = 2
+	pizzaFrame.Parent = container
+
+	local pizzaIcon = Instance.new("TextLabel")
+	pizzaIcon.Size = UDim2.new(1, 0, 1, 0)
+	pizzaIcon.BackgroundTransparency = 1
+	pizzaIcon.Text = "🍕"
+	pizzaIcon.TextSize = 75
+	pizzaIcon.Parent = pizzaFrame
+
+	-- Podpis pod pizzą
+	local verdictPrompt = Instance.new("TextLabel")
+	verdictPrompt.Size = UDim2.new(1, -30, 0, 24)
+	verdictPrompt.Position = UDim2.new(0, 15, 0, 210)
+	verdictPrompt.BackgroundTransparency = 1
+	verdictPrompt.Text = "Wystaw ostateczny werdykt w teście smaku:"
+	verdictPrompt.TextColor3 = Color3.fromRGB(255, 230, 150)
+	verdictPrompt.Font = Enum.Font.GothamBold
+	verdictPrompt.TextSize = 13
+	verdictPrompt.Parent = container
+
+	-- Przyciski oceny
+	local choices = {
+		{ Text = "Zimne ciasto i guma (3/10)", Correct = false },
+		{ Text = "🍕 CZYSTA MUALA! (10/10)", Correct = true },
+		{ Text = "Za dużo ketchupu (5/10)", Correct = false },
+	}
+
+	for i, ch in ipairs(choices) do
+		local btn = Instance.new("TextButton")
+		btn.Size = UDim2.new(0, 140, 0, 44)
+		btn.Position = UDim2.new(0, 15 + (i - 1) * 150, 0, 245)
+		btn.BackgroundColor3 = if ch.Correct then Color3.fromRGB(230, 126, 34) else Color3.fromRGB(60, 50, 50)
+		btn.Text = ch.Text
+		btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+		btn.Font = Enum.Font.GothamBold
+		btn.TextSize = 11
+		btn.TextWrapped = true
+		Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+		btn.Parent = container
+
+		btn.MouseButton1Click:Connect(function()
+			if ch.Correct then
+				btn.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
+				btn.Text = "✨ MUALA! 10/10 ✨"
+				finishTask("TestPizzyKsiezula", "MUALA! Pizza Księciula przetestowana! +25 Szkolnych Złotych")
+			else
+				btn.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+				task.delay(0.5, function()
+					if btn and btn.Parent then
+						btn.BackgroundColor3 = Color3.fromRGB(60, 50, 50)
+					end
+				end)
+			end
+		end)
+	end
+end
+
 function TasksGui.openTask(taskId: string)
 	if not mainTaskContainer then return end
 
@@ -336,6 +428,8 @@ function TasksGui.openTask(taskId: string)
 		buildStolowkaTask(mainTaskContainer)
 	elseif taskId == "SzafkiKsiazki" then
 		buildSzafkiTask(mainTaskContainer)
+	elseif taskId == "TestPizzyKsiezula" then
+		buildPizzaTask(mainTaskContainer)
 	else
 		-- Domyślne szybkie zadanie
 		buildMatematykaTask(mainTaskContainer)

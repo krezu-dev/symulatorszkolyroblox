@@ -132,6 +132,26 @@ function WeaponsService.createRozrabiakaNoz(skinColor: Color3?, skinName: string
 	handle.CanCollide = false
 	handle.Parent = tool
 
+	-- Efekt wizualny dla skina Pizzy Księciula (MUALA!)
+	if skinName and string.find(skinName, "Pizza") then
+		handle.Size = Vector3.new(0.7, 0.3, 1.9)
+		handle.Color = Color3.fromRGB(243, 156, 18)
+		handle.Material = Enum.Material.SmoothPlastic
+
+		local pepperoni = Instance.new("Part")
+		pepperoni.Name = "Pepperoni"
+		pepperoni.Size = Vector3.new(0.3, 0.35, 0.3)
+		pepperoni.Color = Color3.fromRGB(180, 40, 30)
+		pepperoni.CanCollide = false
+		pepperoni.CFrame = handle.CFrame
+		pepperoni.Parent = tool
+
+		local weld = Instance.new("WeldConstraint")
+		weld.Part0 = handle
+		weld.Part1 = pepperoni
+		weld.Parent = handle
+	end
+
 	local debounce = false
 	tool.Activated:Connect(function()
 		if debounce then return end
@@ -168,8 +188,9 @@ function WeaponsService.createRozrabiakaNoz(skinColor: Color3?, skinName: string
 			task.delay(15, function() debounce = false end) -- Cooldown zabójstwa
 
 			print(`[Rozrabiaka] {player.Name} wyeliminował {closestPlayer.Name}!`)
+			local reason = if (skinName and string.find(skinName, "Pizza")) then "Poczęstunek Pizzą Księciula (MUALA!)" else "Zabawkowy atak Rozrabiaki"
 			if eliminationCallback then
-				eliminationCallback(closestPlayer, player, "Zabawkowy atak Rozrabiaki")
+				eliminationCallback(closestPlayer, player, reason)
 			end
 		end
 	end)

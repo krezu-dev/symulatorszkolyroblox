@@ -39,11 +39,9 @@ function ShopService.applyUpgradesToCharacter(player: Player, character: Model)
 	if not hum then return end
 
 	local speedLvl = data.Upgrades["Speed"] or 0
-	if speedLvl > 0 then
-		hum.WalkSpeed = 16 + (speedLvl * 1.5)
-	else
-		hum.WalkSpeed = 16
-	end
+	local pizzaLvl = data.Upgrades["PizzaKsiezula"] or 0
+	local baseSpeed = 16 + (speedLvl * 1.5) + (pizzaLvl * 1.0)
+	hum.WalkSpeed = baseSpeed
 end
 
 function ShopService.init()

@@ -80,6 +80,13 @@ GameConfig.Tasks = {
 		Description = "Ułóż podręczniki na półce w kolejności",
 		CoinsReward = 20,
 	},
+	TestPizzyKsiezula = {
+		Id = "TestPizzyKsiezula",
+		Name = "Test Pizzy u Księciula",
+		Location = "Stołówka / Sklepik Szkolny",
+		Description = "Zrób test pizzy ze szkolnego sklepiku za 6 ziko i wystaw ocenę: MUALA!",
+		CoinsReward = 25,
+	},
 }
 
 -- ========================================================
@@ -208,6 +215,16 @@ GameConfig.Upgrades = {
 		Icon = "👁️",
 		Description = "Podświetla złote monety w zasięgu wzroku!",
 	},
+	PizzaKsiezula = {
+		Id = "PizzaKsiezula",
+		Name = "Pizza Księciula (MUALA!)",
+		MaxLevel = 1,
+		CostPerLevel = 150,
+		Stat = "PizzaEnergy",
+		BoostPerLevel = 1.0,
+		Icon = "🍕",
+		Description = "Ciepły trójkąt pizzy ze szkolnego sklepiku! Daje okrzyk MUALA i stałe +1 do prędkości!",
+	},
 }
 
 -- ========================================================
@@ -248,6 +265,7 @@ GameConfig.PolishMemes = {
 	{ Id = "Sklepik", Title = "🍫 Jedno Prince Polo proszę!", Text = "Dzień dobry, poproszę jedno Prince Polo i oranżadę ze szklanej butelki!", Sound = "rbxassetid://9114225010" },
 	{ Id = "Nieprzygotowanie", Title = "🙋 Kto zgłasza 'NP'?", Text = "Proszę pani, ja zgłaszam nieprzygotowanie z wczoraj!", Sound = "rbxassetid://9114226340" },
 	{ Id = "Sciaga", Title = "👀 On ściąga!", Text = "Proszę pani, a Igor ma ściągę w piórniku i pod ławką!", Sound = "rbxassetid://9114224522" },
+	{ Id = "PizzaKsiezula", Title = "🍕 Pizza Księciula: MUALA!", Text = "MUALA! Testujemy pizzę ze szkolnego sklepiku za 6 ziko! Czysta poezja czy zakalec?!", Sound = "rbxassetid://9114227555" },
 }
 
 -- Skrzynki ze skinami broni (MM2 Mystery Crates)
@@ -263,6 +281,7 @@ GameConfig.Crates = {
 			{ Id = "Skin_Ekierka", Name = "Aluminiowa Ekierka", Type = "Knife", Rarity = "Rare", Color = Color3.fromRGB(160, 170, 190), Weight = 30 },
 			{ Id = "Skin_DziennikZloty", Name = "Złoty Dziennik Laureata", Type = "Gun", Rarity = "Epic", Color = Color3.fromRGB(255, 215, 0), Weight = 15 },
 			{ Id = "Skin_CyrkielLaserowy", Name = "Laserowy Cyrkiel Zabójcy", Type = "Knife", Rarity = "Legendary", Color = Color3.fromRGB(255, 40, 160), Weight = 4 },
+			{ Id = "Skin_PizzaKsiezula", Name = "Kawałek Pizzy Księciula", Type = "Knife", Rarity = "Legendary", Color = Color3.fromRGB(243, 156, 18), Weight = 4 },
 			{ Id = "Skin_DziennikOgnisty", Name = "Płonący Dziennik Dyrekcji", Type = "Gun", Rarity = "Godly", Color = Color3.fromRGB(255, 80, 0), Weight = 1 },
 		},
 	},

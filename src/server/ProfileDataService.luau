@@ -17,12 +17,25 @@ local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("R
 local ProfileDataService = {}
 local profileDataStore: GlobalDataStore? = nil
 
--- Próba połączenia z DataStore (z fallbackiem na pamięć RAM w Studio)
+-- Próba połączenia z DataStore (z automatycznym fallbackiem na pamięć RAM w Studio bez API)
 local success, ds = pcall(function()
 	return DataStoreService:GetDataStore("SzkolnyDetektyw_UserData_v1")
 end)
+
 if success and ds then
-	profileDataStore = ds
+	if RunService:IsStudio() then
+		local testSuccess, _ = pcall(function()
+			return ds:GetAsync("__studio_test_key__")
+		end)
+		if testSuccess then
+			profileDataStore = ds
+		else
+			profileDataStore = nil
+			print("💡 [ProfileDataService] Studio: Dostęp do API wyłączony. Dane graczy działają w sesji RAM.")
+		end
+	else
+		profileDataStore = ds
+	end
 end
 
 export type PlayerData = {
@@ -58,6 +71,15 @@ function ProfileDataService.syncToClient(player: Player)
 	local data = ProfileDataService.getData(player)
 	local syncRemote = Remotes.get(GameConfig.RemoteEvents.SyncPlayerData)
 	syncRemote:FireClient(player, data)
+end
+
+function ProfileDataService.addCoins(player: Player, amount: number)
+	local data = ProfileDataService.getData(player)
+	data.Coins += amount
+	local stats = player:FindFirstChild("leaderstats")
+	local coinsVal = stats and stats:FindFirstChild("Monety") :: IntValue?
+	if coinsVal then coinsVal.Value = data.Coins end
+	ProfileDataService.syncToClient(player)
 end
 
 function ProfileDataService.loadData(player: Player)

@@ -18,6 +18,7 @@ local SabotageService = require(script.Parent:WaitForChild("SabotageService"))
 local CoinService = require(script.Parent:WaitForChild("CoinService"))
 local CleaningService = require(script.Parent:WaitForChild("CleaningService"))
 local LeaderboardService = require(script.Parent:WaitForChild("LeaderboardService"))
+local ProfileDataService = require(script.Parent:WaitForChild("ProfileDataService"))
 
 local RoundManager = {}
 
@@ -153,6 +154,10 @@ Remotes.get(GameConfig.RemoteEvents.TaskCompleted).OnServerEvent:Connect(functio
 	completedTasksCount += 1
 	taskProgress = math.clamp(math.floor((completedTasksCount / totalTasksNeeded) * 100), 0, 100)
 	print(`[Zadania] {player.Name} ukończył zadanie '{taskId}'! Postęp: {taskProgress}%`)
+
+	local taskDef = GameConfig.Tasks[taskId]
+	local reward = if taskDef and taskDef.CoinsReward then taskDef.CoinsReward else 15
+	ProfileDataService.addCoins(player, reward)
 
 	Remotes.get(GameConfig.RemoteEvents.UpdateTaskProgress):FireAllClients(taskProgress)
 

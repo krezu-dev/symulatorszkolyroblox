@@ -311,6 +311,16 @@ function SchoolMapGenerator.setupMap(onBellRing: (Player) -> ()): (Vector3, Vect
 	pierogiPrompt.MaxActivationDistance = 9
 	pierogiPrompt.Parent = platePart
 
+	-- Pudełko z Pizzą Księciula (Zadanie Memiczne Książulo: MUALA!)
+	local pizzaBox = part("PizzaKsiezulaPudelko", Vector3.new(3.5, 0.6, 3.5), CFrame.new(cafCenter + Vector3.new(12, 5.1, -44)), Color3.fromRGB(220, 110, 40), Enum.Material.Cardboard)
+	sign(pizzaBox, Enum.NormalId.Top, "🍕 PIZZA KSIĘCIULA\nTEST: MUALA! (6 zł)", Color3.fromRGB(255, 235, 180), Color3.fromRGB(160, 40, 20))
+	local pizzaPrompt = Instance.new("ProximityPrompt")
+	pizzaPrompt.ActionText = "Zrób test Pizzy Księciula (MUALA!)"
+	pizzaPrompt.ObjectText = "Pizza Księciula (Sklepik)"
+	pizzaPrompt.HoldDuration = 0.4
+	pizzaPrompt.MaxActivationDistance = 9
+	pizzaPrompt.Parent = pizzaBox
+
 	-- Długie stoły stołówkowe z ławkami
 	for _, xOff in ipairs({ -22, 22 }) do
 		for _, zOff in ipairs({ -20, 15 }) do
@@ -562,6 +572,7 @@ function SchoolMapGenerator.setupMap(onBellRing: (Player) -> ()): (Vector3, Vect
 	bindTask(polishPrompt, GameConfig.Tasks.JezykPolski.Id)
 	bindTask(lockerPrompt, GameConfig.Tasks.SzafkiKsiazki.Id)
 	bindTask(pierogiPrompt, GameConfig.Tasks.StolowkaPierogi.Id)
+	bindTask(pizzaPrompt, GameConfig.Tasks.TestPizzyKsiezula.Id)
 
 	print("✨ [SUKCES] Ogromna, klimatyczna polska szkoła (220x320 studów) z 8 zakamarkami została w pełni wygenerowana!")
 
