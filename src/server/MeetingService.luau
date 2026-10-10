@@ -62,15 +62,27 @@ local function spawnPoliceArrest(targetChar: Model)
 	local targetPos = root.Position
 
 	-- Tworzenie dwóch policjantów NPC
+	-- Dźwięk syreny policyjnej
+	local siren = Instance.new("Sound")
+	siren.SoundId = GameConfig.SoundIds.Siren
+	siren.Volume = 0.8
+	siren.Parent = root
+	siren:Play()
+	Debris:AddItem(siren, GameConfig.Durations.ArrestAnimation + 2)
+
+	-- Tworzenie dwóch policjantów NPC zbliżających się do gracza
 	for i = 1, 2 do
 		local officer = Instance.new("Model")
 		officer.Name = `Policjant_{i}`
+
+		local startPos = targetPos + Vector3.new(if i == 1 then -12 else 12, 0, -10)
+		local endPos = targetPos + Vector3.new(if i == 1 then -2.5 else 2.5, 0, 0)
 
 		local torso = Instance.new("Part")
 		torso.Name = "Torso"
 		torso.Size = Vector3.new(2, 2, 1)
 		torso.Color = Color3.fromRGB(0, 30, 120) -- Granatowy mundur policyjny
-		torso.Position = targetPos + Vector3.new(if i == 1 then -3 else 3, 0, -2)
+		torso.CFrame = CFrame.new(startPos, targetPos)
 		torso.Anchored = true
 		torso.CanCollide = false
 		torso.Parent = officer
@@ -80,7 +92,7 @@ local function spawnPoliceArrest(targetChar: Model)
 		head.Shape = Enum.PartType.Cylinder
 		head.Size = Vector3.new(1.2, 1.2, 1.2)
 		head.Color = Color3.fromRGB(240, 200, 150)
-		head.Position = torso.Position + Vector3.new(0, 1.6, 0)
+		head.CFrame = torso.CFrame * CFrame.new(0, 1.6, 0)
 		head.Anchored = true
 		head.Parent = officer
 
@@ -88,7 +100,7 @@ local function spawnPoliceArrest(targetChar: Model)
 		local cap = Instance.new("Part")
 		cap.Size = Vector3.new(1.4, 0.4, 1.4)
 		cap.Color = Color3.fromRGB(0, 20, 80)
-		cap.Position = head.Position + Vector3.new(0, 0.7, 0)
+		cap.CFrame = head.CFrame * CFrame.new(0, 0.7, 0)
 		cap.Anchored = true
 		cap.Parent = officer
 
@@ -109,7 +121,27 @@ local function spawnPoliceArrest(targetChar: Model)
 
 		officer.Parent = workspace
 		Debris:AddItem(officer, GameConfig.Durations.ArrestAnimation + 2)
+
+		-- Płynny bieg policjanta w stronę gracza
+		local tweenInfo = TweenInfo.new(1.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+		TweenService:Create(torso, tweenInfo, { CFrame = CFrame.new(endPos, targetPos) }):Play()
+		TweenService:Create(head, tweenInfo, { CFrame = CFrame.new(endPos + Vector3.new(0, 1.6, 0), targetPos) }):Play()
+		TweenService:Create(cap, tweenInfo, { CFrame = CFrame.new(endPos + Vector3.new(0, 2.3, 0), targetPos) }):Play()
 	end
+
+	-- Nałożenie wirtualnych kajdanków po dobiegnięciu
+	task.delay(1.5, function()
+		local cuffs = Instance.new("Part")
+		cuffs.Name = "Kajdanki"
+		cuffs.Size = Vector3.new(1.2, 0.4, 0.4)
+		cuffs.Color = Color3.fromRGB(180, 180, 190)
+		cuffs.Material = Enum.Material.Metal
+		cuffs.CFrame = root.CFrame * CFrame.new(0, 0, -1)
+		cuffs.Anchored = true
+		cuffs.CanCollide = false
+		cuffs.Parent = workspace
+		Debris:AddItem(cuffs, GameConfig.Durations.ArrestAnimation)
+	end)
 end
 
 -- Zliczanie głosów
