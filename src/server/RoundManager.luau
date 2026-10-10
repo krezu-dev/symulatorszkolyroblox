@@ -202,9 +202,10 @@ end
 
 function RoundManager.init()
 	-- Konfiguracja mapy i callbacków
-	local sSpawn, cSpawn = SchoolMapGenerator.setupMap(onBellRing)
+	local sSpawn, cSpawn, lSpawn = SchoolMapGenerator.setupMap(onBellRing)
 	schoolSpawn = sSpawn
 	cafeteriaSpawn = cSpawn
+	lobbySpawn = lSpawn
 	MeetingService.setCafeteriaPosition(cSpawn)
 
 	WeaponsService.setEliminationCallback(onPlayerEliminated)

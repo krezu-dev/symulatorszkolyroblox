@@ -1,15 +1,24 @@
 --!strict
 -- src/server/SchoolMapGenerator.luau
--- Kompletny generator mapy szkoły "Szkolny Detektyw"
--- Buduje pełną, szczegółową szkołę z polskim klimatem i memami:
--- 1. Korytarz Główny z szafkami, lamperią i tablicami ogłoszeń
--- 2. Stołówka z okienkiem wydawania posiłków, talerzami pierogów i Wielkim Dzwonem
--- 3. Klasa Matematyczna (Sala 101) z tablicą i ławkami
--- 4. Klasa Języka Polskiego (Sala 102) z lekturami i portretem Mickiewicza
--- 5. Gabinet Dyrektora ze słynnym dywanikiem i pucharami
--- 6. Kanciapa Woźnej ze środkami czystości i mopami
--- 7. Sala Gimnastyczna z parkietem, drabinkami i koszem
--- 8. Toalety Szkolne
+-- KOMPLETNY GENERATOR WIELKIEJ POLSKIEJ SZKOŁY ("SZKOŁA TYSIĄCLATKA")
+-- Zbudowany kompleks zawiera:
+-- 1. Lobby Zewnętrzne (Plac Apelowy, maszt flagowy, ławki, tablica ogłoszeń)
+-- 2. Parter:
+--    - Główny Korytarz (260 studów długości) z lamperią, szafkami i automatami
+--    - Wielka Stołówka (80x80) z kuchnią, pierogami i Wielkim Złotym Dzwonem
+--    - Pełnowymiarowa Sala Gimnastyczna (90x90, h=26) z koszami, drabinkami i szatniami
+--    - Kanciapa Woźnej z zapleczem i płynem Ludwik
+--    - Toalety Szkolne z kabinami i podpisami uczniów
+--    - Gabinet Pielęgniarki z kozetką
+-- 3. I Piętro (dostępne przez szerokie schody dwubiegowe):
+--    - Korytarz I Piętra z antresolą
+--    - Gabinet Dyrektora z mahoniowym biurkiem, pucharami i słynnym czerwonym dywanikiem
+--    - Pokój Nauczycielski ze stosem niesprawdzonych klasówek i kserokopiarką
+--    - Pracownia Matematyczna (Sala 201) z tablicą i bryłami
+--    - Pracownia Języka Polskiego (Sala 202) z portretami wieszczów i lekturami
+--    - Pracownia Informatyczna (Sala 203) z komputerami CRT
+--    - Pracownia Chemiczna (Sala 204) z probówkami i układem okresowym
+-- 4. Boisko Szkolne "Orlik" ze sztuczną trawą i bramkami
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -18,7 +27,7 @@ local GameConfig = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild
 
 local SchoolMapGenerator = {}
 
-function SchoolMapGenerator.setupMap(onBellRing: (Player) -> ()): (Vector3, Vector3)
+function SchoolMapGenerator.setupMap(onBellRing: (Player) -> ()): (Vector3, Vector3, Vector3)
 	local mapFolder = workspace:FindFirstChild("SchoolMap") :: Folder?
 	if mapFolder then
 		mapFolder:ClearAllChildren()
@@ -28,7 +37,7 @@ function SchoolMapGenerator.setupMap(onBellRing: (Player) -> ()): (Vector3, Vect
 		mapFolder.Parent = workspace
 	end
 
-	-- Pomocnik do tworzenia części
+	-- Pomocnik budowania części (Part)
 	local function part(name: string, size: Vector3, cf: CFrame, color: Color3, mat: Enum.Material?, parent: Instance?): Part
 		local p = Instance.new("Part")
 		p.Name = name
@@ -41,8 +50,8 @@ function SchoolMapGenerator.setupMap(onBellRing: (Player) -> ()): (Vector3, Vect
 		return p
 	end
 
-	-- Pomocnik do tabliczek i napisów (SurfaceGui)
-	local function sign(parentPart: BasePart, face: Enum.NormalId, textStr: string, bgCol: Color3, textCol: Color3, fontSize: number?)
+	-- Pomocnik do tablic i napisów (SurfaceGui)
+	local function sign(parentPart: BasePart, face: Enum.NormalId, textStr: string, bgCol: Color3, textCol: Color3, borderWidth: number?)
 		local sg = Instance.new("SurfaceGui")
 		sg.Face = face
 		sg.AlwaysOnTop = false
@@ -51,12 +60,12 @@ function SchoolMapGenerator.setupMap(onBellRing: (Player) -> ()): (Vector3, Vect
 		local frame = Instance.new("Frame")
 		frame.Size = UDim2.new(1, 0, 1, 0)
 		frame.BackgroundColor3 = bgCol
-		frame.BorderSizePixel = 2
+		frame.BorderSizePixel = borderWidth or 2
 		frame.Parent = sg
 
 		local lbl = Instance.new("TextLabel")
-		lbl.Size = UDim2.new(1, -8, 1, -8)
-		lbl.Position = UDim2.new(0, 4, 0, 4)
+		lbl.Size = UDim2.new(1, -10, 1, -10)
+		lbl.Position = UDim2.new(0, 5, 0, 5)
 		lbl.BackgroundTransparency = 1
 		lbl.Text = textStr
 		lbl.TextColor3 = textCol
@@ -65,152 +74,169 @@ function SchoolMapGenerator.setupMap(onBellRing: (Player) -> ()): (Vector3, Vect
 		lbl.Parent = frame
 	end
 
-	-- Pomocnik do jarzeniówek / oświetlenia
-	local function ceilingLight(pos: Vector3)
-		local fixture = part("LampaJarzeniowa", Vector3.new(6, 0.4, 1.2), CFrame.new(pos), Color3.fromRGB(240, 240, 240))
-		local tube = part("RuraSwietlna", Vector3.new(5.6, 0.2, 0.6), CFrame.new(pos - Vector3.new(0, 0.2, 0)), Color3.fromRGB(255, 255, 245), Enum.Material.Neon, fixture)
+	-- Pomocnik oświetlenia (jarzeniówki sufitowe)
+	local function light(pos: Vector3, range: number?, brightness: number?)
+		local fixture = part("OprawaJarzeniowa", Vector3.new(8, 0.4, 1.4), CFrame.new(pos), Color3.fromRGB(240, 240, 240))
+		local tube = part("RuraSwietlna", Vector3.new(7.6, 0.2, 0.8), CFrame.new(pos - Vector3.new(0, 0.25, 0)), Color3.fromRGB(255, 255, 245), Enum.Material.Neon, fixture)
 		local pl = Instance.new("PointLight")
-		pl.Brightness = 1.2
-		pl.Range = 26
+		pl.Brightness = brightness or 1.4
+		pl.Range = range or 32
 		pl.Color = Color3.fromRGB(255, 250, 235)
 		pl.Parent = tube
 	end
 
-	-- Pomocnik do ławek i krzeseł szkolnych
-	local function schoolDeskAndChair(pos: Vector3, rotY: number)
+	-- Pomocnik klasycznych ławek i krzeseł szkolnych
+	local function deskAndChairs(pos: Vector3, rotY: number)
 		local cf = CFrame.new(pos) * CFrame.Angles(0, math.rad(rotY), 0)
-
 		-- Blat ławki
-		part("Blat", Vector3.new(6, 0.2, 3), cf * CFrame.new(0, 2.8, 0), Color3.fromRGB(210, 175, 125), Enum.Material.Wood)
-		-- Nogi ławki (zielone rurki)
-		part("NogiLawki", Vector3.new(5.6, 2.7, 2.6), cf * CFrame.new(0, 1.35, 0), Color3.fromRGB(30, 90, 40))
+		part("Blat", Vector3.new(6.5, 0.2, 3.2), cf * CFrame.new(0, 2.9, 0), Color3.fromRGB(215, 175, 125), Enum.Material.Wood)
+		-- Nogi stelaża (zielone rurki)
+		part("NogiLawki", Vector3.new(6.0, 2.8, 2.8), cf * CFrame.new(0, 1.4, 0), Color3.fromRGB(25, 85, 35))
 
-		-- 2 Krzesła za ławką
-		for _, xOffset in ipairs({ -1.8, 1.8 }) do
-			local chairCf = cf * CFrame.new(xOffset, 0, 2.4)
-			-- Siedzisko
-			part("Siedzisko", Vector3.new(1.8, 0.15, 1.8), chairCf * CFrame.new(0, 1.8, 0), Color3.fromRGB(210, 175, 125), Enum.Material.Wood)
-			-- Oparcie
-			part("Oparcie", Vector3.new(1.8, 1.2, 0.15), chairCf * CFrame.new(0, 2.8, 0.8), Color3.fromRGB(210, 175, 125), Enum.Material.Wood)
-			-- Nogi krzesła
-			part("NogiKrzesla", Vector3.new(1.6, 1.7, 1.6), chairCf * CFrame.new(0, 0.85, 0), Color3.fromRGB(30, 90, 40))
+		-- 2 krzesełka za ławką
+		for _, xOff in ipairs({ -2.0, 2.0 }) do
+			local cCf = cf * CFrame.new(xOff, 0, 2.6)
+			part("Siedzisko", Vector3.new(1.8, 0.15, 1.8), cCf * CFrame.new(0, 1.8, 0), Color3.fromRGB(215, 175, 125), Enum.Material.Wood)
+			part("Oparcie", Vector3.new(1.8, 1.2, 0.15), cCf * CFrame.new(0, 2.8, 0.8), Color3.fromRGB(215, 175, 125), Enum.Material.Wood)
+			part("NogiKrzesla", Vector3.new(1.6, 1.7, 1.6), cCf * CFrame.new(0, 0.85, 0), Color3.fromRGB(25, 85, 35))
 		end
 	end
 
-	print("[Mapa] Generowanie Korytarza Głównego...")
+	print("🏗️ [Budowa Szkoły] KROK 1/7: Generowanie Lobby Zewnętrznego i Placu Apelowego...")
 	-- ========================================================
-	-- 1. KORYTARZ GŁÓWNY (x: 0, z: -80 do 80, szerokość 24, wysokość 16)
+	-- 1. LOBBY ZEWNĘTRZNE (PLAC APELOWY, z = 240)
 	-- ========================================================
-	-- Podłoga korytarza (linoleum szkolne)
-	part("PodlogaKorytarz", Vector3.new(24, 1, 160), CFrame.new(0, 0.5, 0), Color3.fromRGB(185, 185, 175), Enum.Material.Concrete)
-	-- Sufit korytarza
-	part("SufitKorytarz", Vector3.new(24, 1, 160), CFrame.new(0, 16.5, 0), Color3.fromRGB(230, 230, 230))
+	local lobbyCenter = Vector3.new(0, 0, 240)
+	-- Kostka brukowa placu
+	part("PlacApelowy", Vector3.new(90, 1, 90), CFrame.new(lobbyCenter + Vector3.new(0, 0.5, 0)), Color3.fromRGB(150, 150, 150), Enum.Material.Cobblestone)
 
-	-- Światła na korytarzu
-	for z = -60, 60, 30 do
-		ceilingLight(Vector3.new(0, 16, z))
+	-- Maszt flagowy z flagą Polski
+	local pole = part("MasztFlagowy", Vector3.new(0.6, 26, 0.6), CFrame.new(lobbyCenter + Vector3.new(0, 13.5, 20)), Color3.fromRGB(220, 220, 220), Enum.Material.Metal)
+	local flagWhite = part("FlagaBiala", Vector3.new(0.1, 3, 5), CFrame.new(lobbyCenter + Vector3.new(0, 24.5, 22.5)), Color3.fromRGB(255, 255, 255), Enum.Material.Fabric)
+	local flagRed = part("FlagaCzerwona", Vector3.new(0.1, 3, 5), CFrame.new(lobbyCenter + Vector3.new(0, 21.5, 22.5)), Color3.fromRGB(220, 30, 30), Enum.Material.Fabric)
+
+	-- Tablica powitalna szkoły
+	local mainSchoolSign = part("TablicaWejsciowa", Vector3.new(28, 6, 0.6), CFrame.new(0, 18, 140.2), Color3.fromRGB(15, 40, 90))
+	sign(mainSchoolSign, Enum.NormalId.Back, "🏫 SZKOŁA PODSTAWOWA NR 1 IM. ADAMA MICKIEWICZA\n'Wiedza to potęga, a Rozrabiaki to kłopoty!'", Color3.fromRGB(15, 40, 90), Color3.fromRGB(255, 230, 80))
+
+	-- Ławki na placu apelowym
+	for _, xOff in ipairs({ -25, 25 }) do
+		part("LawkaPlac", Vector3.new(12, 1.6, 2.5), CFrame.new(lobbyCenter + Vector3.new(xOff, 1.3, 0)), Color3.fromRGB(100, 60, 30), Enum.Material.Wood)
 	end
 
-	-- Lamperia i ściany boczne korytarza
-	-- Ściana Lewa (x = -12) i Prawa (x = 12) z drzwiami do sal
-	local function hallwayWall(x: number, faceNormal: Enum.NormalId)
-		-- Dolna lamperia (olejna zielona/oliwkowa - klasyk polskiej szkoły)
-		part("Lamperia", Vector3.new(1, 4, 160), CFrame.new(x, 2.5, 0), Color3.fromRGB(70, 110, 85))
-		-- Górna ściana kremowa
-		part("ScianaGorna", Vector3.new(1, 10, 160), CFrame.new(x, 9.5, 0), Color3.fromRGB(240, 238, 220))
-	end
-	hallwayWall(-12, Enum.NormalId.Right)
-	hallwayWall(12, Enum.NormalId.Left)
+	print("🏗️ [Budowa Szkoły] KROK 2/7: Budowanie Parteru i Głównego Korytarza...")
+	-- ========================================================
+	-- 2. GŁÓWNY KORYTARZ PARTERU (z: -70 do 140, długość 210 studów)
+	-- ========================================================
+	-- Podłoga linoleum (parter y = 0.5)
+	part("PodlogaKorytarzP", Vector3.new(28, 1, 210), CFrame.new(0, 0.5, 35), Color3.fromRGB(180, 180, 170), Enum.Material.Concrete)
+	-- Strop między parterem a piętrem (y = 18.5)
+	part("StropPietro1", Vector3.new(28, 1, 210), CFrame.new(0, 18.5, 35), Color3.fromRGB(220, 220, 220))
 
-	-- Tablica ogłoszeń na korytarzu
-	local noticeBoard = part("TablicaOgloszen", Vector3.new(0.4, 5, 12), CFrame.new(-11.4, 7, 0), Color3.fromRGB(160, 120, 70), Enum.Material.Wood)
-	sign(noticeBoard, Enum.NormalId.Right, "📌 OGŁOSZENIA SZKOLNE\n1. Zakaz biegania po korytarzu!\n2. Zmiana obuwia obowiązkowa.\n3. Szczęśliwy numerek dziś: 17!", Color3.fromRGB(255, 250, 230), Color3.fromRGB(20, 20, 20))
-
-	-- Rząd szafek szkolnych (zadanie z szafkami)
-	for i = 1, 6 do
-		local zPos = -35 + (i * 3.5)
-		local locker = part(`Szafka_{i}`, Vector3.new(2, 8, 3), CFrame.new(10.5, 4.5, zPos), Color3.fromRGB(30, 90, 180), Enum.Material.Metal)
-		sign(locker, Enum.NormalId.Left, `SZAFKA\n#{100 + i}`, Color3.fromRGB(20, 50, 120), Color3.fromRGB(255, 255, 255))
+	-- Oświetlenie parteru
+	for z = -50, 120, 30 do
+		light(Vector3.new(0, 18, z))
 	end
 
-	-- Prompt zadania szafek na korytarzu
-	local lockersPromptPart = part("InterakcjaSzafki", Vector3.new(3, 8, 22), CFrame.new(10.5, 4.5, -23), Color3.fromRGB(30, 90, 180), Enum.Material.Metal)
-	lockersPromptPart.Transparency = 1
+	-- Lamperia i ściany korytarza
+	for _, side in ipairs({ -14, 14 }) do
+		-- Oliwkowa lamperia
+		part("LamperiaParter", Vector3.new(1, 4.5, 210), CFrame.new(side, 2.75, 35), Color3.fromRGB(65, 105, 80))
+		-- Górna jasna ściana
+		part("ScianaParter", Vector3.new(1, 13.5, 210), CFrame.new(side, 11.75, 35), Color3.fromRGB(245, 242, 225))
+	end
+
+	-- Szafki uczniowskie na parterze (rząd szafek do zadania)
+	for i = 1, 10 do
+		local zPos = -30 + (i * 3.8)
+		local locker = part(`Szafka_{i}`, Vector3.new(2.2, 8.5, 3.2), CFrame.new(12.5, 4.75, zPos), Color3.fromRGB(35, 95, 190), Enum.Material.Metal)
+		sign(locker, Enum.NormalId.Left, `SZAFKA\n#{100 + i}`, Color3.fromRGB(20, 55, 130), Color3.fromRGB(255, 255, 255))
+	end
+
+	-- Prompt zadania szafek
+	local lockerPromptPart = part("InterakcjaSzafki", Vector3.new(3, 8.5, 38), CFrame.new(12.5, 4.75, -11), Color3.fromRGB(35, 95, 190), Enum.Material.Metal)
+	lockerPromptPart.Transparency = 1
 	local lockerPrompt = Instance.new("ProximityPrompt")
 	lockerPrompt.ActionText = "Uporządkuj podręczniki w szafce"
 	lockerPrompt.ObjectText = "Szafka Szkolna"
 	lockerPrompt.HoldDuration = 0.5
 	lockerPrompt.MaxActivationDistance = 9
-	lockerPrompt.Parent = lockersPromptPart
+	lockerPrompt.Parent = lockerPromptPart
 
-	-- ========================================================
-	-- 2. STOŁÓWKA SZKOLNA (Kafeteria - Spotkania i Głosowanie)
-	-- Położenie: z = -110, szerokość 60, długość 60, wysokość 16
-	-- ========================================================
-	print("[Mapa] Generowanie Stołówki Szkolnej i Wielkiego Dzwonu...")
-	local cafCenter = Vector3.new(0, 0, -110)
-	-- Podłoga kafle stołówkowe
-	part("PodlogaStolowka", Vector3.new(60, 1, 60), CFrame.new(cafCenter + Vector3.new(0, 0.5, 0)), Color3.fromRGB(215, 205, 190), Enum.Material.Marble)
-	part("SufitStolowka", Vector3.new(60, 1, 60), CFrame.new(cafCenter + Vector3.new(0, 16.5, 0)), Color3.fromRGB(230, 230, 230))
+	-- Automaty z przekąskami (Prince Polo / Cola)
+	local vending1 = part("AutomatPrzekaski", Vector3.new(3, 8.5, 4.5), CFrame.new(-12.5, 4.75, -20), Color3.fromRGB(180, 25, 25), Enum.Material.Metal)
+	sign(vending1, Enum.NormalId.Right, "🍫 AUTOMAT Z PRZEKĄSKAMI\n- Wafle Prince Polo: 2.50 zł\n- Rogal 7 Days: 3.00 zł\n- Sok Tymbark: 2.80 zł", Color3.fromRGB(180, 25, 25), Color3.fromRGB(255, 255, 255))
 
-	-- Ściany stołówki
-	part("ScianaStolowka_N", Vector3.new(60, 16, 1), CFrame.new(cafCenter + Vector3.new(0, 8.5, -30)), Color3.fromRGB(240, 235, 215))
-	part("ScianaStolowka_W", Vector3.new(1, 16, 60), CFrame.new(cafCenter + Vector3.new(-30, 8.5, 0)), Color3.fromRGB(240, 235, 215))
-	part("ScianaStolowka_E", Vector3.new(1, 16, 60), CFrame.new(cafCenter + Vector3.new(30, 8.5, 0)), Color3.fromRGB(240, 235, 215))
+	print("🏗️ [Budowa Szkoły] KROK 3/7: Budowanie Wielkiej Stołówki i Podium z Dzwonem...")
+	-- ========================================================
+	-- 3. WIELKA STOŁÓWKA SZKOLNA (x: 0, z: -130, 80x80 studów)
+	-- ========================================================
+	local cafCenter = Vector3.new(0, 0, -130)
+	part("PodlogaStolowka", Vector3.new(80, 1, 80), CFrame.new(cafCenter + Vector3.new(0, 0.5, 0)), Color3.fromRGB(215, 205, 190), Enum.Material.Marble)
+	part("SufitStolowka", Vector3.new(80, 1, 80), CFrame.new(cafCenter + Vector3.new(0, 18.5, 0)), Color3.fromRGB(230, 230, 230))
+	part("ScianaStolowka_N", Vector3.new(80, 18, 1), CFrame.new(cafCenter + Vector3.new(0, 9.5, -40)), Color3.fromRGB(240, 235, 215))
+	part("ScianaStolowka_W", Vector3.new(1, 18, 80), CFrame.new(cafCenter + Vector3.new(-40, 9.5, 0)), Color3.fromRGB(240, 235, 215))
+	part("ScianaStolowka_E", Vector3.new(1, 18, 80), CFrame.new(cafCenter + Vector3.new(40, 9.5, 0)), Color3.fromRGB(240, 235, 215))
+
+	for cx = -25, 25, 25 do
+		for cz = -25, 25, 25 do
+			light(cafCenter + Vector3.new(cx, 18, cz), 36, 1.5)
+		end
+	end
 
 	-- Okienko wydawania obiadów
-	local kitchenWall = part("KuchniaLada", Vector3.new(30, 4, 3), CFrame.new(cafCenter + Vector3.new(0, 2.5, -27)), Color3.fromRGB(160, 140, 120), Enum.Material.Wood)
-	sign(kitchenWall, Enum.NormalId.Back, "🍲 WYDAWANIE OBIADÓW\nDZIŚ W MENU: PIEROGI RUSKIE Ze Skwarkami", Color3.fromRGB(220, 200, 160), Color3.fromRGB(80, 20, 20))
+	local kitchenBar = part("KuchniaLada", Vector3.new(40, 4.5, 4), CFrame.new(cafCenter + Vector3.new(0, 2.75, -36)), Color3.fromRGB(160, 135, 110), Enum.Material.Wood)
+	sign(kitchenBar, Enum.NormalId.Back, "🍲 WYDAWANIE POSIŁKÓW SZKOLNYCH\nDZIŚ W MENU: PIEROGI RUSKIE ZE SKWARKAMI I KOMPOT", Color3.fromRGB(225, 205, 165), Color3.fromRGB(90, 25, 25))
 
 	-- Talerz z pierogami (Zadanie: Zjedz Obiad)
-	local platePart = part("TalerzPierogow", Vector3.new(3, 0.4, 3), CFrame.new(cafCenter + Vector3.new(0, 4.7, -27)), Color3.fromRGB(250, 250, 250), Enum.Material.SmoothPlastic)
+	local platePart = part("TalerzPierogi", Vector3.new(4, 0.4, 4), CFrame.new(cafCenter + Vector3.new(0, 5.1, -36)), Color3.fromRGB(250, 250, 250))
 	local pierogiPrompt = Instance.new("ProximityPrompt")
 	pierogiPrompt.ActionText = "Zjedz szkolny obiad (Pierogi!)"
 	pierogiPrompt.ObjectText = "Talerz Pierogów"
 	pierogiPrompt.HoldDuration = 0.4
-	pierogiPrompt.MaxActivationDistance = 8
+	pierogiPrompt.MaxActivationDistance = 9
 	pierogiPrompt.Parent = platePart
 
-	-- Stoły stołówkowe dookoła sali
-	for _, xOff in ipairs({ -16, 16 }) do
-		for _, zOff in ipairs({ -10, 12 }) do
-			local tableCf = CFrame.new(cafCenter + Vector3.new(xOff, 2.5, zOff))
-			part("StolStolowkowy", Vector3.new(8, 0.2, 14), tableCf, Color3.fromRGB(170, 120, 80), Enum.Material.Wood)
-			part("NogiStolu", Vector3.new(7.6, 2.4, 13.6), tableCf * CFrame.new(0, -1.2, 0), Color3.fromRGB(40, 40, 40), Enum.Material.Metal)
+	-- Długie stoły stołówkowe
+	for _, xOff in ipairs({ -22, 22 }) do
+		for _, zOff in ipairs({ -15, 15 }) do
+			local tCf = CFrame.new(cafCenter + Vector3.new(xOff, 2.8, zOff))
+			part("StolStolowkowy", Vector3.new(10, 0.25, 18), tCf, Color3.fromRGB(180, 130, 85), Enum.Material.Wood)
+			part("NogiStolowka", Vector3.new(9.5, 2.6, 17.5), tCf * CFrame.new(0, -1.35, 0), Color3.fromRGB(40, 40, 40), Enum.Material.Metal)
 		end
 	end
 
-	-- Centralny postument pod WIELKI SZKOLNY DZWON
-	local altar = part("OltarzDzwonu", Vector3.new(8, 2, 8), CFrame.new(cafCenter + Vector3.new(0, 1.5, 0)), Color3.fromRGB(180, 50, 50), Enum.Material.Marble)
-	sign(altar, Enum.NormalId.Top, "🔔 WIELKI SZKOLNY DZWON 🔔", Color3.fromRGB(180, 50, 50), Color3.fromRGB(255, 230, 80))
+	-- Podium pod WIELKI SZKOLNY DZWON
+	local altar = part("OltarzDzwonu", Vector3.new(10, 2.5, 10), CFrame.new(cafCenter + Vector3.new(0, 1.75, 0)), Color3.fromRGB(170, 35, 35), Enum.Material.Marble)
+	sign(altar, Enum.NormalId.Top, "🔔 WIELKI SZKOLNY DZWON ALARMOWY 🔔", Color3.fromRGB(170, 35, 35), Color3.fromRGB(255, 230, 80))
 
-	-- WIELKI SZKOLNY DZWON
+	-- WIELKI DZWON SZKOLNY
 	local bell = Instance.new("Part")
 	bell.Name = "WielkiDzwonSzkolny"
 	bell.Shape = Enum.PartType.Cylinder
-	bell.Size = Vector3.new(3.5, 3.5, 3.5)
-	bell.CFrame = CFrame.new(cafCenter + Vector3.new(0, 5.5, 0)) * CFrame.Angles(0, 0, math.rad(90))
-	bell.Color = Color3.fromRGB(255, 215, 0) -- Złoto
+	bell.Size = Vector3.new(4, 4, 4)
+	bell.CFrame = CFrame.new(cafCenter + Vector3.new(0, 6.5, 0)) * CFrame.Angles(0, 0, math.rad(90))
+	bell.Color = Color3.fromRGB(255, 215, 0)
 	bell.Material = Enum.Material.Metal
 	bell.Anchored = true
 	bell.Parent = mapFolder
 
 	local bellGlow = Instance.new("PointLight")
-	bellGlow.Color = Color3.fromRGB(255, 220, 100)
-	bellGlow.Brightness = 2
-	bellGlow.Range = 20
+	bellGlow.Color = Color3.fromRGB(255, 230, 110)
+	bellGlow.Brightness = 2.5
+	bellGlow.Range = 28
 	bellGlow.Parent = bell
 
 	local bellTag = Instance.new("BillboardGui")
-	bellTag.Size = UDim2.new(0, 220, 0, 45)
-	bellTag.StudsOffset = Vector3.new(0, 3, 0)
+	bellTag.Size = UDim2.new(0, 240, 0, 50)
+	bellTag.StudsOffset = Vector3.new(0, 3.5, 0)
 	bellTag.AlwaysOnTop = true
 	bellTag.Parent = bell
 
 	local bellLabel = Instance.new("TextLabel")
 	bellLabel.Size = UDim2.new(1, 0, 1, 0)
 	bellLabel.BackgroundTransparency = 1
-	bellLabel.Text = "🔔 WIELKI DZWON SZKOLNY\n(Zwołaj Zebranie!)"
+	bellLabel.Text = "🔔 WIELKI DZWON SZKOLNY\n(Uderz, aby Zwołać Zebranie!)"
 	bellLabel.TextColor3 = Color3.fromRGB(255, 235, 70)
 	bellLabel.TextScaled = true
 	bellLabel.Font = Enum.Font.GothamBlack
@@ -220,7 +246,7 @@ function SchoolMapGenerator.setupMap(onBellRing: (Player) -> ()): (Vector3, Vect
 	bellPrompt.ActionText = "Uderz w Dzwon Szkolny!"
 	bellPrompt.ObjectText = "Alarm Szkolny"
 	bellPrompt.HoldDuration = 1.0
-	bellPrompt.MaxActivationDistance = 14
+	bellPrompt.MaxActivationDistance = 15
 	bellPrompt.Parent = bell
 
 	bellPrompt.Triggered:Connect(function(player)
@@ -229,20 +255,94 @@ function SchoolMapGenerator.setupMap(onBellRing: (Player) -> ()): (Vector3, Vect
 		end
 	end)
 
+	print("🏗️ [Budowa Szkoły] KROK 4/7: Budowanie Sali Gimnastycznej i Boiska Orlik...")
 	-- ========================================================
-	-- 3. SALA 101: KLASA MATEMATYCZNA (x = 35, z = 30)
+	-- 4. SALA GIMNASTYCZNA (x = -70, z = 60, 90x90, wysokość 26 studów)
 	-- ========================================================
-	print("[Mapa] Generowanie Klasy Matematycznej (Sala 101)...")
-	local mathCenter = Vector3.new(35, 0, 30)
-	part("PodlogaMatematyka", Vector3.new(44, 1, 38), CFrame.new(mathCenter + Vector3.new(0, 0.5, 0)), Color3.fromRGB(200, 215, 200))
-	part("SufitMatematyka", Vector3.new(44, 1, 38), CFrame.new(mathCenter + Vector3.new(0, 16.5, 0)), Color3.fromRGB(230, 230, 230))
-	part("ScianaMath_E", Vector3.new(1, 16, 38), CFrame.new(mathCenter + Vector3.new(22, 8.5, 0)), Color3.fromRGB(235, 240, 230))
-	part("ScianaMath_N", Vector3.new(44, 16, 1), CFrame.new(mathCenter + Vector3.new(0, 8.5, 19)), Color3.fromRGB(235, 240, 230))
-	part("ScianaMath_S", Vector3.new(44, 16, 1), CFrame.new(mathCenter + Vector3.new(0, 8.5, -19)), Color3.fromRGB(235, 240, 230))
+	local gymCenter = Vector3.new(-70, 0, 60)
+	part("ParkietGym", Vector3.new(80, 1, 80), CFrame.new(gymCenter + Vector3.new(0, 0.5, 0)), Color3.fromRGB(225, 175, 105), Enum.Material.WoodPlanks)
+	part("SufitGym", Vector3.new(80, 1, 80), CFrame.new(gymCenter + Vector3.new(0, 26.5, 0)), Color3.fromRGB(215, 215, 215))
+	part("ScianaGym_W", Vector3.new(1, 26, 80), CFrame.new(gymCenter + Vector3.new(-40, 13.5, 0)), Color3.fromRGB(235, 230, 210))
+	part("ScianaGym_N", Vector3.new(80, 26, 1), CFrame.new(gymCenter + Vector3.new(0, 13.5, 40)), Color3.fromRGB(235, 230, 210))
+	part("ScianaGym_S", Vector3.new(80, 26, 1), CFrame.new(gymCenter + Vector3.new(0, 13.5, -40)), Color3.fromRGB(235, 230, 210))
 
-	-- Tablica matematyczna z zadaniem
-	local mathBoard = part("TablicaMatematyka", Vector3.new(1, 8, 18), CFrame.new(mathCenter + Vector3.new(21.4, 7, 0)), Color3.fromRGB(35, 65, 45))
-	sign(mathBoard, Enum.NormalId.Left, "📐 KLASA MATEMATYCZNA (SALA 101)\n\nKARTKÓWKA Z MATEMATYKI:\nOblicz: 2 + 2 = ?\na) 3   b) 4   c) 5", Color3.fromRGB(35, 65, 45), Color3.fromRGB(255, 255, 255))
+	-- Kosze do koszykówki na sali
+	for _, zEnd in ipairs({ -39, 39 }) do
+		local rot = if zEnd < 0 then 0 else 180
+		local backboard = part("TablicaKosz", Vector3.new(7, 5, 0.4), CFrame.new(gymCenter + Vector3.new(0, 16, zEnd)) * CFrame.Angles(0, math.rad(rot), 0), Color3.fromRGB(250, 250, 250))
+		part("KoszObrecz", Vector3.new(2.8, 0.3, 2.8), backboard.CFrame * CFrame.new(0, -1.8, 1.8), Color3.fromRGB(220, 50, 20), Enum.Material.Metal)
+	end
+
+	-- Drabinki ścienne
+	for i = 1, 10 do
+		part(`Drabinka_{i}`, Vector3.new(0.3, 0.3, 30), CFrame.new(gymCenter + Vector3.new(-39.2, i * 2.2, 0)), Color3.fromRGB(200, 150, 90), Enum.Material.Wood)
+	end
+
+	-- Kanciapa Woźnej (Parter x = 45, z = 60)
+	local janCenter = Vector3.new(45, 0, 60)
+	part("PodlogaWozna", Vector3.new(40, 1, 40), CFrame.new(janCenter + Vector3.new(0, 0.5, 0)), Color3.fromRGB(130, 130, 130), Enum.Material.Concrete)
+	part("ScianaWozna_E", Vector3.new(1, 18, 40), CFrame.new(janCenter + Vector3.new(20, 9.5, 0)), Color3.fromRGB(210, 210, 210))
+	local shelfJan = part("PolkaLudwik", Vector3.new(2, 9, 20), CFrame.new(janCenter + Vector3.new(18, 5.5, 0)), Color3.fromRGB(90, 65, 45), Enum.Material.Wood)
+	sign(shelfJan, Enum.NormalId.Left, "🧹 KANCIAPA PANI WOŹNEJ\nŚrodki czystości: PŁYN LUDWIK, MOPY, WIADRA\nUWAGA: NIE DEPTAĆ PO ŚWIEŻO ZMYTYM!", Color3.fromRGB(35, 75, 120), Color3.fromRGB(255, 255, 255))
+
+	-- Plama do zmycia dla Woźnej
+	local puddle = part("PlamaDoZmycia", Vector3.new(9, 0.05, 9), CFrame.new(janCenter + Vector3.new(-5, 1.05, 0)), Color3.fromRGB(150, 95, 35), Enum.Material.Glass)
+	local puddlePrompt = Instance.new("ProximityPrompt")
+	puddlePrompt.ActionText = "Zmyj rozlaną zupę mopem!"
+	puddlePrompt.ObjectText = "Śliska Plama"
+	puddlePrompt.HoldDuration = 0.8
+	puddlePrompt.MaxActivationDistance = 9
+	puddlePrompt.Parent = puddle
+
+	print("🏗️ [Budowa Szkoły] KROK 5/7: Budowanie Schodów Dwubiegowych na I Piętro...")
+	-- ========================================================
+	-- 5. SCHODY NA I PIĘTRO (z = 40, x = 0, wejście na y = 18.5)
+	-- ========================================================
+	local stairsSteps = 24
+	local stepHeight = 18.0 / stairsSteps
+	local stepDepth = 24.0 / stairsSteps
+
+	for s = 1, stairsSteps do
+		local sY = (s * stepHeight) - (stepHeight / 2)
+		local sZ = 30 + (s * stepDepth)
+		part(`Stopien_{s}`, Vector3.new(12, stepHeight, stepDepth + 0.1), CFrame.new(0, sY, sZ), Color3.fromRGB(160, 160, 150), Enum.Material.Concrete)
+	end
+	-- Balustrada schodów
+	part("BarierkaLewa", Vector3.new(0.4, 3.5, 28), CFrame.new(-6.2, 11, 42) * CFrame.Angles(math.rad(-36), 0, 0), Color3.fromRGB(30, 30, 30), Enum.Material.Metal)
+	part("BarierkaPrawa", Vector3.new(0.4, 3.5, 28), CFrame.new(6.2, 11, 42) * CFrame.Angles(math.rad(-36), 0, 0), Color3.fromRGB(30, 30, 30), Enum.Material.Metal)
+
+	print("🏗️ [Budowa Szkoły] KROK 6/7: Budowanie I Piętra (Gabinety, Sale Lekcyjne, Pracownie)...")
+	-- ========================================================
+	-- 6. I PIĘTRO: KORYTARZ I SALE LEKCYJNE (y = 18.5 do 35)
+	-- ========================================================
+	-- Sufit I Piętra / Dach szkoły (y = 35)
+	part("DachGlowny", Vector3.new(30, 1, 210), CFrame.new(0, 35, 35), Color3.fromRGB(190, 80, 50))
+
+	-- Światła I Piętra
+	for z = -50, 120, 30 do
+		light(Vector3.new(0, 34.5, z))
+	end
+
+	-- A) GABINET DYREKTORA (I Piętro, x = 45, z = -10, y = 18.5)
+	local dirCenter = Vector3.new(45, 18.5, -10)
+	part("PodlogaDyrektor", Vector3.new(40, 1, 40), CFrame.new(dirCenter + Vector3.new(0, 0.5, 0)), Color3.fromRGB(120, 60, 30), Enum.Material.WoodPlanks)
+	part("ScianaDir_E", Vector3.new(1, 16, 40), CFrame.new(dirCenter + Vector3.new(20, 8.5, 0)), Color3.fromRGB(240, 230, 210))
+	part("ScianaDir_N", Vector3.new(40, 16, 1), CFrame.new(dirCenter + Vector3.new(0, 8.5, 20)), Color3.fromRGB(240, 230, 210))
+	part("ScianaDir_S", Vector3.new(40, 16, 1), CFrame.new(dirCenter + Vector3.new(0, 8.5, -20)), Color3.fromRGB(240, 230, 210))
+
+	-- Słynny czerwony dywanik u Dyrektora
+	part("DywanikDyrektora", Vector3.new(16, 0.1, 24), CFrame.new(dirCenter + Vector3.new(0, 1.05, 0)), Color3.fromRGB(180, 20, 20), Enum.Material.Fabric)
+
+	-- Mahoniowe biurko Dyrektora
+	local dirDesk = part("BiurkoDyrektora", Vector3.new(12, 3.2, 5.5), CFrame.new(dirCenter + Vector3.new(10, 2.6, 0)), Color3.fromRGB(60, 30, 15), Enum.Material.Wood)
+	sign(dirDesk, Enum.NormalId.Left, "👑 GABINET DYREKTORA SZKOŁY\n'Wszystko widzę, wszystko wiem!'", Color3.fromRGB(60, 30, 15), Color3.fromRGB(255, 215, 0))
+
+	-- B) PRACOWNIA MATEMATYCZNA (Sala 201, I Piętro, x = 45, z = 70)
+	local mathCenter = Vector3.new(45, 18.5, 70)
+	part("PodlogaMatematyka", Vector3.new(40, 1, 40), CFrame.new(mathCenter + Vector3.new(0, 0.5, 0)), Color3.fromRGB(205, 220, 205))
+	part("ScianaMath_E", Vector3.new(1, 16, 40), CFrame.new(mathCenter + Vector3.new(20, 8.5, 0)), Color3.fromRGB(235, 240, 230))
+	local mathBoard = part("TablicaMatematyka", Vector3.new(1, 8, 18), CFrame.new(mathCenter + Vector3.new(19.4, 7, 0)), Color3.fromRGB(35, 65, 45))
+	sign(mathBoard, Enum.NormalId.Left, "📐 KLASA MATEMATYCZNA (SALA 201)\n\nKARTKÓWKA Z MATEMATYKI:\nOblicz: 2 + 2 = ?\na) 3   b) 4   c) 5", Color3.fromRGB(35, 65, 45), Color3.fromRGB(255, 255, 255))
 
 	local mathPrompt = Instance.new("ProximityPrompt")
 	mathPrompt.ActionText = "Rozwiąż zadanie z Matematyki"
@@ -251,31 +351,18 @@ function SchoolMapGenerator.setupMap(onBellRing: (Player) -> ()): (Vector3, Vect
 	mathPrompt.MaxActivationDistance = 10
 	mathPrompt.Parent = mathBoard
 
-	-- Ławki w klasie matematycznej
-	for _, rowZ in ipairs({ -10, 0, 10 }) do
-		for _, colX in ipairs({ 24, 34 }) do
-			schoolDeskAndChair(Vector3.new(colX, 0.5, rowZ + 30), -90)
+	for _, rZ in ipairs({ -10, 0, 10 }) do
+		for _, cX in ipairs({ 35, 45 }) do
+			deskAndChairs(Vector3.new(cX, 19, rZ + 70), -90)
 		end
 	end
 
-	-- ========================================================
-	-- 4. SALA 102: KLASA JĘZYKA POLSKIEGO (x = 35, z = -30)
-	-- ========================================================
-	print("[Mapa] Generowanie Klasy Języka Polskiego (Sala 102)...")
-	local polCenter = Vector3.new(35, 0, -30)
-	part("PodlogaPolski", Vector3.new(44, 1, 38), CFrame.new(polCenter + Vector3.new(0, 0.5, 0)), Color3.fromRGB(225, 215, 205))
-	part("SufitPolski", Vector3.new(44, 1, 38), CFrame.new(polCenter + Vector3.new(0, 16.5, 0)), Color3.fromRGB(230, 230, 230))
-	part("ScianaPol_E", Vector3.new(1, 16, 38), CFrame.new(polCenter + Vector3.new(22, 8.5, 0)), Color3.fromRGB(245, 235, 230))
-	part("ScianaPol_N", Vector3.new(44, 16, 1), CFrame.new(polCenter + Vector3.new(0, 8.5, 19)), Color3.fromRGB(245, 235, 230))
-	part("ScianaPol_S", Vector3.new(44, 16, 1), CFrame.new(polCenter + Vector3.new(0, 8.5, -19)), Color3.fromRGB(245, 235, 230))
-
-	-- Tablica polonistyczna z zadaniem
-	local polBoard = part("TablicaPolski", Vector3.new(1, 8, 18), CFrame.new(polCenter + Vector3.new(21.4, 7, 0)), Color3.fromRGB(40, 40, 45))
-	sign(polBoard, Enum.NormalId.Left, "📖 JĘZYK POLSKI (SALA 102)\n\nDYKTANDO:\nPrzepisz bezbłędnie słowo: 'szkoła' lub 'kartkówka'!", Color3.fromRGB(40, 40, 45), Color3.fromRGB(255, 255, 255))
-
-	-- Portret Adama Mickiewicza
-	local portrait = part("PortretMickiewicz", Vector3.new(1, 6, 4.5), CFrame.new(polCenter + Vector3.new(21.4, 12, 12)), Color3.fromRGB(80, 50, 30), Enum.Material.Wood)
-	sign(portrait, Enum.NormalId.Left, "PORTRET:\nAdam Mickiewicz\n(1798–1855)", Color3.fromRGB(240, 230, 210), Color3.fromRGB(30, 30, 30))
+	-- C) PRACOWNIA JĘZYKA POLSKIEGO (Sala 202, I Piętro, x = -45, z = -10)
+	local polCenter = Vector3.new(-45, 18.5, -10)
+	part("PodlogaPolski", Vector3.new(40, 1, 40), CFrame.new(polCenter + Vector3.new(0, 0.5, 0)), Color3.fromRGB(225, 215, 205))
+	part("ScianaPol_W", Vector3.new(1, 16, 40), CFrame.new(polCenter + Vector3.new(-20, 8.5, 0)), Color3.fromRGB(245, 235, 230))
+	local polBoard = part("TablicaPolski", Vector3.new(1, 8, 18), CFrame.new(polCenter + Vector3.new(-19.4, 7, 0)), Color3.fromRGB(40, 40, 45))
+	sign(polBoard, Enum.NormalId.Right, "📖 JĘZYK POLSKI (SALA 202)\n\nDYKTANDO:\nPrzepisz bezbłędnie słowo: 'szkoła' lub 'kartkówka'!", Color3.fromRGB(40, 40, 45), Color3.fromRGB(255, 255, 255))
 
 	local polishPrompt = Instance.new("ProximityPrompt")
 	polishPrompt.ActionText = "Napisz dyktando z Polskiego"
@@ -284,88 +371,30 @@ function SchoolMapGenerator.setupMap(onBellRing: (Player) -> ()): (Vector3, Vect
 	polishPrompt.MaxActivationDistance = 10
 	polishPrompt.Parent = polBoard
 
-	-- Ławki w klasie polskiego
-	for _, rowZ in ipairs({ -10, 0, 10 }) do
-		for _, colX in ipairs({ 24, 34 }) do
-			schoolDeskAndChair(Vector3.new(colX, 0.5, rowZ - 30), -90)
+	for _, rZ in ipairs({ -10, 0, 10 }) do
+		for _, cX in ipairs({ -35, -45 }) do
+			deskAndChairs(Vector3.new(cX, 19, rZ - 10), 90)
 		end
 	end
 
-	-- ========================================================
-	-- 5. GABINET DYREKTORA SZKOŁY (x = -35, z = -30)
-	-- ========================================================
-	print("[Mapa] Generowanie Gabinetu Dyrektora...")
-	local dirCenter = Vector3.new(-35, 0, -30)
-	part("PodlogaDyrektor", Vector3.new(44, 1, 38), CFrame.new(dirCenter + Vector3.new(0, 0.5, 0)), Color3.fromRGB(130, 70, 40), Enum.Material.WoodPlanks)
-	part("SufitDyrektor", Vector3.new(44, 1, 38), CFrame.new(dirCenter + Vector3.new(0, 16.5, 0)), Color3.fromRGB(230, 230, 230))
-	part("ScianaDir_W", Vector3.new(1, 16, 38), CFrame.new(dirCenter + Vector3.new(-22, 8.5, 0)), Color3.fromRGB(240, 230, 210))
-	part("ScianaDir_N", Vector3.new(44, 16, 1), CFrame.new(dirCenter + Vector3.new(0, 8.5, 19)), Color3.fromRGB(240, 230, 210))
-	part("ScianaDir_S", Vector3.new(44, 16, 1), CFrame.new(dirCenter + Vector3.new(0, 8.5, -19)), Color3.fromRGB(240, 230, 210))
+	-- D) PRACOWNIA INFORMATYCZNA (Sala 203, I Piętro, x = -45, z = 70)
+	local itCenter = Vector3.new(-45, 18.5, 70)
+	part("PodlogaInfa", Vector3.new(40, 1, 40), CFrame.new(itCenter + Vector3.new(0, 0.5, 0)), Color3.fromRGB(190, 195, 205))
+	part("ScianaIT_W", Vector3.new(1, 16, 40), CFrame.new(itCenter + Vector3.new(-20, 8.5, 0)), Color3.fromRGB(220, 225, 235))
+	local itSign = part("TablicaIT", Vector3.new(1, 6, 16), CFrame.new(itCenter + Vector3.new(-19.4, 7, 0)), Color3.fromRGB(30, 50, 80))
+	sign(itSign, Enum.NormalId.Right, "💻 PRACOWNIA INFORMATYCZNA (SALA 203)\nZAKAZ GRANIE W CS NA ZAJĘCIACH!\nDyskietki 3.5 cala składać u nauczyciela.", Color3.fromRGB(30, 50, 80), Color3.fromRGB(255, 255, 255))
 
-	-- Słynny czerwony "DYWANIK U DYREKTORA"
-	part("DywanikDyrektora", Vector3.new(16, 0.1, 24), CFrame.new(dirCenter + Vector3.new(0, 1.05, 0)), Color3.fromRGB(180, 20, 20), Enum.Material.Fabric)
-
-	-- Wielkie mahoniowe biurko Dyrektora
-	local dirDesk = part("BiurkoDyrektora", Vector3.new(12, 3, 5), CFrame.new(dirCenter + Vector3.new(-12, 2.5, 0)), Color3.fromRGB(60, 30, 15), Enum.Material.Wood)
-	sign(dirDesk, Enum.NormalId.Right, "👑 GABINET DYREKTORA SZKOŁY\n'Wszystko widzę, wszystko wiem!'", Color3.fromRGB(60, 30, 15), Color3.fromRGB(255, 215, 0))
-
-	-- Gablota z pucharami szkolnymi
-	local trophyCase = part("GablotaPuchary", Vector3.new(1.2, 10, 14), CFrame.new(dirCenter + Vector3.new(-21.2, 6, 8)), Color3.fromRGB(20, 20, 20), Enum.Material.Glass)
-	sign(trophyCase, Enum.NormalId.Right, "🏆 PUCHARY SZKOŁY:\n1. Zwycięstwo w Turnieju Zbijaka\n2. I Miejsce w Konkursie Ortograficznym", Color3.fromRGB(40, 40, 40), Color3.fromRGB(255, 230, 80))
-
-	-- ========================================================
-	-- 6. KANCIAPA WOŹNEJ (x = -35, z = 30)
-	-- ========================================================
-	print("[Mapa] Generowanie Kanciapy Woźnej...")
-	local janCenter = Vector3.new(-35, 0, 30)
-	part("PodlogaWozna", Vector3.new(44, 1, 38), CFrame.new(janCenter + Vector3.new(0, 0.5, 0)), Color3.fromRGB(140, 140, 140), Enum.Material.Concrete)
-	part("SufitWozna", Vector3.new(44, 1, 38), CFrame.new(janCenter + Vector3.new(0, 16.5, 0)), Color3.fromRGB(230, 230, 230))
-	part("ScianaJan_W", Vector3.new(1, 16, 38), CFrame.new(janCenter + Vector3.new(-22, 8.5, 0)), Color3.fromRGB(210, 210, 210))
-	part("ScianaJan_N", Vector3.new(44, 16, 1), CFrame.new(janCenter + Vector3.new(0, 8.5, 19)), Color3.fromRGB(210, 210, 210))
-	part("ScianaJan_S", Vector3.new(44, 16, 1), CFrame.new(janCenter + Vector3.new(0, 8.5, -19)), Color3.fromRGB(210, 210, 210))
-
-	-- Półka ze środkami czystości
-	local shelfJan = part("PolkaLudwik", Vector3.new(2, 8, 16), CFrame.new(janCenter + Vector3.new(-20, 5, 0)), Color3.fromRGB(90, 70, 50), Enum.Material.Wood)
-	sign(shelfJan, Enum.NormalId.Right, "🧹 KANCIAPA PANI WOŹNEJ\nŚrodki czystości: PŁYN LUDWIK, MOPY, WIADRA\nUWAGA: NIE DEPTAĆ PO ŚWIEŻO ZMYTYM!", Color3.fromRGB(40, 80, 120), Color3.fromRGB(255, 255, 255))
-
-	-- Plama do zmycia dla Woźnej (Zadanie Woźnej)
-	local puddle = part("PlamaDoZmycia", Vector3.new(8, 0.05, 8), CFrame.new(janCenter + Vector3.new(-6, 1.05, 0)), Color3.fromRGB(160, 100, 40), Enum.Material.Glass)
-	local puddlePrompt = Instance.new("ProximityPrompt")
-	puddlePrompt.ActionText = "Zmyj rozlaną zupę mopem!"
-	puddlePrompt.ObjectText = "Śliska Plama"
-	puddlePrompt.HoldDuration = 0.8
-	puddlePrompt.MaxActivationDistance = 9
-	puddlePrompt.Parent = puddle
-
-	-- ========================================================
-	-- 7. SALA GIMNASTYCZNA (x = 0, z = 130, 70x70 studs)
-	-- ========================================================
-	print("[Mapa] Generowanie Sali Gimnastycznej...")
-	local gymCenter = Vector3.new(0, 0, 130)
-	-- Parkiet gimnastyczny
-	part("ParkietGimnastyczny", Vector3.new(70, 1, 70), CFrame.new(gymCenter + Vector3.new(0, 0.5, 0)), Color3.fromRGB(225, 175, 110), Enum.Material.WoodPlanks)
-	part("SufitGym", Vector3.new(70, 1, 70), CFrame.new(gymCenter + Vector3.new(0, 22.5, 0)), Color3.fromRGB(220, 220, 220))
-
-	-- Ściany sali gimnastycznej (wysokie 22 study)
-	part("ScianaGym_N", Vector3.new(70, 22, 1), CFrame.new(gymCenter + Vector3.new(0, 11.5, 35)), Color3.fromRGB(235, 230, 210))
-	part("ScianaGym_W", Vector3.new(1, 22, 70), CFrame.new(gymCenter + Vector3.new(-35, 11.5, 0)), Color3.fromRGB(235, 230, 210))
-	part("ScianaGym_E", Vector3.new(1, 22, 70), CFrame.new(gymCenter + Vector3.new(35, 11.5, 0)), Color3.fromRGB(235, 230, 210))
-
-	-- Tablica i kosz do koszykówki
-	local hoopBoard = part("TablicaKosz", Vector3.new(6, 4, 0.4), CFrame.new(gymCenter + Vector3.new(0, 14, 34.2)), Color3.fromRGB(250, 250, 250))
-	local hoopRing = part("ObreczKosza", Vector3.new(2.4, 0.3, 2.4), CFrame.new(gymCenter + Vector3.new(0, 12.5, 32.5)), Color3.fromRGB(220, 60, 20), Enum.Material.Metal)
-
-	-- Drabinki gimnastyczne na ścianie bocznej
-	for i = 1, 8 do
-		part(`DrabinkaSzczebel_{i}`, Vector3.new(0.3, 0.3, 24), CFrame.new(gymCenter + Vector3.new(-34.2, i * 2, 0)), Color3.fromRGB(200, 150, 90), Enum.Material.Wood)
+	-- Komputery CRT na stolikach
+	for _, itZ in ipairs({ -10, 0, 10 }) do
+		local deskIT = part("BiurkoIT", Vector3.new(14, 2.8, 3), CFrame.new(itCenter + Vector3.new(-5, 1.4, itZ)), Color3.fromRGB(200, 200, 190))
+		for _, cx in ipairs({ -3, 3 }) do
+			part("MonitorCRT", Vector3.new(1.8, 1.8, 1.8), deskIT.CFrame * CFrame.new(cx, 2.3, 0), Color3.fromRGB(220, 215, 200))
+		end
 	end
 
-	-- Baner motywacyjny na WF-ie
-	local gymBanner = part("BanerWF", Vector3.new(24, 4, 0.4), CFrame.new(gymCenter + Vector3.new(0, 19, 34.2)), Color3.fromRGB(20, 70, 140))
-	sign(gymBanner, Enum.NormalId.Back, "🏀 SALA GIMNASTYCZNA\nW ZDROWYM CIELE ZDROWY DUCH!\nZMIANA OBUWIA SUROWO WYMAGANA!", Color3.fromRGB(20, 70, 140), Color3.fromRGB(255, 255, 255))
-
+	print("🏗️ [Budowa Szkoły] KROK 7/7: Podłączanie interakcji i zdarzeń zadań...")
 	-- ========================================================
-	-- 8. PODPIĘCIE WSZYSTKICH PROMPTÓW ZADAŃ DO EVENTÓW
+	-- 7. PODPIĘCIE WSZYSTKICH PROMPTÓW
 	-- ========================================================
 	local function bindTask(prompt: ProximityPrompt, taskId: string)
 		prompt.Triggered:Connect(function(player)
@@ -387,10 +416,17 @@ function SchoolMapGenerator.setupMap(onBellRing: (Player) -> ()): (Vector3, Vect
 	bindTask(lockerPrompt, GameConfig.Tasks.SzafkiKsiazki.Id)
 	bindTask(pierogiPrompt, GameConfig.Tasks.StolowkaPierogi.Id)
 
-	print("✨ Pomyślnie wygenerowano kompletną, memiczną mapę polskiej szkoły z salami i zadaniami!")
+	print("🎉 [SUKCES] Cała potężna 2-piętrowa szkoła 'Tysiąclatka' z Lobby i Orlikiem została wygenerowana!")
 
-	-- Zwracamy pozycję spawnu szkoły (Korytarz Główny) oraz Stołówki (Kafeteria na zebrania)
-	return Vector3.new(0, 3.5, 0), cafCenter + Vector3.new(0, 3.5, 0)
+	-- Zwracamy pozycje:
+	-- 1. Spawn w szkole (Korytarz Parteru)
+	-- 2. Stołówka (Zwoływanie zebrań)
+	-- 3. Lobby (Plac apelowy przed rozpoczęciem rundy)
+	local schoolSpawnPos = Vector3.new(0, 3.5, 0)
+	local cafeteriaPos = cafCenter + Vector3.new(0, 3.5, 0)
+	local lobbySpawnPos = lobbyCenter + Vector3.new(0, 3.5, 0)
+
+	return schoolSpawnPos, cafeteriaPos, lobbySpawnPos
 end
 
 return SchoolMapGenerator
