@@ -26,8 +26,18 @@ ShopService.init()
 local MonetizationService = require(script:WaitForChild("MonetizationService"))
 MonetizationService.init()
 
--- 4. Uruchom menedżer rundy
+-- 4. Załaduj system wierzchowców Kukirin i Polskie Memy
+local KukirinService = require(script:WaitForChild("KukirinService"))
+KukirinService.init()
+
+local PolishMemesService = require(script:WaitForChild("PolishMemesService"))
+PolishMemesService.init()
+
+local RolesService = require(script:WaitForChild("RolesService"))
+RolesService.init()
+
+-- 5. Uruchom menedżer rundy
 local RoundManager = require(script:WaitForChild("RoundManager"))
 RoundManager.init()
 
-print("✅ Serwer gry wystartował pomyślnie z pełną monetyzacją i sklepem!")
+print("✅ Serwer gry wystartował pomyślnie z Kukirinami, Memami i pełnym sklepem!")

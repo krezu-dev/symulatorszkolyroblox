@@ -121,6 +121,34 @@ GameConfig.Gamepasses = {
 		Icon = "🎲",
 		Description = "Podwaja Twoją szansę na wylosowanie Dyrektora lub Rozrabiaki!",
 	},
+	GoldenKukirin = {
+		Id = 1827366,
+		Name = "🐉 Mityczny Złoty Kukirin (Mount & Pet)",
+		Price = 299,
+		Icon = "🐉",
+		Description = "Ekskluzywny latający Kukirin wierzchowiec! Daje +50% prędkości, złote cząsteczki i ryk KUKIRIIIIN!",
+	},
+	ImpostorChance = {
+		Id = 1827367,
+		Name = "😈 3x Szansa na Rozrabiakę (Impostor Boost)",
+		Price = 179,
+		Icon = "😈",
+		Description = "Aż potrójna szansa na bycie Rozrabiaką w każdej rundzie!",
+	},
+	DyrektorChance = {
+		Id = 1827368,
+		Name = "🎓 3x Szansa na Dyrektora (Szef Szkoły Boost)",
+		Price = 179,
+		Icon = "🎓",
+		Description = "Aż potrójna szansa na bycie Dyrektorem ze Szkolnym Dziennikiem!",
+	},
+	MemeSoundboard = {
+		Id = 1827369,
+		Name = "📢 Polskie Memy Szkolne & Dźwięki",
+		Price = 99,
+		Icon = "📢",
+		Description = "Odblokowuje menu kultowych polskich tekstów nauczycieli i memów!",
+	},
 }
 
 -- Pakiety Szkolnych Monet za Robux (Developer Products)
@@ -182,6 +210,46 @@ GameConfig.Upgrades = {
 	},
 }
 
+-- ========================================================
+-- SYSTEM KUKIRINÓW (PET & MOUNT SYSTEM)
+-- ========================================================
+GameConfig.Kukirins = {
+	GoldenKukirin = {
+		Id = "GoldenKukirin",
+		Name = "Mityczny Złoty Kukirin",
+		IsGamepass = true,
+		GamepassKey = "GoldenKukirin",
+		SpeedBoost = 8,
+		Color = Color3.fromRGB(255, 215, 0),
+		ParticleColor = Color3.fromRGB(255, 235, 100),
+		RoarText = "✨ KUKIRIIIIIN! ✨",
+		Icon = "🐉",
+	},
+	SchoolKukirin = {
+		Id = "SchoolKukirin",
+		Name = "Szkolny Kukirin Biegacz",
+		IsGamepass = false,
+		Cost = 300, -- Koszt 300 monet w sklepie F2P
+		SpeedBoost = 4,
+		Color = Color3.fromRGB(50, 160, 220),
+		ParticleColor = Color3.fromRGB(100, 200, 255),
+		RoarText = "💨 KUKIRIN JEDZIE! 💨",
+		Icon = "🐾",
+	},
+}
+
+-- ========================================================
+-- POLSKIE MEMY SZKOLNE (MEME SOUNDBOARD & QUOTES)
+-- ========================================================
+GameConfig.PolishMemes = {
+	{ Id = "Dzwonek", Title = "🔔 Dzwonek jest dla nauczyciela!", Text = "Dzwonek jest dla nauczyciela, a nie dla was! Siadać na miejsca!", Sound = "rbxassetid://9114223847" },
+	{ Id = "Kukirin", Title = "🐉 KUKIRIIIIN!", Text = "KUKIRIIIIIN! Giga Kukirin wjeżdża do polskiej szkoły!", Sound = "rbxassetid://9114227555" },
+	{ Id = "Kartkowka", Title = "📝 Niezapowiedziana kartkóweczka!", Text = "Wyciągamy karteczki, trzy pytania, rząd pierwszy i drugi!", Sound = "rbxassetid://9114223171" },
+	{ Id = "Sklepik", Title = "🍫 Jedno Prince Polo proszę!", Text = "Dzień dobry, poproszę jedno Prince Polo i oranżadę ze szklanej butelki!", Sound = "rbxassetid://9114225010" },
+	{ Id = "Nieprzygotowanie", Title = "🙋 Kto zgłasza 'NP'?", Text = "Proszę pani, ja zgłaszam nieprzygotowanie z wczoraj!", Sound = "rbxassetid://9114226340" },
+	{ Id = "Sciaga", Title = "👀 On ściąga!", Text = "Proszę pani, a Igor ma ściągę w piórniku i pod ławką!", Sound = "rbxassetid://9114224522" },
+}
+
 -- Skrzynki ze skinami broni (MM2 Mystery Crates)
 GameConfig.Crates = {
 	PiornikCrate = {
@@ -239,7 +307,7 @@ GameConfig.RemoteEvents = {
 	CollectCoin = "CollectCoin",
 	UpdateCoins = "UpdateCoins",
 	OpenTaskGui = "OpenTaskGui",
-	-- Nowe zdarzenia Sklepu i Monetyzacji:
+	-- Sklep i Monetyzacja:
 	OpenShop = "OpenShop",
 	BuyCrate = "BuyCrate",
 	CrateOpened = "CrateOpened",
@@ -248,6 +316,11 @@ GameConfig.RemoteEvents = {
 	PromptGamePass = "PromptGamePass",
 	PromptDevProduct = "PromptDevProduct",
 	SyncPlayerData = "SyncPlayerData",
+	-- Kukiriny, Memy i Preferencje Ról:
+	ToggleKukirin = "ToggleKukirin",
+	SetRolePreference = "SetRolePreference",
+	PlayMemeQuote = "PlayMemeQuote",
+	BroadcastMeme = "BroadcastMeme",
 }
 
 return GameConfig

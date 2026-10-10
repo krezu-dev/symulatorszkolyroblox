@@ -269,6 +269,53 @@ local function renderUpgradesTab(parent: Frame)
 			end)
 		end
 	end
+
+	-- Karta zakupu Szkolnego Kukirina
+	local hasSchoolKukirin = table.find(latestData.Inventory, "SchoolKukirin") ~= nil
+	local kCard = Instance.new("Frame")
+	kCard.Size = UDim2.new(1, -10, 0, 75)
+	kCard.BackgroundColor3 = Color3.fromRGB(30, 45, 60)
+	Instance.new("UICorner", kCard).CornerRadius = UDim.new(0, 8)
+	kCard.Parent = scroll
+
+	local kTitle = Instance.new("TextLabel")
+	kTitle.Size = UDim2.new(0.6, 0, 0, 25)
+	kTitle.Position = UDim2.new(0, 15, 0, 10)
+	kTitle.BackgroundTransparency = 1
+	kTitle.Text = "🐾 Szkolny Kukirin Biegacz (Wierzchowiec)"
+	kTitle.TextColor3 = Color3.fromRGB(100, 220, 255)
+	kTitle.Font = Enum.Font.GothamBold
+	kTitle.TextSize = 14
+	kTitle.TextXAlignment = Enum.TextXAlignment.Left
+	kTitle.Parent = kCard
+
+	local kDesc = Instance.new("TextLabel")
+	kDesc.Size = UDim2.new(0.6, 0, 0, 25)
+	kDesc.Position = UDim2.new(0, 15, 0, 38)
+	kDesc.BackgroundTransparency = 1
+	kDesc.Text = "Dosiądź szkolnego Kukirina! Daje +4 prędkości i ryk Kukirina!"
+	kDesc.TextColor3 = Color3.fromRGB(180, 210, 230)
+	kDesc.Font = Enum.Font.Gotham
+	kDesc.TextSize = 11
+	kDesc.TextXAlignment = Enum.TextXAlignment.Left
+	kDesc.Parent = kCard
+
+	local kBtn = Instance.new("TextButton")
+	kBtn.Size = UDim2.new(0, 130, 0, 38)
+	kBtn.Position = UDim2.new(1, -145, 0.5, -19)
+	kBtn.BackgroundColor3 = if hasSchoolKukirin then Color3.fromRGB(46, 204, 113) else Color3.fromRGB(241, 196, 15)
+	kBtn.Text = if hasSchoolKukirin then "✓ POSIADANY" else "Kup: 300 🪙"
+	kBtn.TextColor3 = Color3.fromRGB(20, 20, 20)
+	kBtn.Font = Enum.Font.GothamBlack
+	kBtn.TextSize = 12
+	Instance.new("UICorner", kBtn).CornerRadius = UDim.new(0, 6)
+	kBtn.Parent = kCard
+
+	if not hasSchoolKukirin then
+		kBtn.MouseButton1Click:Connect(function()
+			Remotes.get(GameConfig.RemoteEvents.BuyUpgrade):FireServer("SchoolKukirin")
+		end)
+	end
 end
 
 -- ========================================================

@@ -40,16 +40,35 @@ local function applyPublicTag(character: Model, text: string, color: Color3)
 	label.Parent = bb
 end
 
+local playerRolePreferences: { [Player]: string } = {}
+
+function RolesService.setPreference(player: Player, role: string)
+	playerRolePreferences[player] = role
+	print(`[Roles] Gracz {player.Name} ustawił preferencję roli: {role}`)
+end
+
 function RolesService.assignRoles(playerList: {Player})
 	local count = #playerList
 	if count == 0 then return end
 
-	-- Przemieszaj listę graczy (z uwzględnieniem Gamepassa DoubleRoleChance)
+	-- Ważona pula graczy uwzględniająca Gamepassy (3x szansa) oraz preferencje graczy
 	local pool: {Player} = {}
 	for _, p in ipairs(playerList) do
-		table.insert(pool, p)
+		local weight = 1
+		local pref = playerRolePreferences[p]
+
 		if MonetizationService.hasGamepass(p, "DoubleRoleChance") then
-			table.insert(pool, p) -- Podwójna szansa
+			weight += 1
+		end
+		if MonetizationService.hasGamepass(p, "ImpostorChance") or MonetizationService.hasGamepass(p, "DyrektorChance") then
+			weight += 3 -- Potrójny boost z Gamepassa!
+		end
+		if pref and pref ~= "Random" then
+			weight += 1 -- Dodatkowy punkt za wybraną preferencję
+		end
+
+		for _ = 1, weight do
+			table.insert(pool, p)
 		end
 	end
 
@@ -176,6 +195,12 @@ function RolesService.cleanupRoles(playerList: {Player})
 			end
 		end
 	end
+end
+
+function RolesService.init()
+	Remotes.get(GameConfig.RemoteEvents.SetRolePreference).OnServerEvent:Connect(function(player: Player, role: string)
+		RolesService.setPreference(player, role)
+	end)
 end
 
 return RolesService

@@ -42,6 +42,14 @@ Repozytorium: `https://github.com/krezu-dev/symulatorszkolyroblox.git`
   - Gamepassy: VIP Przewodniczący Szkoły (x2 monety, złoty tag), Adidasy (+25% prędkości), Plecak (limit 100 monet), Szansa na Rolę x2, Szkolny Boombox.
 - [x] **Trwały Zapis Danych Gracza (`src/server/ProfileDataService.luau`)**:
   - DataStoreService: zapis stanu monet, wygranych, wykupionych ulepszeń i odblokowanych skinów z fallbackiem na Studio.
+- [x] **System Wierzchowców KUKIRIN (`src/server/KukirinService.luau`, `src/client/MemesGui.luau`)**:
+  - Mityczny Złoty Kukirin (płatny Gamepass za Robux) oraz Szkolny Kukirin (za 300 monet).
+  - Dosiadanie Kukirina przyciskiem w HUD: prędkość +8 WalkSpeed, złote cząsteczki i ryk KUKIRIIIIN!
+- [x] **Polskie Memy Szkolne & Soundboard (`src/server/PolishMemesService.luau`)**:
+  - Dymki nad głową i dźwięki: "Dzwonek jest dla nauczyciela!", "Wyciągamy karteczki!", "Prince Polo i oranżada!", "Proszę pani, on ściąga!".
+- [x] **Zwiększone Szanse na Role & Preferencje (`src/server/RolesService.luau`)**:
+  - Pasek wyboru preferowanej roli w Lobby (`[Dyrektor] [Rozrabiaka] [Woźna] [Losowo]`).
+  - Gamepassy 3x Szansa na Rozrabiakę (Impostor Boost) oraz 3x Szansa na Dyrektora (Szef Szkoły).
 - [x] **Pętla Gry i Stan Maszyny (`src/server/RoundManager.luau`)**:
   - Obsługa Lobby, InGame, Meeting, GameOver, zadań (0-100%) i warunków wygranej.
 - [x] **Rozbudowany Interfejs Klienta (`src/client/init.client.luau`)**:

@@ -27,6 +27,9 @@ local TasksGui = require(tasksGuiModule :: ModuleScript)
 local shopGuiModule = script:FindFirstChild("ShopGui") or (script.Parent and script.Parent:FindFirstChild("ShopGui")) or script:WaitForChild("ShopGui")
 local ShopGui = require(shopGuiModule :: ModuleScript)
 
+local memesGuiModule = script:FindFirstChild("MemesGui") or (script.Parent and script.Parent:FindFirstChild("MemesGui")) or script:WaitForChild("MemesGui")
+local MemesGui = require(memesGuiModule :: ModuleScript)
+
 -- Główny ScreenGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "SzkolnyDetektywGui"
@@ -39,6 +42,9 @@ TasksGui.init(screenGui)
 
 -- Inicjalizacja sklepu i monetyzacji Robux
 ShopGui.init(screenGui)
+
+-- Inicjalizacja Kukirinów, Polskich Memów i Preferencji Ról
+MemesGui.init(screenGui)
 
 -- Pływający przycisk Sklepu (dolny lewy róg)
 local shopFloatingBtn = Instance.new("TextButton")

@@ -77,8 +77,26 @@ function ShopService.init()
 		ProfileDataService.syncToClient(player)
 	end)
 
-	-- 2. Zakup ulepszenia (BuyUpgrade)
+	-- 2. Zakup ulepszenia lub Szkolnego Kukirina (BuyUpgrade)
 	Remotes.get(GameConfig.RemoteEvents.BuyUpgrade).OnServerEvent:Connect(function(player: Player, upgradeId: string)
+		local data = ProfileDataService.getData(player)
+
+		-- Zakup Szkolnego Kukirina za 300 monet (F2P)
+		if upgradeId == "SchoolKukirin" then
+			local kDef = GameConfig.Kukirins.SchoolKukirin
+			if data.Coins < (kDef.Cost or 300) then return end
+			if table.find(data.Inventory, "SchoolKukirin") then return end
+
+			data.Coins -= (kDef.Cost or 300)
+			table.insert(data.Inventory, "SchoolKukirin")
+			local stats = player:FindFirstChild("leaderstats")
+			local coinsVal = stats and stats:FindFirstChild("Monety") :: IntValue?
+			if coinsVal then coinsVal.Value = data.Coins end
+			ProfileDataService.syncToClient(player)
+			print(`[Shop] Gracz {player.Name} zakupił Szkolnego Kukirina za 300 monet!`)
+			return
+		end
+
 		local upDef = GameConfig.Upgrades[upgradeId]
 		if not upDef then return end
 
