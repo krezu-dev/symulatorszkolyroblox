@@ -1,7 +1,7 @@
 # Blender 5.2.2 LTS
 # www.blender.org
 mtllib szkolne_krzeslo.mtl
-o Siedzisko
+o Cube
 v -0.600000 0.910000 0.600000
 v -0.600000 0.990000 0.600000
 v -0.600000 0.910000 -0.600000

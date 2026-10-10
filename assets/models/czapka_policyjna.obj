@@ -1,7 +1,7 @@
 # Blender 5.2.2 LTS
 # www.blender.org
 mtllib czapka_policyjna.mtl
-o CzapkaPolicyjna
+o Cylinder
 v 0.000000 0.050000 -1.000000
 v 0.000000 0.450000 -1.000000
 v 0.171679 0.050000 -0.980785

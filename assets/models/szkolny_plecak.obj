@@ -1,7 +1,7 @@
 # Blender 5.2.2 LTS
 # www.blender.org
 mtllib szkolny_plecak.mtl
-o SzkolnyPlecak
+o Cube
 v -0.700000 0.000000 0.500000
 v -0.700000 1.800000 0.500000
 v -0.700000 0.000000 -0.500000
