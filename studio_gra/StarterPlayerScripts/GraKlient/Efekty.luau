@@ -87,6 +87,13 @@ function E.Init(k)
 	U = K.Styl
 	C = K.C
 	K.gracz:GetAttributeChangedSignal("NaHulajnodze"):Connect(jazda)
+	-- bez skakania
+	local function bezSkoku(ch)
+		local hum = ch:WaitForChild("Humanoid", 10)
+		if hum then hum:SetStateEnabled(Enum.HumanoidStateType.Jumping, false) end
+	end
+	if K.gracz.Character then task.spawn(bezSkoku, K.gracz.Character) end
+	K.gracz.CharacterAdded:Connect(bezSkoku)
 	K.gracz.CharacterAdded:Connect(function() jazdaTrack = nil jazdaDzwiek = nil end)
 	RunService.RenderStepped:Connect(function()
 		if not jazdaDzwiek then return end

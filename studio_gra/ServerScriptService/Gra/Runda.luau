@@ -41,7 +41,7 @@ function R.odswiezPredkosc(p)
 	if g and g.zamrozony then s = 0 end
 	hum.WalkSpeed = s
 	hum.UseJumpPower = true
-	hum.JumpPower = (g and g.zamrozony) and 0 or M.Profil.skok(p)
+	hum.JumpPower = 0 -- skakanie wyłączone w całej grze
 end
 
 -- postęp zadań całej szkoły (tylko dobrzy, łącznie z duchami)

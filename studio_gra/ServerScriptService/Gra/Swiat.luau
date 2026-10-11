@@ -213,7 +213,7 @@ function S.hulajnoga(p, wsiadz)
 		end
 	end
 	-- stoisz NA desce: postać idzie w górę o grubość deski, deska pod stopami, kierownica przed tobą
-	local DESKA = 0.55
+	local DESKA = 0.65
 	p:SetAttribute("HipPrzed", hum.HipHeight)
 	local stopy = -(hum.HipHeight + hrp.Size.Y / 2)
 	hum.HipHeight += DESKA

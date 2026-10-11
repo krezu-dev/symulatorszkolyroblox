@@ -236,7 +236,7 @@ C.Sklepik = {
 	{ id = "Drozdzowka", nazwa = "Drożdżówka", cena = 15, efekt = "szybkosc", moc = 4, czas = 20, opis = "Biegasz szybciej przez 20 s" },
 	{ id = "Kubus", nazwa = "Kubuś", cena = 10, efekt = "zadania", moc = 0.5, czas = 30, opis = "Zadania z trzymaniem 2× szybciej przez 30 s" },
 	{ id = "Zapiekanka", nazwa = "Zapiekanka", cena = 40, efekt = "zl", moc = 2, czas = 0, opis = "Podwójne złotówki za następne zadanie" },
-	{ id = "GumaTurbo", nazwa = "Guma Turbo", cena = 5, efekt = "skok", moc = 15, czas = 20, opis = "Skaczesz wyżej przez 20 s" },
+	{ id = "GumaTurbo", nazwa = "Guma Turbo", cena = 5, efekt = "szybkosc", moc = 2, czas = 15, opis = "Trochę szybciej przez 15 s" },
 	{ id = "BloxyCola", nazwa = "Bloxy Cola", cena = 20, efekt = "xp", moc = 2, czas = 0, opis = "Podwójne XP za następne zadanie" },
 	{ id = "Hotdog", nazwa = "Hot-dog", cena = 25, efekt = "szybkosc", moc = 7, czas = 10, opis = "Krótki, mocny sprint" },
 }
