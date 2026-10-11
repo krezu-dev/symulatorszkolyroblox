@@ -170,7 +170,7 @@ local function lobby()
 			M.Swiat.doLobby(p)
 		end)
 	end
-	local minimum = RunService:IsStudio() and 1 or C.Czasy.MinGraczy
+	local minimum = (RunService:IsStudio() and game:GetService("ServerStorage"):GetAttribute("TestMinGraczy")) or C.Czasy.MinGraczy
 	local odliczanie = C.Czasy.LobbyOdliczanie
 	if RunService:IsStudio() then odliczanie = math.min(odliczanie, game:GetService("ServerStorage"):GetAttribute("TestOdliczanie") or 15) end
 	local t = odliczanie

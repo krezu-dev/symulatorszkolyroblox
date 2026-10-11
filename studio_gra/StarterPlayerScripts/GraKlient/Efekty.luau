@@ -51,10 +51,51 @@ local function promptRzucalne(o)
 	pr.Triggered:Connect(function() K.wyslij("chwyc", { obiekt = o }) end)
 end
 
+-- jazda na hulajnodze: zamiast animacji chodzenia stoisz na desce (lekko pochylony), dźwięk silniczka
+local jazdaTrack, jazdaDzwiek
+local function jazda()
+	local ch = K.gracz.Character
+	local hum = ch and ch:FindFirstChildOfClass("Humanoid")
+	if not hum then return end
+	local animate = ch:FindFirstChild("Animate")
+	local an = hum:FindFirstChildOfClass("Animator")
+	local naHul = K.gracz:GetAttribute("NaHulajnodze") ~= nil
+	if naHul then
+		if animate then animate.Disabled = true end
+		if an then
+			for _, t in ipairs(an:GetPlayingAnimationTracks()) do t:Stop(0.1) end
+			local a = Instance.new("Animation")
+			a.AnimationId = "rbxassetid://507766388" -- stanie (idle R15)
+			jazdaTrack = an:LoadAnimation(a)
+			jazdaTrack.Priority = Enum.AnimationPriority.Action
+			jazdaTrack.Looped = true
+			jazdaTrack:Play(0.15)
+		end
+		if not jazdaDzwiek then
+			jazdaDzwiek = U.new("Sound", { SoundId = "rbxassetid://123671758687889", Looped = true, Volume = 0, SoundGroup = K.grupaSfx }, ch:FindFirstChild("HumanoidRootPart"))
+			jazdaDzwiek:Play()
+		end
+	else
+		if jazdaTrack then jazdaTrack:Stop(0.15) jazdaTrack = nil end
+		if animate then animate.Disabled = false end
+		if jazdaDzwiek then jazdaDzwiek:Destroy() jazdaDzwiek = nil end
+	end
+end
+
 function E.Init(k)
 	K = k
 	U = K.Styl
 	C = K.C
+	K.gracz:GetAttributeChangedSignal("NaHulajnodze"):Connect(jazda)
+	K.gracz.CharacterAdded:Connect(function() jazdaTrack = nil jazdaDzwiek = nil end)
+	RunService.RenderStepped:Connect(function()
+		if not jazdaDzwiek then return end
+		local h = K.hrp()
+		if not h then return end
+		local v = (h.AssemblyLinearVelocity * Vector3.new(1, 0, 1)).Magnitude
+		jazdaDzwiek.Volume = math.clamp(v / 40, 0, 0.35)
+		jazdaDzwiek.PlaybackSpeed = 0.8 + math.clamp(v / 40, 0, 0.6)
+	end)
 	K.na("Dymek", dymek)
 	K.na("Efekt", efekt)
 	for _, o in ipairs(CollectionService:GetTagged("Rzucalne")) do promptRzucalne(o) end

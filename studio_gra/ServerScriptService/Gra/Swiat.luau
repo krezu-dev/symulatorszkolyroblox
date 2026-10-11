@@ -177,6 +177,9 @@ function S.hulajnoga(p, wsiadz)
 	if stara then
 		stara:Destroy()
 		hulajnogi[p] = nil
+		local _, humS = W.hrp(p)
+		if humS and p:GetAttribute("HipPrzed") then humS.HipHeight = p:GetAttribute("HipPrzed") end
+		p:SetAttribute("HipPrzed", nil)
 		p:SetAttribute("NaHulajnodze", nil)
 		M.Runda.odswiezPredkosc(p)
 		if not wsiadz then return end
@@ -209,8 +212,13 @@ function S.hulajnoga(p, wsiadz)
 			if c.Name == "Rama" or c.Name == "Deska" or c:GetAttribute("Kolor") then c.Color = def.kolor end
 		end
 	end
-	local podloga = hrp.Position.Y - (hum.HipHeight + hrp.Size.Y / 2)
-	m:PivotTo(hrp.CFrame * CFrame.new(0, -(hum.HipHeight + hrp.Size.Y / 2) + 0.2, -0.3))
+	-- stoisz NA desce: postać idzie w górę o grubość deski, deska pod stopami, kierownica przed tobą
+	local DESKA = 0.55
+	p:SetAttribute("HipPrzed", hum.HipHeight)
+	local stopy = -(hum.HipHeight + hrp.Size.Y / 2)
+	hum.HipHeight += DESKA
+	hrp.CFrame += Vector3.new(0, DESKA, 0)
+	m:PivotTo(hrp.CFrame * CFrame.new(0, stopy - DESKA + 0.05, -0.6))
 	for _, c in ipairs(m:GetDescendants()) do
 		if c:IsA("BasePart") then
 			local w = Instance.new("WeldConstraint") w.Part0 = hrp w.Part1 = c w.Parent = c

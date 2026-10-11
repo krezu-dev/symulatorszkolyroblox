@@ -7,7 +7,7 @@ C.WERSJA = "1.0"
 ------------------------------------------------------------------ CZASY
 C.Czasy = {
 	LobbyOdliczanie = 20,     -- odliczanie w lobby, gdy jest dość graczy
-	MinGraczy = 1,            -- runda startuje od 1 gracza (przy 1-2 graczach bez Rozrabiaki)
+	MinGraczy = 3,            -- poniżej tego runda nie startuje, czekamy w lobby
 	Runda = 7 * 60,           -- długość lekcji; jak minie, wygrywa Rozrabiaka
 	Dyskusja = 25,            -- jak w Among Us: najpierw rozmowa
 	Glosowanie = 45,          -- potem głosowanie (można pominąć)
@@ -56,7 +56,7 @@ C.KolejnoscRol = { "Uczen", "Nauczyciel", "Wozna", "Dyrektor", "Rozrabiaka" }
 
 -- Ile osób ma jaką rolę przy N graczach
 function C.RozkladRol(n)
-	local r = { Rozrabiaka = n >= 3 and 1 or 0, Dyrektor = 0, Wozna = 0, Nauczyciel = 0 }
+	local r = { Rozrabiaka = 1, Dyrektor = 0, Wozna = 0, Nauczyciel = 0 }
 	if n >= 8 then r.Rozrabiaka = 2 end
 	if n >= 3 then r.Dyrektor = 1 end
 	if n >= 4 then r.Wozna = 1 end
