@@ -197,11 +197,14 @@ local function start()
 		if p.Character and p.Character:FindFirstChild("HumanoidRootPart") then table.insert(lista, p) end
 	end
 	if #lista == 0 then return false end
-	R.solo = #lista < 2
 	for _, p in ipairs(lista) do
 		R.gracze[p] = { rola = "Uczen", zyje = true, zadania = {}, zrobione = {}, dzwony = C.Czasy.DzwonowNaGracza, dyrektorMoc = true, ostatniaEliminacja = 0 }
 	end
 	przydzielRole(lista)
+	-- bez Rozrabiaki (1-2 graczy) runda kończy się tylko zadaniami albo czasem
+	local zlych = 0
+	for _, g in pairs(R.gracze) do if C.Role[g.rola].zly then zlych += 1 end end
+	R.solo = zlych == 0
 	for _, p in ipairs(lista) do przydzielZadania(p) end
 	-- szczęśliwy numerek: losowy numer z dziennika dostaje podwójne nagrody za zadania
 	table.sort(lista, function(a, b) return a.DisplayName:lower() < b.DisplayName:lower() end)
@@ -248,7 +251,8 @@ local function gra()
 			local zostalo = R.koniecCzasu - os.clock()
 			W.Gra:SetAttribute("Czas", math.max(0, math.floor(zostalo)))
 			if zostalo <= 0 then
-				R.wygrajZli("Zadzwonił dzwonek na koniec lekcji, a zadania nie są zrobione!")
+				if R.solo then R.zwyciezca = { strona = "nikt", powod = "Dzwonek! Nie zdążyliście zrobić wszystkich zadań." }
+				else R.wygrajZli("Zadzwonił dzwonek na koniec lekcji, a zadania nie są zrobione!") end
 			end
 			R.sprawdzWygrana()
 		end
