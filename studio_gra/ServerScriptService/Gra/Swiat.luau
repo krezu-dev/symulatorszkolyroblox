@@ -150,12 +150,8 @@ function S.cutscenkaAutobusu(lista)
 			ch:PivotTo(drzwi.CFrame + Vector3.new(0, 3, 0))
 			hrp.Anchored = false
 			local cel = plac.Position + Vector3.new(math.random(-14, 14), 0, math.random(-6, 6))
-			task.spawn(function()
-				hum.WalkSpeed = 16
-				hum:MoveTo(brama1.Position)
-				hum.MoveToFinished:Wait()
-				hum:MoveTo(cel)
-			end)
+			-- chodzenie robi klient (to on steruje swoją postacią)
+			W.wyslij(p, "IdzDo", { punkty = { brama1.Position, cel } })
 			task.wait(0.22)
 		end
 	end

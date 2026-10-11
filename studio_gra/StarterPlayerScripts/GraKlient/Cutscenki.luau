@@ -150,6 +150,19 @@ function Cs.Init(k)
 	U = K.Styl
 	C = K.C
 	K.na("Cutscenka", autobus)
+	K.na("IdzDo", function(d)
+		local _, hum = K.hrp()
+		if not hum then return end
+		for _, pkt in ipairs(d.punkty) do
+			hum:MoveTo(pkt)
+			local t0 = os.clock()
+			local h = K.hrp()
+			while h and h.Parent and (h.Position * Vector3.new(1, 0, 1) - pkt * Vector3.new(1, 0, 1)).Magnitude > 3 and os.clock() - t0 < 4 do
+				hum:MoveTo(pkt)
+				task.wait(0.2)
+			end
+		end
+	end)
 	K.na("Rola", kartaRoli)
 	K.na("Koniec", koniec)
 	K.na("Faza", function(d)
