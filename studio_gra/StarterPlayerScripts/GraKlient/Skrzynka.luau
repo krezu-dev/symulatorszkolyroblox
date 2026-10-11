@@ -295,7 +295,12 @@ local function otworz(wynik)
 	tw(sk, 0.2, { Size = UDim2.fromOffset(bok * 1.35, bok * 1.35), ImageTransparency = 1 })
 	tw(cienSk, 0.2, { BackgroundTransparency = 1 })
 	tw(podpis, 0.15, { TextTransparency = 1 })
+	local sp = podpis:FindFirstChildOfClass("UIStroke")
+	if sp then tw(sp, 0.15, { Transparency = 1 }) end
 	task.wait(0.15)
+	podpis:Destroy()
+	sk:Destroy()
+	cienSk:Destroy()
 
 	-- taśma wjeżdża i się kręci
 	while #karty < ILE do task.wait() end
@@ -347,7 +352,7 @@ local function otworz(wynik)
 		local p = U.new("Frame", { BackgroundColor3 = r.kolor, BackgroundTransparency = 1, BorderSizePixel = 0, AnchorPoint = Vector2.new(0.5, 0.5),
 			Size = UDim2.new(0, math.floor(H * 0.06), 1, 0), Position = UDim2.fromScale(0.5, 0.5), Rotation = i * 15, ZIndex = 3 }, promienie)
 		table.insert(paski, p)
-		tw(p, 0.4, { BackgroundTransparency = wysoka and 0.55 or 0.72 })
+		tw(p, 0.4, { BackgroundTransparency = wysoka and 0.62 or 0.8 })
 	end
 	local skalaP = U.new("UIScale", { Scale = 0.2 }, promienie)
 	tw(skalaP, 0.5, { Scale = 1 }, Enum.EasingStyle.Back)
@@ -375,7 +380,10 @@ local function otworz(wynik)
 		Size = UDim2.new(0, 2, 1, 0), Position = UDim2.fromScale(0.12, 0), ZIndex = 21 }, lico)
 	local pasekD = U.new("Frame", { BackgroundColor3 = r.kolor, BorderSizePixel = 0, Size = UDim2.fromScale(1, 0.16), Position = UDim2.fromScale(0, 0.84), ZIndex = 22 }, lico)
 	U.new("Frame", { BackgroundColor3 = TUSZ, BorderSizePixel = 0, Size = UDim2.new(1, 0, 0, 3), ZIndex = 23 }, pasekD)
-	local vp, cam, srodekM, dist = S.podglad(lico, wynik.mlot, { size = UDim2.fromScale(0.96, 0.82), pos = UDim2.fromScale(0.02, 0.02), z = 22, zoom = 1.05 })
+	local tp = U.txt(pasekD, { Text = string.upper(r.id), Font = Enum.Font.Bangers, TextColor3 = PAPIER,
+		Size = UDim2.fromScale(0.9, 0.66), Position = UDim2.fromScale(0.05, 0.2), ZIndex = 24 })
+	U.obrysTekstu(tp, 2, TUSZ)
+	local vp, cam, srodekM, dist = S.podglad(lico, wynik.mlot, { size = UDim2.fromScale(0.96, 0.82), pos = UDim2.fromScale(0.02, 0.02), z = 22, zoom = 1.3 })
 	U.tasma(duza, UDim2.fromScale(0.5, 0), UDim2.fromOffset(duzaW * 0.42, 24), -4).ZIndex = 30
 	tw(duza, 0.5, { Size = UDim2.fromOffset(duzaW, math.floor(duzaW * 1.2)), Position = UDim2.fromScale(0.5, 0.44) }, Enum.EasingStyle.Quint)
 	-- model lekko kołysze się w lewo i prawo
@@ -396,7 +404,7 @@ local function otworz(wynik)
 		task.delay(0.5, function() blysk:Destroy() end)
 	end
 	local piecz = U.txt(root, { Text = string.upper(r.id) .. "!", Font = Enum.Font.Bangers, TextColor3 = r.kolor, AnchorPoint = Vector2.new(0.5, 0.5),
-		Size = UDim2.fromOffset(duzaW * 1.6, duzaW * 0.34), Position = UDim2.new(0.5, 0, 0.44, -duzaW * 0.72), Rotation = -7,
+		Size = UDim2.fromOffset(duzaW * 1.6, duzaW * 0.34), Position = UDim2.new(0.5, 0, 0.44, -duzaW * 0.86), Rotation = -7,
 		TextTransparency = 1, ZIndex = 35 })
 	U.obrysTekstu(piecz, 4, TUSZ)
 	local skalaPiecz = U.new("UIScale", { Scale = 2.6 }, piecz)
