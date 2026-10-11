@@ -10,6 +10,13 @@ local ogladam = false
 local ekran, nazwaT, czasT, rec
 local prompt
 
+local function inneGUI(tak)
+	K.gui.Enabled = tak
+	for _, n in ipairs({ "SchoolIconHUD", "SzablonUI" }) do
+		local g = K.PlayerGui:FindFirstChild(n)
+		if g then g.Enabled = tak end
+	end
+end
 local function ustawKamere()
 	local k = kamery[nr]
 	if not k then return end
@@ -24,6 +31,7 @@ function Km.zamknij()
 	if not ogladam then return end
 	ogladam = false
 	ekran.Visible = false
+	inneGUI(true)
 	workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
 	K.wyslij("kamery", { w = false })
 	K.sterowanie(true, "kamery")
@@ -32,13 +40,14 @@ function Km.otworz()
 	if ogladam or #kamery == 0 then return end
 	ogladam = true
 	ekran.Visible = true
+	inneGUI(false)
 	K.wyslij("kamery", { w = true })
 	K.sterowanie(false, "kamery")
 	ustawKamere()
 end
 
 local function zbuduj()
-	ekran = U.new("Frame", { Name = "Monitoring", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Visible = false, ZIndex = 50 }, K.gui)
+	ekran = U.new("Frame", { Name = "Monitoring", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Visible = false, ZIndex = 50 }, K.nad)
 	-- ramka monitora
 	for _, r in ipairs({ { 0, 0, 1, 0.06 }, { 0, 0.94, 1, 0.06 }, { 0, 0, 0.04, 1 }, { 0.96, 0, 0.04, 1 } }) do
 		U.new("Frame", { BackgroundColor3 = Color3.fromRGB(35, 35, 40), BorderSizePixel = 0, Position = UDim2.fromScale(r[1], r[2]), Size = UDim2.fromScale(r[3], r[4]), ZIndex = 51 }, ekran)
