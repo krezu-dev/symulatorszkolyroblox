@@ -131,7 +131,7 @@ local function odswiezSklepik()
 				k.kupTekst.Text = ma and "MASZ ✓" or "KUP"
 				k.kupLico.BackgroundColor3 = ma and U.GREEN or U.YEL
 			elseif k.id == "Bilet" and p then
-				k.opis.Text = (C.Produkty.Bilet.opis or "") .. "  (masz: " .. (p.bilety or 0) .. ")"
+				k.opis.Text = (C.Produkty.Bilet.krotko or "") .. " (masz: " .. (p.bilety or 0) .. ")"
 			end
 		end
 	end
@@ -209,7 +209,7 @@ local function podepnijSklepik()
 			local h, kf = U.karta(f, "Robux_" .. id, pos, size, kolor, nil, 0)
 			h.Visible = false
 			U.txt(kf, { Text = x.nazwa, Font = Enum.Font.Bangers, TextWrapped = true, Size = UDim2.fromScale(0.9, 0.24), Position = UDim2.fromScale(0.05, 0.04), TextXAlignment = Enum.TextXAlignment.Left })
-			local opis = U.txt(kf, { Text = x.opis or (x.zl and ("+" .. x.zl .. " złotówek") or ""), TextColor3 = U.GREY, TextWrapped = true, Size = UDim2.fromScale(0.9, 0.36), Position = UDim2.fromScale(0.05, 0.29), TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top })
+			local opis = U.txt(kf, { Text = x.krotko or x.opis or (x.zl and ("+" .. x.zl .. " złotówek") or ""), TextColor3 = U.GREY, TextWrapped = true, Size = UDim2.fromScale(0.9, 0.36), Position = UDim2.fromScale(0.05, 0.29), TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top })
 			U.txt(kf, { Text = "R$ " .. x.cena, Font = Enum.Font.Bangers, TextColor3 = Color3.fromRGB(30, 140, 60), Size = UDim2.fromScale(0.45, 0.24), Position = UDim2.fromScale(0.05, 0.71), TextXAlignment = Enum.TextXAlignment.Left })
 			local kup, kupF = U.przyciskTekst(kf, "Kup", "KUP", UDim2.fromScale(0.74, 0.83), UDim2.fromScale(0.44, 0.26), U.YEL, U.INK, Vector2.new(0.5, 0.5))
 			kup.Activated:Connect(function()
@@ -431,7 +431,7 @@ local function odswiezHulajnoge()
 			table.sort(teksty, function(a, c) return a.Position.Y.Scale < c.Position.Y.Scale end)
 			if teksty[1] then teksty[1].Text = x.nazwa end
 			if teksty[2] then
-				teksty[2].Text = zal and "wybrana" or (ma and (x.robux and "masz – wybierz" or "darmowa – wybierz") or ("R$ " .. C.Gamepassy[x.robux].cena))
+				teksty[2].Text = zal and "✓ wybrana" or (ma and (x.robux and "masz" or "darmowa") or ("R$ " .. C.Gamepassy[x.robux].cena))
 				teksty[2].TextColor3 = ma and U.GREEN or U.RED
 			end
 		end

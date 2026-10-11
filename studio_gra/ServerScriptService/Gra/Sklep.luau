@@ -45,8 +45,8 @@ function S.znaczekVIP(p)
 	if not glowa or glowa:FindFirstChild("VIPZnaczek") then return end
 	local bb = Instance.new("BillboardGui")
 	bb.Name = "VIPZnaczek"
-	bb.Size = UDim2.fromScale(2.6, 0.9)
-	bb.StudsOffset = Vector3.new(0, 2.6, 0)
+	bb.Size = UDim2.fromScale(1.6, 0.55)
+	bb.StudsOffset = Vector3.new(0, 2.2, 0)
 	bb.MaxDistance = 60
 	bb.AlwaysOnTop = false
 	local f = Instance.new("Frame")

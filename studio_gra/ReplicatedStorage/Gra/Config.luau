@@ -337,10 +337,10 @@ C.Memy = {
 ------------------------------------------------------------------ ROBUXY
 -- ID trzeba utworzyć w Creator Hub (Monetization) i wpisać tutaj. 0 = brak (w Studio zakup działa testowo).
 C.Gamepassy = {
-	VIP = { id = 0, nazwa = "VIP Legitymacja", cena = 199, opis = "Złota legitymacja, znaczek VIP, +20% złotówek, strefa VIP w komisariacie" },
-	Memy = { id = 0, nazwa = "Paczka memów", cena = 79, opis = "8 dodatkowych dźwięków do memów" },
+	VIP = { id = 0, nazwa = "VIP Legitymacja", cena = 199, opis = "Złota legitymacja, znaczek VIP, +20% złotówek, strefa VIP w komisariacie", krotko = "+20% zł, znaczek, strefa VIP" },
+	Memy = { id = 0, nazwa = "Paczka memów", cena = 79, opis = "8 dodatkowych dźwięków do memów", krotko = "+8 memów" },
 	Tance = { id = 0, nazwa = "Paczka tańców", cena = 99, opis = "Nowe tańce i emotki" },
-	Efekty = { id = 0, nazwa = "Efekty eliminacji", cena = 149, opis = "4 efekty dla Rozrabiaki: konfetti, kreda, kartkówki, dzwonek" },
+	Efekty = { id = 0, nazwa = "Efekty eliminacji", cena = 149, opis = "4 efekty dla Rozrabiaki: konfetti, kreda, kartkówki, dzwonek", krotko = "4 efekty dla Rozrabiaki" },
 	HulajnogaTurbo = { id = 0, nazwa = "Hulajnoga Turbo Neon", cena = 149, opis = "Świeci i jest szybka" },
 	HulajnogaRakieta = { id = 0, nazwa = "Hulajnoga Złota Rakieta", cena = 299, opis = "Najszybsza w szkole" },
 }
@@ -348,7 +348,7 @@ C.Produkty = {
 	Zl100 = { id = 0, nazwa = "100 zł", cena = 25, zl = 100 },
 	Zl500 = { id = 0, nazwa = "500 zł", cena = 99, zl = 500 },
 	Zl1500 = { id = 0, nazwa = "1500 zł", cena = 249, zl = 1500 },
-	Bilet = { id = 0, nazwa = "Bilet Rozrabiaki", cena = 39, opis = "3× większa szansa na Rozrabiakę w następnej rundzie (nie gwarantuje roli)" },
+	Bilet = { id = 0, nazwa = "Bilet Rozrabiaki", cena = 39, opis = "3× większa szansa na Rozrabiakę w następnej rundzie (nie gwarantuje roli)", krotko = "3× szansa na Rozrabiakę" },
 }
 
 ------------------------------------------------------------------ SABOTAŻE

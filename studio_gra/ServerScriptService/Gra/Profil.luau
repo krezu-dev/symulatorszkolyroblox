@@ -73,6 +73,10 @@ local function zaladuj(p)
 		if ok and type(wynik) == "table" then d = wynik end
 	end
 	dane[p] = scal(d or domyslny(), domyslny())
+	-- stare/usunięte hulajnogi -> zwykła
+	local okHul = false
+	for _, x in ipairs(C.Hulajnogi) do if x.id == dane[p].hulajnoga then okHul = true end end
+	if not okHul then dane[p].hulajnoga = C.Hulajnogi[1].id end
 	sesja[p] = { wygrane = 0, zadania = 0, eliminacje = 0 }
 	buffy[p] = {}
 	P.wyslij(p)
