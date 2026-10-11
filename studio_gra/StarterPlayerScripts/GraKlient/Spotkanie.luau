@@ -82,7 +82,7 @@ local function zbudujTablice(d)
 		local pin = U.new("Frame", { BackgroundColor3 = U.RED, Size = UDim2.fromScale(0.08, 0.08), SizeConstraint = Enum.SizeConstraint.RelativeXX, Position = UDim2.fromScale(0.46, -0.06), ZIndex = 12 }, kh)
 		U.corner(pin, UDim.new(1, 0))
 		U.stroke(pin, 1.5, U.INK, 0, true)
-		local foto = U.new("ImageLabel", { BackgroundColor3 = U.PAPER2, Size = UDim2.fromScale(0.26, 0.8), SizeConstraint = Enum.SizeConstraint.RelativeYY, Position = UDim2.fromScale(0.04, 0.1),
+		local foto = U.new("ImageLabel", { BackgroundColor3 = U.PAPER2, Size = UDim2.fromScale(0.8, 0.8), SizeConstraint = Enum.SizeConstraint.RelativeYY, Position = UDim2.fromScale(0.04, 0.1),
 			Image = "rbxthumb://type=AvatarHeadShot&id=" .. g.id .. "&w=150&h=150", ZIndex = 10 }, kf)
 		U.stroke(foto, 1.5)
 		U.txt(kf, { Text = g.nick, Size = UDim2.fromScale(0.62, 0.45), Position = UDim2.fromScale(0.34, 0.08), TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 10 })

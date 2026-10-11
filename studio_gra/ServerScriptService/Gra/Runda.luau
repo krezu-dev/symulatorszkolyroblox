@@ -203,6 +203,14 @@ local function start()
 	end
 	przydzielRole(lista)
 	for _, p in ipairs(lista) do przydzielZadania(p) end
+	-- szczęśliwy numerek: losowy numer z dziennika dostaje podwójne nagrody za zadania
+	table.sort(lista, function(a, b) return a.DisplayName:lower() < b.DisplayName:lower() end)
+	local szczesliwy = math.random(1, math.max(#lista, 1))
+	for i, p in ipairs(lista) do
+		R.gracze[p].numer = i
+		R.gracze[p].szczesliwy = (i == szczesliwy)
+	end
+	R.szczesliwyNumer = szczesliwy
 	ustawFaze("Start")
 	-- cutscenka autobusu (blokuje ~10 s)
 	M.Swiat.cutscenkaAutobusu(lista)
@@ -211,7 +219,7 @@ local function start()
 	for p, g in pairs(R.gracze) do if C.Role[g.rola].zly then table.insert(wspolnicy, p.DisplayName) end end
 	for p, g in pairs(R.gracze) do
 		W.ustawGrupe(p.Character, "Gracze")
-		local d = { rola = g.rola, zadania = g.zadania, udawane = g.udawane, wspolnicy = C.Role[g.rola].zly and wspolnicy or nil }
+		local d = { rola = g.rola, zadania = g.zadania, udawane = g.udawane, wspolnicy = C.Role[g.rola].zly and wspolnicy or nil, numer = g.numer, szczesliwy = R.szczesliwyNumer }
 		W.wyslij(p, "Rola", d)
 		p:SetAttribute("Rola", nil) -- rola NIE jest publiczna
 		R.odswiezPredkosc(p)
@@ -226,6 +234,11 @@ local function gra()
 	R.dzwonOd = os.clock() + C.Czasy.CooldownDzwonu
 	W.Gra:SetAttribute("DzwonOd", workspace:GetServerTimeNow() + C.Czasy.CooldownDzwonu)
 	R.wyslijPostep()
+	task.delay(6, function()
+		local kto
+		for p, g in pairs(R.gracze) do if g.szczesliwy then kto = p end end
+		if kto then W.karteczka(nil, "Szczęśliwy numerek: " .. R.szczesliwyNumer, kto.DisplayName .. " ma dziś podwójne nagrody za zadania!", "zielony") end
+	end)
 	M.Akcje.startRundy()
 	M.Sabotaze.reset()
 	M.Zadania.startRundy()

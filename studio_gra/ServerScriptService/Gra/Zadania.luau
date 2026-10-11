@@ -79,7 +79,14 @@ function Z.zakoncz(p, id, sukces)
 	W.wyslij(p, "ZadanieZrobione", { id = id })
 	if not g.udawane then
 		local n = W.C.Nagrody.Zadanie
-		M.Profil.Dodaj(p, n.zl, n.xp, "Zadanie: " .. def.nazwa)
+		-- COMBO: kolejne zadanie w ciągu 45 s daje mnożnik (max x3)
+		local teraz = os.clock()
+		if g.ostatnieZadanie and teraz - g.ostatnieZadanie < 45 then g.combo = math.min(3, (g.combo or 1) + 1) else g.combo = 1 end
+		g.ostatnieZadanie = teraz
+		local mn = g.combo
+		if g.szczesliwy then mn += 1 end
+		if g.combo > 1 then W.wyslij(p, "Combo", { x = g.combo }) end
+		M.Profil.Dodaj(p, n.zl * mn, n.xp * mn, "Zadanie: " .. def.nazwa)
 		M.Profil.Statystyka(p, "zadania")
 		R.wyslijPostep()
 		R.sprawdzWygrana()
