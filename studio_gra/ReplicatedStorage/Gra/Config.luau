@@ -242,10 +242,13 @@ C.Sklepik = {
 }
 
 -- Hulajnogi (Kukurin)
+-- 3 darmowe (powolne, mały boost względem chodzenia 16) i 2 za Robuxy (szybkie)
 C.Hulajnogi = {
-	{ id = "Zwykla", nazwa = "Zwykła", cena = 0, predkosc = 26, kolor = Color3.fromRGB(40, 40, 45), opis = "darmowa" },
-	{ id = "Turbo", nazwa = "Turbo", cena = 150, predkosc = 32, kolor = Color3.fromRGB(214, 40, 57), opis = "150 zł" },
-	{ id = "Zlota", nazwa = "Złota", cena = 500, predkosc = 38, kolor = Color3.fromRGB(230, 180, 40), opis = "500 zł" },
+	{ id = "Zwykla", nazwa = "Zwykła", cena = 0, predkosc = 18, kolor = Color3.fromRGB(40, 40, 45), opis = "darmowa" },
+	{ id = "Miejska", nazwa = "Miejska", cena = 0, predkosc = 19, kolor = Color3.fromRGB(52, 110, 200), opis = "darmowa" },
+	{ id = "Rozowa", nazwa = "Różowa", cena = 0, predkosc = 20, kolor = Color3.fromRGB(240, 130, 180), opis = "darmowa" },
+	{ id = "TurboNeon", nazwa = "Turbo Neon", robux = "HulajnogaTurbo", predkosc = 28, kolor = Color3.fromRGB(0, 255, 200), neon = true, opis = "Robux" },
+	{ id = "ZlotaRakieta", nazwa = "Złota Rakieta", robux = "HulajnogaRakieta", predkosc = 32, kolor = Color3.fromRGB(255, 200, 40), neon = true, opis = "Robux" },
 }
 
 -- Plecaki (skórki widoczne na postaci)
@@ -265,6 +268,20 @@ C.Emotki = {
 	{ id = "Wiwat", nazwa = "Wiwat", cena = 30, anim = "rbxassetid://507770677" },
 	{ id = "Smiech", nazwa = "Śmiech", cena = 40, anim = "rbxassetid://507770818" },
 	{ id = "Wskazanie", nazwa = "Wskazanie", cena = 20, anim = "rbxassetid://507770453" },
+	-- paczka tańców (gamepass)
+	{ id = "Taniec2", nazwa = "Taniec 2", premium = "Tance", anim = "rbxassetid://507776043" },
+	{ id = "Taniec3", nazwa = "Taniec 3", premium = "Tance", anim = "rbxassetid://507777268" },
+	{ id = "TurboTaniec", nazwa = "Turbo taniec", premium = "Tance", anim = "rbxassetid://507771019", speed = 1.9 },
+	{ id = "Slowmo", nazwa = "Slow-mo taniec", premium = "Tance", anim = "rbxassetid://507776043", speed = 0.45 },
+}
+
+-- efekty eliminacji (gamepass „Efekty eliminacji”, POW jest darmowy)
+C.EfektyEliminacji = {
+	{ id = "POW", nazwa = "POW! (komiks)", darmowy = true },
+	{ id = "Konfetti", nazwa = "Konfetti" },
+	{ id = "Kreda", nazwa = "Chmura kredy" },
+	{ id = "Kartki", nazwa = "Wybuch kartkówek" },
+	{ id = "Dzwonek", nazwa = "DRYŃ! (dzwonek)" },
 }
 
 ------------------------------------------------------------------ DŹWIĘKI
@@ -285,6 +302,14 @@ C.Dzwieki = {
 	Smutny = "rbxassetid://190705984",
 	Wygrana = "rbxassetid://9067124098",
 	Hover = "rbxassetid://139719503904449",
+	VineBoom = "rbxassetid://140367458608473",
+	Trabka = "rbxassetid://132844961288199",
+	Bonk = "rbxassetid://132937320140224",
+	Boing = "rbxassetid://2772396665",
+	Werbel = "rbxassetid://4718483268",
+	Smiechy = "rbxassetid://112562116781865",
+	Napiecie = "rbxassetid://1846441945",
+	Fajerwerk = "rbxassetid://103126237078653",
 	Klik = "rbxassetid://88442833509532",
 }
 
@@ -298,6 +323,32 @@ C.Memy = {
 	{ id = "KARTKÓWKA", tekst = "Kartkówka! Karteczki wyjąć!", dzwiek = "Alarm" },
 	{ id = "HAHA", tekst = "hahaha", dzwiek = "Wygrana" },
 	{ id = "SUS", tekst = "ten jest sus...", dzwiek = "Smutny" },
+	-- paczka memów (gamepass)
+	{ id = "BOOM", tekst = "*vine boom*", dzwiek = "VineBoom", premium = true },
+	{ id = "TRĄBA", tekst = "TUTUTUUU!", dzwiek = "Trabka", premium = true },
+	{ id = "BONK", tekst = "bonk.", dzwiek = "Bonk", premium = true },
+	{ id = "BOING", tekst = "boing!", dzwiek = "Boing", premium = true },
+	{ id = "WERBEL", tekst = "*werble*...", dzwiek = "Werbel", premium = true },
+	{ id = "ŚMIECHY", tekst = "*śmiech publiczności*", dzwiek = "Smiechy", premium = true },
+	{ id = "PLOT TWIST", tekst = "PLOT TWIST!", dzwiek = "Napiecie", premium = true },
+	{ id = "FAJERWERK", tekst = "GG!", dzwiek = "Fajerwerk", premium = true },
+}
+
+------------------------------------------------------------------ ROBUXY
+-- ID trzeba utworzyć w Creator Hub (Monetization) i wpisać tutaj. 0 = brak (w Studio zakup działa testowo).
+C.Gamepassy = {
+	VIP = { id = 0, nazwa = "VIP Legitymacja", cena = 199, opis = "Złota legitymacja, znaczek VIP, +20% złotówek, strefa VIP w komisariacie" },
+	Memy = { id = 0, nazwa = "Paczka memów", cena = 79, opis = "8 dodatkowych dźwięków do memów" },
+	Tance = { id = 0, nazwa = "Paczka tańców", cena = 99, opis = "Nowe tańce i emotki" },
+	Efekty = { id = 0, nazwa = "Efekty eliminacji", cena = 149, opis = "4 efekty dla Rozrabiaki: konfetti, kreda, kartkówki, dzwonek" },
+	HulajnogaTurbo = { id = 0, nazwa = "Hulajnoga Turbo Neon", cena = 149, opis = "Świeci i jest szybka" },
+	HulajnogaRakieta = { id = 0, nazwa = "Hulajnoga Złota Rakieta", cena = 299, opis = "Najszybsza w szkole" },
+}
+C.Produkty = {
+	Zl100 = { id = 0, nazwa = "100 zł", cena = 25, zl = 100 },
+	Zl500 = { id = 0, nazwa = "500 zł", cena = 99, zl = 500 },
+	Zl1500 = { id = 0, nazwa = "1500 zł", cena = 249, zl = 1500 },
+	Bilet = { id = 0, nazwa = "Bilet Rozrabiaki", cena = 39, opis = "3× większa szansa na Rozrabiakę w następnej rundzie (nie gwarantuje roli)" },
 }
 
 ------------------------------------------------------------------ SABOTAŻE

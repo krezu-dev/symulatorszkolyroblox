@@ -123,7 +123,30 @@ local function przydzielRole(lista)
 		R.gracze[lista[1]].rola = (test and C.Role[test]) and test or "Uczen"
 		return
 	end
-	daj("Rozrabiaka", rozklad.Rozrabiaka)
+	-- Rozrabiaka losowany z wagami: bilet daje 3× większą szansę (zużywa się)
+	for _ = 1, rozklad.Rozrabiaka do
+		local suma = 0
+		local wagi = {}
+		for j = i, #los do
+			local d = M.Profil.Get(los[j])
+			local w = (d and (d.bilety or 0) > 0) and 3 or 1
+			wagi[j] = w
+			suma += w
+		end
+		local los_ = math.random() * suma
+		local wybrany = i
+		for j = i, #los do
+			los_ -= wagi[j]
+			if los_ <= 0 then wybrany = j break end
+		end
+		los[i], los[wybrany] = los[wybrany], los[i]
+		R.gracze[los[i]].rola = "Rozrabiaka"
+		i += 1
+	end
+	for _, q in ipairs(lista) do
+		local d = M.Profil.Get(q)
+		if d and (d.bilety or 0) > 0 then d.bilety -= 1 M.Profil.wyslij(q) end
+	end
 	daj("Dyrektor", rozklad.Dyrektor)
 	daj("Wozna", rozklad.Wozna)
 	daj("Nauczyciel", rozklad.Nauczyciel)

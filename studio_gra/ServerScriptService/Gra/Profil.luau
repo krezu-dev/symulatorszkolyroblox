@@ -22,6 +22,7 @@ local function domyslny()
 		hulajnogi = { Zwykla = true }, hulajnoga = "Zwykla",
 		plecaki = { Klasyczny = true }, plecak = "Klasyczny",
 		emotki = { Machanie = true },
+		passy = {}, bilety = 0, efekt = "POW",
 		staty = { rundy = 0, wygrane = 0, zadania = 0, eliminacje = 0, wygraneZli = 0 },
 	}
 end
@@ -107,7 +108,8 @@ end
 function P.Dodaj(p, zl, xp, powod)
 	local d = dane[p]
 	if not d then return end
-	zl = math.floor((zl or 0) * (1 + P.ulepszenie(p, "Kieszonkowe") * C.Ulepszenia.Kieszonkowe.na) + 0.5)
+	local vip = (M.Sklep and M.Sklep.ma(p, "VIP")) and 0.2 or 0
+	zl = math.floor((zl or 0) * (1 + P.ulepszenie(p, "Kieszonkowe") * C.Ulepszenia.Kieszonkowe.na + vip) + 0.5)
 	xp = math.floor((xp or 0) * (1 + P.ulepszenie(p, "Kujon") * C.Ulepszenia.Kujon.na) + 0.5)
 	local b = buffy[p]
 	if b and b.zlNastepne and zl > 0 then zl *= b.zlNastepne; b.zlNastepne = nil end
@@ -150,9 +152,12 @@ function P.Kup(p, rodzaj, id)
 		dodaj = function() d.przedmioty[id] = (d.przedmioty[id] or 0) + 1 end
 	elseif rodzaj == "hulajnoga" then
 		local x = znajdzW(C.Hulajnogi, id) if not x then return false end
-		if d.hulajnogi[id] then d.hulajnoga = id P.wyslij(p) return true, "Założona: " .. x.nazwa end
-		cena = x.cena
-		dodaj = function() d.hulajnogi[id] = true d.hulajnoga = id end
+		if x.robux then
+			if not M.Sklep.ma(p, x.robux) then return M.Sklep.kup(p, x.robux) end
+		end
+		d.hulajnoga = id
+		P.wyslij(p)
+		return true, "Wybrana: " .. x.nazwa
 	elseif rodzaj == "plecak" then
 		local x = znajdzW(C.Plecaki, id) if not x then return false end
 		if d.plecaki[id] then d.plecak = id P.wyslij(p) M.Swiat.zalozPlecak(p) return true, "Założony: " .. x.nazwa end
@@ -160,9 +165,21 @@ function P.Kup(p, rodzaj, id)
 		dodaj = function() d.plecaki[id] = true d.plecak = id end
 	elseif rodzaj == "emotka" then
 		local x = znajdzW(C.Emotki, id) if not x then return false end
+		if x.premium then
+			if M.Sklep.ma(p, x.premium) then return true, "Masz to w paczce tańców" end
+			return M.Sklep.kup(p, x.premium)
+		end
 		if d.emotki[id] then return true, "Masz już tę emotkę" end
 		cena = x.cena
 		dodaj = function() d.emotki[id] = true end
+	elseif rodzaj == "efekt" then
+		local x = znajdzW(C.EfektyEliminacji, id) if not x then return false end
+		if not x.darmowy and not M.Sklep.ma(p, "Efekty") then return M.Sklep.kup(p, "Efekty") end
+		d.efekt = id
+		P.wyslij(p)
+		return true, "Efekt eliminacji: " .. x.nazwa
+	elseif rodzaj == "robux" then
+		return M.Sklep.kup(p, id)
 	elseif rodzaj == "ulepszenie" then
 		local u = C.Ulepszenia[id] if not u then return false end
 		local poz = d.ulepszenia[id] or 0

@@ -12,7 +12,7 @@ for nazwa, klasa in pairs({ Do = "RemoteEvent", Od = "RemoteEvent", Pytaj = "Rem
 	end
 end
 
-local KOLEJNOSC = { "Wspolne", "Profil", "Zadania", "Akcje", "Spotkania", "Sabotaze", "Swiat", "NPC", "Runda" }
+local KOLEJNOSC = { "Wspolne", "Profil", "Sklep", "Zadania", "Akcje", "Spotkania", "Sabotaze", "Swiat", "NPC", "Runda" }
 local M = {}
 for _, n in ipairs(KOLEJNOSC) do
 	M[n] = require(script.Parent:WaitForChild(n))

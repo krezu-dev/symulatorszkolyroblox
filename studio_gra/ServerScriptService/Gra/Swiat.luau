@@ -190,6 +190,7 @@ function S.hulajnoga(p, wsiadz)
 	local def
 	for _, x in ipairs(C.Hulajnogi) do if x.id == (d and d.hulajnoga) then def = x end end
 	def = def or C.Hulajnogi[1]
+	if def.robux and not M.Sklep.ma(p, def.robux) then def = C.Hulajnogi[1] end
 	local ch = p.Character
 	local hrp = ch and ch:FindFirstChild("HumanoidRootPart")
 	local hum = ch and ch:FindFirstChildOfClass("Humanoid")
@@ -209,7 +210,10 @@ function S.hulajnoga(p, wsiadz)
 			c.CanCollide = false
 			c.CanQuery = false
 			c.Massless = true
-			if c.Name == "Rama" or c.Name == "Deska" or c:GetAttribute("Kolor") then c.Color = def.kolor end
+			if c.Name == "Rama" or c.Name == "Deska" or c:GetAttribute("Kolor") then
+				c.Color = def.kolor
+				if def.neon then c.Material = Enum.Material.Neon end
+			end
 		end
 	end
 	-- stoisz NA desce: postać idzie w górę o grubość deski, deska pod stopami, kierownica przed tobą

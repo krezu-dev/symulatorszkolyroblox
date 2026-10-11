@@ -28,6 +28,21 @@ local function odswiezRole()
 		end
 		local p = profil()
 		if leg.Lico:FindFirstChild("Klasa") and p then leg.Lico.Klasa.Text = "lvl " .. p.lvl end
+		-- VIP: złota legitymacja
+		local vip = K.gracz:GetAttribute("GP_VIP") == true
+		if leg:GetAttribute("BazaKolor") == nil then
+			leg:SetAttribute("BazaKolor", leg.Lico.BackgroundColor3)
+			local pas = leg.Lico:FindFirstChild("Pasek")
+			if pas then leg:SetAttribute("BazaPasek", pas.BackgroundColor3) end
+		end
+		leg.Lico.BackgroundColor3 = vip and Color3.fromRGB(255, 214, 90) or leg:GetAttribute("BazaKolor")
+		local pas = leg.Lico:FindFirstChild("Pasek")
+		if pas then pas.BackgroundColor3 = vip and Color3.fromRGB(200, 140, 20) or (leg:GetAttribute("BazaPasek") or pas.BackgroundColor3) end
+		for _, t in ipairs(leg.Lico:GetChildren()) do
+			if t:IsA("TextLabel") and (t.Text == "LEGITYMACJA SZKOLNA" or t.Text == "★ LEGITYMACJA VIP ★") then
+				t.Text = vip and "★ LEGITYMACJA VIP ★" or "LEGITYMACJA SZKOLNA"
+			end
+		end
 	end
 	local cel = o.Lico:FindFirstChild("Cel")
 	if cel then
@@ -74,9 +89,16 @@ local function podepnijUstawienia()
 	end
 end
 
------------------------------------------------------------------- SKLEPIK + ULEPSZENIA
-local trybUlepszen = false
+------------------------------------------------------------------ SKLEPIK + ULEPSZENIA + ROBUX
+local tryb = "sklepik" -- "sklepik" | "ulepszenia" | "robux"
 local kartyUlepszen = {}
+local kartyRobux = {}
+local przyciskiTrybu = {}
+local function maPass(klucz) return K.gracz:GetAttribute("GP_" .. klucz) == true end
+local KOLEJNOSC_ROBUX = {
+	{ "VIP", true }, { "Memy", true }, { "Tance", true }, { "Efekty", true }, { "HulajnogaTurbo", true }, { "HulajnogaRakieta", true },
+	{ "Zl100" }, { "Zl500" }, { "Zl1500" }, { "Bilet" },
+}
 local function odswiezSklepik()
 	local o = okno("Sklepik")
 	if not o then return end
@@ -86,16 +108,31 @@ local function odswiezSklepik()
 	if kw and p then kw.Lico.Kwota.Text = p.zl .. " zł" end
 	for i = 1, 6 do
 		local pr = f:FindFirstChild("Produkt_" .. i)
-		if pr then pr.Visible = not trybUlepszen end
+		if pr then pr.Visible = tryb == "sklepik" end
 	end
-	for _, k in ipairs(kartyUlepszen) do k.h.Visible = trybUlepszen end
-	if trybUlepszen and p then
+	for _, k in ipairs(kartyUlepszen) do k.h.Visible = tryb == "ulepszenia" end
+	for _, k in ipairs(kartyRobux) do k.h.Visible = tryb == "robux" end
+	for t, b in pairs(przyciskiTrybu) do
+		b.bf.BackgroundColor3 = t == tryb and U.YEL or b.kolor
+	end
+	if tryb == "ulepszenia" and p then
 		for _, k in ipairs(kartyUlepszen) do
 			local u = C.Ulepszenia[k.id]
 			local poz = p.ulepszenia[k.id] or 0
 			k.poz.Text = "poziom " .. poz .. "/" .. #u.ceny
 			k.cena.Text = poz >= #u.ceny and "MAX" or (u.ceny[poz + 1] .. " zł")
 			for j, kr in ipairs(k.kropki) do kr.BackgroundColor3 = j <= poz and U.GREEN or U.PAPER2 end
+		end
+	end
+	if tryb == "robux" then
+		for _, k in ipairs(kartyRobux) do
+			if k.pass then
+				local ma = maPass(k.id)
+				k.kupTekst.Text = ma and "MASZ ✓" or "KUP"
+				k.kupLico.BackgroundColor3 = ma and U.GREEN or U.YEL
+			elseif k.id == "Bilet" and p then
+				k.opis.Text = (C.Produkty.Bilet.opis or "") .. "  (masz: " .. (p.bilety or 0) .. ")"
+			end
 		end
 	end
 	-- nazwy i ilości w plecaku przy produktach
@@ -112,6 +149,7 @@ local function odswiezSklepik()
 		end
 	end
 end
+O.odswiezSklepik = odswiezSklepik
 local function podepnijSklepik()
 	local o = okno("Sklepik")
 	if not o then return end
@@ -121,19 +159,23 @@ local function podepnijSklepik()
 		local kup = pr and pr.Lico:FindFirstChild("Kup")
 		if kup then kup.Activated:Connect(function() K.wyslij("kup", { rodzaj = "sklepik", id = x.id }) end) end
 	end
-	-- przełącznik ulepszeń
-	local b, bf = U.przyciskTekst(f, "UlepszeniaBtn", "ULEPSZENIA", UDim2.fromScale(0.43, 0.085), UDim2.fromScale(0.21, 0.08), Color3.fromRGB(140, 195, 240), U.INK, nil, -3)
-	b.Activated:Connect(function()
-		trybUlepszen = not trybUlepszen
-		bf.Tekst.Text = trybUlepszen and "SKLEPIK" or "ULEPSZENIA"
-		odswiezSklepik()
-	end)
+	-- przełączniki trybu: ULEPSZENIA / ROBUX (kliknięcie aktywnego wraca do sklepiku)
+	local function przelacznik(t, tekst, poz, rozm, kolor, kolorTekstu)
+		local b, bf = U.przyciskTekst(f, t .. "Btn", tekst, poz, rozm, kolor, kolorTekstu, nil, 0)
+		przyciskiTrybu[t] = { bf = bf, kolor = kolor }
+		b.Activated:Connect(function()
+			tryb = tryb == t and "sklepik" or t
+			odswiezSklepik()
+		end)
+	end
+	przelacznik("ulepszenia", "ULEPSZENIA", UDim2.fromScale(0.43, 0.085), UDim2.fromScale(0.21, 0.08), Color3.fromRGB(140, 195, 240), U.INK)
+	przelacznik("robux", "R$ ROBUX", UDim2.fromScale(0.7, 0.195), UDim2.fromScale(0.2, 0.065), Color3.fromRGB(90, 200, 110), U.INK)
 	local i = 0
 	for id, u in pairs(C.Ulepszenia) do
 		i += 1
 		local c = (i - 1) % 2
 		local r = math.floor((i - 1) / 2)
-		local h, kf = U.karta(f, "Ulep_" .. id, UDim2.fromScale(0.14 + c * 0.41, 0.28 + r * 0.34), UDim2.fromScale(0.38, 0.3), U.PAPER, nil, 0)
+		local h, kf = U.karta(f, "Ulep_" .. id, UDim2.fromScale(0.14 + c * 0.41, 0.3 + r * 0.33), UDim2.fromScale(0.38, 0.3), U.PAPER, nil, 0)
 		h.Visible = false
 		U.txt(kf, { Text = u.nazwa, Font = Enum.Font.Bangers, Size = UDim2.fromScale(0.9, 0.2), Position = UDim2.fromScale(0.05, 0.04), TextXAlignment = Enum.TextXAlignment.Left })
 		U.txt(kf, { Text = u.opis, TextColor3 = U.GREY, Size = UDim2.fromScale(0.9, 0.15), Position = UDim2.fromScale(0.05, 0.25), TextXAlignment = Enum.TextXAlignment.Left })
@@ -149,6 +191,35 @@ local function podepnijSklepik()
 		kup.Activated:Connect(function() K.wyslij("kup", { rodzaj = "ulepszenie", id = id }) end)
 		table.insert(kartyUlepszen, { id = id, h = h, poz = poz, cena = cena, kropki = kropki })
 	end
+	-- karty za Robuxy: 2 rzędy gamepassów (po 3) + rząd produktów (4)
+	for n, wpis in ipairs(KOLEJNOSC_ROBUX) do
+		local id, pass = wpis[1], wpis[2]
+		local x = pass and C.Gamepassy[id] or C.Produkty[id]
+		if x then
+			local pos, size
+			if pass then
+				local c = (n - 1) % 3
+				local r = math.floor((n - 1) / 3)
+				pos, size = UDim2.fromScale(0.14 + c * 0.275, 0.29 + r * 0.225), UDim2.fromScale(0.255, 0.205)
+			else
+				local c = n - 7
+				pos, size = UDim2.fromScale(0.14 + c * 0.205, 0.75), UDim2.fromScale(0.19, 0.2)
+			end
+			local kolor = id == "VIP" and Color3.fromRGB(255, 214, 90) or U.PAPER
+			local h, kf = U.karta(f, "Robux_" .. id, pos, size, kolor, nil, 0)
+			h.Visible = false
+			U.txt(kf, { Text = x.nazwa, Font = Enum.Font.Bangers, TextWrapped = true, Size = UDim2.fromScale(0.9, 0.24), Position = UDim2.fromScale(0.05, 0.04), TextXAlignment = Enum.TextXAlignment.Left })
+			local opis = U.txt(kf, { Text = x.opis or (x.zl and ("+" .. x.zl .. " złotówek") or ""), TextColor3 = U.GREY, TextWrapped = true, Size = UDim2.fromScale(0.9, 0.36), Position = UDim2.fromScale(0.05, 0.29), TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top })
+			U.txt(kf, { Text = "R$ " .. x.cena, Font = Enum.Font.Bangers, TextColor3 = Color3.fromRGB(30, 140, 60), Size = UDim2.fromScale(0.45, 0.24), Position = UDim2.fromScale(0.05, 0.71), TextXAlignment = Enum.TextXAlignment.Left })
+			local kup, kupF = U.przyciskTekst(kf, "Kup", "KUP", UDim2.fromScale(0.74, 0.83), UDim2.fromScale(0.44, 0.26), U.YEL, U.INK, Vector2.new(0.5, 0.5))
+			kup.Activated:Connect(function()
+				if pass and maPass(id) then return end
+				K.wyslij("kup", { rodzaj = "robux", id = id })
+			end)
+			table.insert(kartyRobux, { id = id, pass = pass, h = h, opis = opis, kupTekst = kupF.Tekst, kupLico = kupF })
+		end
+	end
+	K.gracz.AttributeChanged:Connect(function(a) if a:sub(1, 3) == "GP_" then odswiezSklepik() end end)
 end
 
 ------------------------------------------------------------------ PLECAK
@@ -191,11 +262,21 @@ local function odswiezPlecak()
 		end
 	else
 		for _, x in ipairs(C.Emotki) do
-			local ma = p.emotki[x.id]
-			table.insert(lista, { t = x.nazwa, pod = ma and "ZAGRAJ" or (x.cena .. " zł"), kolor = ma and U.PAPER or U.PAPER2,
+			local ma = (x.premium and maPass(x.premium)) or (not x.premium and p.emotki[x.id])
+			local pod = ma and "ZAGRAJ" or (x.premium and ("R$ " .. C.Gamepassy[x.premium].cena) or (x.cena .. " zł"))
+			table.insert(lista, { t = (x.premium and "★ " or "") .. x.nazwa, pod = pod, kolor = ma and U.PAPER or U.PAPER2,
 				akcja = function()
-					if p.emotki[x.id] then O.emotka(x) else K.wyslij("kup", { rodzaj = "emotka", id = x.id }) end
+					local ma2 = (x.premium and maPass(x.premium)) or (not x.premium and profil().emotki[x.id])
+					if ma2 then O.emotka(x) else K.wyslij("kup", { rodzaj = "emotka", id = x.id }) end
 				end })
+		end
+		-- efekty eliminacji (widać je, gdy jesteś Rozrabiaką)
+		for _, x in ipairs(C.EfektyEliminacji) do
+			local ma = x.darmowy or maPass("Efekty")
+			local wyb = (p.efekt or "POW") == x.id
+			table.insert(lista, { t = "Efekt: " .. x.nazwa, pod = wyb and "WYBRANY" or (ma and "WYBIERZ" or ("R$ " .. C.Gamepassy.Efekty.cena)),
+				kolor = wyb and U.YEL or (ma and U.PAPER or U.PAPER2),
+				akcja = function() K.wyslij("kup", { rodzaj = "efekt", id = x.id }) end })
 		end
 	end
 	for i = 1, 15 do
@@ -223,6 +304,7 @@ function O.emotka(x)
 	a.AnimationId = x.anim
 	animTrack = an:LoadAnimation(a)
 	animTrack:Play()
+	if x.speed then animTrack:AdjustSpeed(x.speed) end
 end
 local function podepnijPlecak()
 	local o = okno("Plecak")
@@ -243,13 +325,51 @@ local function podepnijPlecak()
 end
 
 ------------------------------------------------------------------ MEMY
+-- 16 przycisków w siatce 4×4; 8 ostatnich z paczki memów (gamepass)
+local przyciskiMemow = {}
+local function odswiezMemy()
+	local ma = maPass("Memy")
+	for _, x in ipairs(przyciskiMemow) do
+		if x.m.premium then
+			x.b.Lico.BackgroundColor3 = ma and Color3.fromRGB(255, 225, 120) or U.PAPER2
+			x.klodka.Visible = not ma
+		end
+	end
+end
 local function podepnijMemy()
 	local o = okno("Memy")
 	if not o then return end
-	for _, m in ipairs(C.Memy) do
-		local b = o.Lico:FindFirstChild("Mem_" .. m.id)
-		if b then b.Activated:Connect(function() K.wyslij("mem", { id = m.id }) end) end
+	local f = o.Lico
+	local wzor = f:FindFirstChild("Mem_SUS") or f:FindFirstChild("Mem_BRUH")
+	for i, m in ipairs(C.Memy) do
+		local b = f:FindFirstChild("Mem_" .. m.id)
+		if not b and wzor then
+			b = wzor:Clone()
+			b.Name = "Mem_" .. m.id
+			b:SetAttribute("Podpiety", nil)
+			b.Parent = f
+			U.feedback(b)
+			local t = b.Lico:FindFirstChildOfClass("TextLabel")
+			if t then t.Text = m.id end
+		end
+		if b then
+			local c = (i - 1) % 4
+			local r = math.floor((i - 1) / 4)
+			b.Position = UDim2.fromScale(0.14 + c * 0.205, 0.255 + r * 0.15)
+			b.Size = UDim2.fromScale(0.18, 0.13)
+			local klodka = U.txt(b.Lico, { Name = "Klodka", Text = "R$", Font = Enum.Font.Bangers, TextColor3 = Color3.fromRGB(30, 140, 60), Size = UDim2.fromScale(0.4, 0.4), Position = UDim2.fromScale(0.04, 0.06), TextXAlignment = Enum.TextXAlignment.Left, Visible = false })
+			table.insert(przyciskiMemow, { m = m, b = b, klodka = klodka })
+			b.Activated:Connect(function()
+				if m.premium and not maPass("Memy") then
+					K.wyslij("kup", { rodzaj = "robux", id = "Memy" })
+				else
+					K.wyslij("mem", { id = m.id })
+				end
+			end)
+		end
 	end
+	odswiezMemy()
+	K.gracz.AttributeChanged:Connect(function(a) if a == "GP_Memy" then odswiezMemy() end end)
 end
 
 ------------------------------------------------------------------ RANKING
@@ -302,14 +422,18 @@ local function odswiezHulajnoge()
 	for i, x in ipairs(C.Hulajnogi) do
 		local b = f:FindFirstChild("Hulajnoga_" .. i)
 		if b then
-			local ma = p.hulajnogi[x.id]
+			local ma = (not x.robux) or maPass(x.robux)
 			local zal = p.hulajnoga == x.id
 			if zal then wybranaHul = i end
-			b.Lico.BackgroundColor3 = zal and U.YEL or U.PAPER
+			b.Lico.BackgroundColor3 = zal and U.YEL or (x.robux and Color3.fromRGB(205, 245, 225) or U.PAPER)
 			local teksty = {}
 			for _, t in ipairs(b.Lico:GetChildren()) do if t:IsA("TextLabel") then table.insert(teksty, t) end end
 			table.sort(teksty, function(a, c) return a.Position.Y.Scale < c.Position.Y.Scale end)
-			if teksty[2] then teksty[2].Text = zal and "założona" or (ma and "masz – kliknij" or (x.cena .. " zł")) teksty[2].TextColor3 = ma and U.GREEN or U.RED end
+			if teksty[1] then teksty[1].Text = x.nazwa end
+			if teksty[2] then
+				teksty[2].Text = zal and "wybrana" or (ma and (x.robux and "masz – wybierz" or "darmowa – wybierz") or ("R$ " .. C.Gamepassy[x.robux].cena))
+				teksty[2].TextColor3 = ma and U.GREEN or U.RED
+			end
 		end
 	end
 	-- statystyki
@@ -319,9 +443,10 @@ local function odswiezHulajnoge()
 		if c:IsA("Frame") and math.abs(c.Size.X.Scale - 0.035) < 0.001 then table.insert(kw, c) end
 	end
 	table.sort(kw, function(a, b) if math.abs(a.Position.Y.Scale - b.Position.Y.Scale) > 0.01 then return a.Position.Y.Scale < b.Position.Y.Scale end return a.Position.X.Scale < b.Position.X.Scale end)
-	local pr = math.floor((x.predkosc - 20) / 3)
+	local pr = math.clamp(math.floor((x.predkosc - 16) / 16 * 6 + 0.5), 1, 6)
+	local skret = x.robux and 6 or 3
 	for i, c in ipairs(kw) do
-		local wiersz = i <= 6 and pr or (2 + wybranaHul)
+		local wiersz = i <= 6 and pr or skret
 		local k = (i - 1) % 6 + 1
 		c.BackgroundColor3 = k <= wiersz and U.YEL or U.PAPER2
 	end
@@ -333,7 +458,10 @@ local function odswiezHulajnoge()
 		vp:ClearAllChildren()
 		local m = wzor:Clone()
 		for _, c in ipairs(m:GetDescendants()) do
-			if c:IsA("BasePart") and (c.Name == "Rama" or c.Name == "Deska" or c:GetAttribute("Kolor")) then c.Color = x.kolor end
+			if c:IsA("BasePart") and (c.Name == "Rama" or c.Name == "Deska" or c:GetAttribute("Kolor")) then
+				c.Color = x.kolor
+				if x.neon then c.Material = Enum.Material.Neon end
+			end
 		end
 		m.Parent = vp
 		local cam = Instance.new("Camera")
@@ -348,10 +476,23 @@ end
 local function podepnijHulajnoge()
 	local o = okno("Hulajnoga")
 	if not o then return end
+	local wzor = o.Lico:FindFirstChild("Hulajnoga_3")
 	for i, x in ipairs(C.Hulajnogi) do
 		local b = o.Lico:FindFirstChild("Hulajnoga_" .. i)
-		if b then b.Activated:Connect(function() wybranaHul = i K.wyslij("kup", { rodzaj = "hulajnoga", id = x.id }) odswiezHulajnoge() end) end
+		if not b and wzor then
+			b = wzor:Clone()
+			b.Name = "Hulajnoga_" .. i
+			b:SetAttribute("Podpiety", nil)
+			b.Parent = o.Lico
+			U.feedback(b)
+		end
+		if b then
+			b.Position = UDim2.fromScale(0.63, 0.25 + (i - 1) * 0.1)
+			b.Size = UDim2.fromScale(0.32, 0.088)
+			b.Activated:Connect(function() wybranaHul = i K.wyslij("kup", { rodzaj = "hulajnoga", id = x.id }) odswiezHulajnoge() end)
+		end
 	end
+	K.gracz.AttributeChanged:Connect(function(a) if a:sub(1, 3) == "GP_" then odswiezHulajnoge() end end)
 	local w = o.Lico:FindFirstChild("Wsiadaj")
 	if w then w.Activated:Connect(function() K.wyslij("hulajnoga", { w = not K.gracz:GetAttribute("NaHulajnodze") }) end) end
 end
@@ -464,6 +605,26 @@ function O.Init(k, moduly)
 		odswiezRole()
 	end)
 	K.na("Rola", function() odswiezRole() widocznoscIkon() end)
+	-- strefa VIP: VIP przechodzi przez linę (kolizja wyłączona lokalnie), reszta widzi prompt „Kup”
+	local function strefaVIP()
+		local s = workspace:FindFirstChild("Lobby") and workspace.Lobby:FindFirstChild("StrefaVIP")
+		local br = s and s:FindFirstChild("Bramka")
+		if not br then return end
+		local vip = K.gracz:GetAttribute("GP_VIP") == true
+		br.CanCollide = not vip
+		local pr = br:FindFirstChild("PromptVIP")
+		if pr then pr.Enabled = not vip end
+	end
+	task.spawn(function()
+		local l = workspace:WaitForChild("Lobby", 30)
+		if l and l:WaitForChild("StrefaVIP", 30) then l.StrefaVIP:WaitForChild("Bramka", 10) strefaVIP() end
+	end)
+	K.gracz:GetAttributeChangedSignal("GP_VIP"):Connect(function() odswiezRole() strefaVIP() end)
+	K.na("Gamepass", function(d)
+		local gp = C.Gamepassy[d.klucz]
+		if gp and d.nowy then moduly.HUD.karteczka("Dzięki! ★", gp.nazwa .. " jest twoje.", "zielony", 3) end
+		odswiezSklepik() odswiezPlecak() odswiezHulajnoge()
+	end)
 	K.na("Faza", function() odswiezRole() widocznoscIkon() end)
 	K.na("Wyeliminowany", widocznoscIkon)
 	K.na("Zakup", function(d)

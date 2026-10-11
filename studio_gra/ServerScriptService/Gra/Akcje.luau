@@ -127,7 +127,6 @@ function A.wyeliminuj(ofiara, sprawca, bezCiala, powod)
 	if sprawca then
 		local hrp = W.hrp(ofiara)
 		W.dzwiek("Cios", hrp, 1, 60)
-		W.wszyscy("Efekt", { typ = "gwiazdki", pos = hrp and hrp.Position })
 	end
 	R.sprawdzWygrana()
 end
@@ -146,6 +145,11 @@ local function eliminuj(p, cel)
 	local hp = W.hrp(cel)
 	if hp then p.Character:PivotTo(hp.CFrame * CFrame.new(0, 0, 2.5)) end
 	A.wyeliminuj(cel, p)
+	local d = M.Profil.Get(p)
+	local efekt = (d and d.efekt) or "POW"
+	if efekt ~= "POW" and not M.Sklep.ma(p, "Efekty") then efekt = "POW" end
+	local hpos = W.hrp(cel)
+	W.wszyscy("Efekt", { typ = "eliminacja", efekt = efekt, pos = hpos and hpos.Position })
 	M.Profil.Dodaj(p, C.Nagrody.Eliminacja.zl, C.Nagrody.Eliminacja.xp, "Eliminacja")
 	M.Profil.Statystyka(p, "eliminacje")
 	W.wyslij(p, "Cooldown", { klucz = "eliminacja", do_ = workspace:GetServerTimeNow() + C.Czasy.CooldownEliminacji })
@@ -312,7 +316,13 @@ end
 local function mem(p, id)
 	local x
 	for _, m in ipairs(C.Memy) do if m.id == id then x = m end end
-	if not x or not cd(p, "mem", 5) then return end
+	if not x then return end
+	if x.premium and not M.Sklep.ma(p, "Memy") then
+		local ok, msg = M.Sklep.kup(p, "Memy")
+		if msg then W.karteczka(p, "Paczka memów", msg) end
+		return
+	end
+	if not cd(p, "mem", 5) then return end
 	local glowa = p.Character and p.Character:FindFirstChild("Head")
 	if not glowa then return end
 	W.dzwiek(x.dzwiek, glowa, 0.9, 70)

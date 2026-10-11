@@ -21,8 +21,64 @@ local function dymek(d)
 	end
 end
 
+-- efekty eliminacji (wybierane w plecaku; konfetti/kreda/kartki/dzwonek z gamepassa)
+local WARIANTY = {
+	Konfetti = { napis = "KONFETTI!", kolor = Color3.fromRGB(255, 120, 200), dzwiek = "Fajerwerk", ile = 70,
+		kolory = { Color3.fromRGB(255, 80, 80), Color3.fromRGB(80, 200, 255), Color3.fromRGB(255, 220, 60), Color3.fromRGB(120, 230, 120), Color3.fromRGB(230, 120, 255) },
+		tekstura = "rbxasset://textures/particles/sparkles_main.dds", rozmiar = 0.7, szybkosc = NumberRange.new(14, 26), grawitacja = Vector3.new(0, -25, 0), zycie = NumberRange.new(1.2, 2) },
+	Kreda = { napis = "*puff*", kolor = Color3.fromRGB(245, 245, 245), dzwiek = "Boing", ile = 40,
+		kolory = { Color3.fromRGB(255, 255, 255), Color3.fromRGB(225, 230, 235) },
+		tekstura = "rbxasset://textures/particles/smoke_main.dds", rozmiar = 5, szybkosc = NumberRange.new(3, 7), grawitacja = Vector3.new(0, 2, 0), zycie = NumberRange.new(1.5, 2.5) },
+	Kartki = { napis = "KARTKÓWKA!", kolor = Color3.fromRGB(214, 40, 57), dzwiek = "Werbel", ile = 45,
+		kolory = { Color3.fromRGB(255, 255, 250), Color3.fromRGB(235, 240, 255) },
+		tekstura = "rbxasset://textures/particles/explosion01_core_main.dds", rozmiar = 1.1, szybkosc = NumberRange.new(10, 20), grawitacja = Vector3.new(0, -8, 0), zycie = NumberRange.new(1.5, 2.5), obrot = true },
+	Dzwonek = { napis = "DRYŃ!", kolor = Color3.fromRGB(255, 205, 50), dzwiek = "Dzwon", ile = 30,
+		kolory = { Color3.fromRGB(255, 220, 70), Color3.fromRGB(255, 180, 30) },
+		tekstura = "rbxasset://textures/particles/sparkles_main.dds", rozmiar = 1.4, szybkosc = NumberRange.new(16, 24), grawitacja = Vector3.zero, zycie = NumberRange.new(0.5, 0.9), fala = true },
+}
+local function eliminacja(d)
+	local w = WARIANTY[d.efekt or ""]
+	if not w then return false end
+	if C.Dzwieki[w.dzwiek] then
+		local p0 = U.new("Part", { Anchored = true, CanCollide = false, CanQuery = false, Transparency = 1, Size = Vector3.one, Position = d.pos }, workspace)
+		local snd = U.new("Sound", { SoundId = C.Dzwieki[w.dzwiek], Volume = 0.8, RollOffMaxDistance = 90, SoundGroup = K.grupaSfx }, p0)
+		snd:Play()
+		Debris:AddItem(p0, 6)
+	end
+	if K.stan.ustawienia.slaby then return true end
+	local p = U.new("Part", { Anchored = true, CanCollide = false, CanQuery = false, Transparency = 1, Size = Vector3.one, Position = d.pos + Vector3.new(0, 2, 0) }, workspace)
+	local a = U.new("Attachment", {}, p)
+	for i, kol in ipairs(w.kolory) do
+		local pe = U.new("ParticleEmitter", {
+			Texture = w.tekstura, Color = ColorSequence.new(kol),
+			Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, w.rozmiar), NumberSequenceKeypoint.new(1, w.rozmiar * (w.fala and 0 or 0.8)) }),
+			Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.8, 0.2), NumberSequenceKeypoint.new(1, 1) }),
+			Lifetime = w.zycie, Speed = w.szybkosc, SpreadAngle = Vector2.new(180, 180), Rate = 0, Acceleration = w.grawitacja,
+			Rotation = NumberRange.new(0, 360), RotSpeed = w.obrot and NumberRange.new(-200, 200) or NumberRange.new(0),
+			Drag = 1.5, LightEmission = w.fala and 1 or 0,
+		}, a)
+		pe:Emit(math.ceil(w.ile / #w.kolory))
+	end
+	if w.fala then
+		-- złoty pierścień rozchodzący się jak dźwięk dzwonka
+		local r = U.new("Part", { Anchored = true, CanCollide = false, CanQuery = false, Shape = Enum.PartType.Cylinder, Material = Enum.Material.Neon, Color = w.kolor,
+			Size = Vector3.new(0.3, 2, 2), CFrame = CFrame.new(d.pos) * CFrame.Angles(0, 0, math.rad(90)), Transparency = 0.2 }, workspace)
+		K.tween(r, 0.7, { Size = Vector3.new(0.3, 26, 26), Transparency = 1 })
+		Debris:AddItem(r, 0.8)
+	end
+	local bb = U.new("BillboardGui", { Size = UDim2.fromScale(7, 3), StudsOffset = Vector3.new(0, 2, 0), AlwaysOnTop = true, MaxDistance = 90 }, p)
+	local t = U.txt(bb, { Text = w.napis, Font = Enum.Font.Bangers, TextColor3 = w.kolor, Size = UDim2.fromScale(1, 1) })
+	U.obrysTekstu(t, 3)
+	local sc = U.new("UIScale", { Scale = 0.2 }, t)
+	K.tween(sc, 0.25, { Scale = 1 }, Enum.EasingStyle.Back)
+	task.delay(1, function() K.tween(t, 0.3, { TextTransparency = 1 }) end)
+	Debris:AddItem(p, 3)
+	return true
+end
+
 local function efekt(d)
 	if not d.pos then return end
+	if d.typ == "eliminacja" and eliminacja(d) then return end
 	if K.stan.ustawienia.slaby then return end
 	local p = U.new("Part", { Anchored = true, CanCollide = false, CanQuery = false, Transparency = 1, Size = Vector3.new(1, 1, 1), Position = d.pos + Vector3.new(0, 2, 0) }, workspace)
 	local a = U.new("Attachment", {}, p)
