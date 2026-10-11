@@ -497,11 +497,13 @@ local function otworz10(dane)
 	wstep(root, H, "10× SKRZYNKA MŁOTÓW")
 
 	-- siatka 5×2
-	local kw = math.floor(H * 0.25)
+	local kw = math.floor(H * 0.19)
 	local kh = math.floor(kw * 1.22)
 	local odst = math.floor(kw * 0.14)
 	local siatka = U.new("Frame", { Name = "Siatka", BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0.5),
-		Size = UDim2.fromOffset(kw * 5 + odst * 4, kh * 2 + odst), Position = UDim2.fromScale(0.5, 0.46), ZIndex = 10 }, root)
+		Size = UDim2.fromOffset(kw * 5 + odst * 4, kh * 2 + odst), Position = UDim2.fromScale(0.5, 0.44), ZIndex = 10 }, root)
+	-- promienie w osobnej warstwie pod wszystkimi kartami (żeby nie zasłaniały sąsiednich)
+	local warstwaP = U.new("Frame", { Name = "Promienie", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), ZIndex = 5 }, siatka)
 	local karty = {}
 	for i, w in ipairs(wyniki) do
 		local kol, wiersz = (i - 1) % 5, math.floor((i - 1) / 5)
@@ -553,10 +555,10 @@ local function otworz10(dane)
 		if w.duplikat then duplikaty += 1 zwrot += w.zwrot or 0 else nowe += 1 end
 		-- rzadsze: większy podskok, dźwięk i promienie za kartą
 		if poz >= 4 then
-			local pr = U.new("Frame", { BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0.5), Size = UDim2.fromScale(2.2, 2.2), Position = UDim2.fromScale(0.5, 0.5), ZIndex = 9 }, k.slot)
+			local pr = U.new("Frame", { BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0.5), Size = UDim2.fromOffset(kw * 1.9, kw * 1.9), Position = k.slot.Position, ZIndex = 5 }, warstwaP)
 			for j = 1, 8 do
 				local p = U.new("Frame", { BackgroundColor3 = r.kolor, BackgroundTransparency = 0.55, BorderSizePixel = 0, AnchorPoint = Vector2.new(0.5, 0.5),
-					Size = UDim2.new(0, math.max(6, kw * 0.12), 1, 0), Position = UDim2.fromScale(0.5, 0.5), Rotation = j * 22.5, ZIndex = 9 }, pr)
+					Size = UDim2.new(0, math.max(6, kw * 0.12), 1, 0), Position = UDim2.fromScale(0.5, 0.5), Rotation = j * 22.5, ZIndex = 5 }, pr)
 			end
 			local skP = U.new("UIScale", { Scale = 0 }, pr)
 			tw(skP, 0.4, { Scale = 1 }, Enum.EasingStyle.Back)
