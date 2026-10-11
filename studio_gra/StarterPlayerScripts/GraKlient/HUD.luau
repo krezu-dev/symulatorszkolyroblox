@@ -12,44 +12,40 @@ local cel = { eliminacja = nil, wezwij = nil }
 local podswietlCel
 
 ------------------------------------------------------------------ PASEK RUNDY
-local function ustawPasek()
-	if not pasek then return end
+local el = {}
+local function znajdzElementyPaska()
 	local f = pasek.Lico
-	local czas = f:FindFirstChild("Czas")
-	local stamp
+	el.czas = f:FindFirstChild("Czas")
 	for _, c in ipairs(f:GetChildren()) do
 		local t = c:FindFirstChildOfClass("TextLabel")
-		if c:IsA("Frame") and t and c:FindFirstChildOfClass("UIStroke") and c.Rotation ~= 0 then stamp = t end
+		if c:IsA("Frame") and t and c:FindFirstChildOfClass("UIStroke") and t.Text:find("LEKCJA") then el.stamp = t end
+		if c:IsA("TextLabel") and c.Text:match("^%d+/%d+$") then el.licznik = c end
+		if c:IsA("TextLabel") and c.Text == "Zadania klasy" then el.opis = c end
+		if c:IsA("Frame") and c:FindFirstChildOfClass("UIStroke") and c.Size.X.Scale > 0.4 then
+			el.bar = c
+			for _, x in ipairs(c:GetChildren()) do if x:IsA("Frame") and x.Size.X.Scale > 0.05 then el.fill = x end end
+		end
 	end
+end
+local function ustawPasek()
+	if not pasek then return end
 	local faza = K.Gra:GetAttribute("Faza") or "Lobby"
 	if faza == "Lobby" then
-		if stamp then stamp.Text = "PRZERWA" end
+		if el.stamp then el.stamp.Text = "PRZERWA" end
 		local od = K.Gra:GetAttribute("Odliczanie")
 		local brak = K.Gra:GetAttribute("Brakuje") or 0
-		if czas then czas.Text = (od and od >= 0) and string.format("0:%02d", od) or "--:--" end
+		if el.czas then el.czas.Text = (od and od >= 0) and string.format("0:%02d", od) or "--:--" end
 		H.ustawPostep(0, 0, brak > 0 and ("Czekamy na graczy (brakuje " .. brak .. ")") or "Zaraz autobus do szkoły!")
 	else
 		local s = K.Gra:GetAttribute("Czas") or 0
-		if stamp then stamp.Text = faza == "Spotkanie" and "ZEBRANIE" or (faza == "Koniec" and "KONIEC" or "LEKCJA") end
-		if czas then czas.Text = string.format("%02d:%02d", math.floor(s / 60), s % 60) end
+		if el.stamp then el.stamp.Text = faza == "Spotkanie" and "ZEBRANIE" or (faza == "Koniec" and "KONIEC" or "LEKCJA") end
+		if el.czas then el.czas.Text = string.format("%02d:%02d", math.floor(s / 60), s % 60) end
 	end
 end
-local opisPostepu
 function H.ustawPostep(z, w, tekst)
-	if not pasek then return end
-	local f = pasek.Lico
-	for _, c in ipairs(f:GetChildren()) do
-		if c:IsA("TextLabel") and c.Text:match("^%d+/%d+$") then c.Text = w > 0 and (z .. "/" .. w) or "" end
-		if c:IsA("TextLabel") and (c.Text == "Zadania klasy" or c:GetAttribute("Opis")) then
-			c:SetAttribute("Opis", true)
-			c.Text = tekst or "Zadania szkoły"
-		end
-		if c:IsA("Frame") and c:FindFirstChild("Frame") and c:FindFirstChildOfClass("UIStroke") and c.Size.X.Scale > 0.4 then
-			local fill = c:FindFirstChildWhichIsA("Frame")
-			for _, x in ipairs(c:GetChildren()) do if x:IsA("Frame") and x.BackgroundColor3 == U.YEL then fill = x end end
-			K.tween(fill, 0.4, { Size = UDim2.fromScale(w > 0 and z / w or 0, 1) })
-		end
-	end
+	if el.licznik then el.licznik.Text = w > 0 and (z .. "/" .. w) or "" end
+	if el.opis then el.opis.Text = tekst or "Zadania szkoły" end
+	if el.fill then K.tween(el.fill, 0.4, { Size = UDim2.fromScale(w > 0 and z / w or 0, 1) }) end
 end
 
 ------------------------------------------------------------------ KARTECZKA
@@ -315,6 +311,7 @@ function H.Init(k)
 	pasek = szablon:WaitForChild("PasekRundy")
 	karteczka = szablon:WaitForChild("Karteczka")
 	karteczka.Visible = false
+	znajdzElementyPaska()
 	zbudujLegitymacje()
 	zbudujPrzyciski()
 	podswietlCel = U.new("Highlight", { Name = "CelEliminacji", FillTransparency = 1, OutlineColor = U.RED, OutlineTransparency = 0, DepthMode = Enum.HighlightDepthMode.Occluded, Enabled = false }, K.gui)

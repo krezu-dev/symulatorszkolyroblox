@@ -44,10 +44,10 @@ local DEF = {
 	},
 }
 
-local function podloga(pos)
+local function podloga(pos, bez)
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
-	params.FilterDescendantsInstances = { workspace:FindFirstChild("NPC") }
+	params.FilterDescendantsInstances = { workspace:FindFirstChild("NPC"), bez }
 	local r = workspace:Raycast(pos + Vector3.new(0, 4, 0), Vector3.new(0, -14, 0), params)
 	return r and r.Position or pos
 end
@@ -102,7 +102,7 @@ local function zrobNPC(def)
 	if def.stoi then
 		local o = W.znajdz(def.stoi)
 		local pos = W.pozycja(o)
-		if pos then start = podloga(pos + Vector3.new(-2.5, 0, 0)) end
+		if pos then start = podloga(pos + Vector3.new(-3.5, 0, 0), o) end
 	elseif def.trasa then
 		local t = def.trasa[1]
 		if typeof(t) == "string" then

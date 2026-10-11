@@ -13,10 +13,15 @@ local znaczniki = {}
 local duza = false
 local SKALA = 1.25     -- px na stud przy małej mapie (liczone względem 260 px)
 
-local function pietroDlaY(y)
-	if y < 8.5 then return "Piwnica" end
-	if y < 25.5 then return "Parter" end
-	return "Pietro"
+local function pietroDla(pos)
+	if pos.Y >= 25.5 then return "Pietro" end
+	if pos.Y < 8.5 and dane then
+		-- piwnica tylko pod budynkami z piwnicą (na zewnątrz poziom 0 to parter)
+		for _, b in ipairs(dane.budynki) do
+			if b.pietro == "Piwnica" and pos.X >= b.x0 and pos.X <= b.x1 and pos.Z >= b.z0 and pos.Z <= b.z1 then return "Piwnica" end
+		end
+	end
+	return "Parter"
 end
 local NAZWY_PIETER = { Piwnica = "PIWNICA / KOTŁOWNIA", Parter = "PARTER", Pietro = "1. PIĘTRO" }
 
@@ -84,7 +89,7 @@ local function aktualizuj()
 	local w = f.AbsoluteSize.X
 	local skala = duza and (w / 330) or (w / 260 * SKALA)
 	local pos = h.Position
-	local pietro = pietroDlaY(pos.Y)
+	local pietro = pietroDla(pos)
 	local wLobby = pos.Z < -170
 	for p, l in pairs(warstwy) do l.Visible = p == pietro end
 	pietroT.Text = wLobby and "LOBBY – KOMISARIAT" or NAZWY_PIETER[pietro]
@@ -116,7 +121,7 @@ local function aktualizuj()
 			local id = pr:GetAttribute("Zadanie")
 			if table.find(s.zadania, id) and not s.zrobione[id] and pr.Parent:IsA("BasePart") then
 				local pp = pr.Parent.Position
-				if pietroDlaY(pp.Y) == pietro then
+				if pietroDla(pp) == pietro then
 					i += 1
 					local z = znacznik(i, id == s.wybraneZadanie and Color3.fromRGB(255, 120, 0) or U.YEL)
 					z.Position = UDim2.fromOffset(pp.X * skala, pp.Z * skala)
@@ -126,7 +131,7 @@ local function aktualizuj()
 		for _, pr in ipairs(CollectionService:GetTagged("PromptNaprawa")) do
 			if pr.Enabled and pr.Parent:IsA("BasePart") then
 				local pp = pr.Parent.Position
-				if pietroDlaY(pp.Y) == pietro then
+				if pietroDla(pp) == pietro then
 					i += 1
 					local z = znacznik(i, U.RED)
 					z.Position = UDim2.fromOffset(pp.X * skala, pp.Z * skala)

@@ -8,7 +8,18 @@ local kino, con
 
 local function sterowanie(tak) K.sterowanie(tak, "cutscenka") end
 
+local function pokazHUD(tak)
+	local hud = K.PlayerGui:FindFirstChild("SchoolIconHUD")
+	if hud then hud.Enabled = tak end
+	local sz = K.PlayerGui:FindFirstChild("SzablonUI")
+	if sz and sz:FindFirstChild("PasekRundy") then sz.PasekRundy.Visible = tak end
+	for _, n in ipairs({ "Legitymacja", "Akcje", "Minimapa" }) do
+		local x = K.gui:FindFirstChild(n)
+		if x then x.Visible = tak end
+	end
+end
 local function pasy(pokaz)
+	pokazHUD(not pokaz)
 	if pokaz and not kino then
 		kino = U.new("Frame", { Name = "Kino", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), ZIndex = 60 }, K.nad)
 		local g1 = U.new("Frame", { BackgroundColor3 = Color3.new(0, 0, 0), BorderSizePixel = 0, Size = UDim2.fromScale(1, 0), ZIndex = 61 }, kino)
