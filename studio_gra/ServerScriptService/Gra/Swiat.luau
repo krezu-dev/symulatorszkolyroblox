@@ -81,10 +81,22 @@ end
 ------------------------------------------------------------------ AUTOBUS + BRAMA
 local function przesunBrame(otworz)
 	if not brama then return end
+	-- dwa skrzydła obracają się na zawiasach do środka (w stronę szkoły)
 	for _, c in ipairs(brama) do
-		local cel = otworz and (c.zamk * CFrame.new(0, -14, 0)) or c.zamk
-		c.czesc.CanCollide = not otworz and c.kolizja or false
-		TweenService:Create(c.czesc, TweenInfo.new(1.4, Enum.EasingStyle.Quad), { CFrame = cel }):Play()
+		if c.skrzydlo then
+			local v = Instance.new("NumberValue")
+			v.Value = otworz and 0 or 1
+			local zawias = c.zawias
+			local kat = c.kat
+			local con = v.Changed:Connect(function(e)
+				c.czesc.CFrame = zawias * CFrame.Angles(0, math.rad(kat * e), 0) * zawias:Inverse() * c.zamk
+			end)
+			local tw = TweenService:Create(v, TweenInfo.new(1.6, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), { Value = otworz and 1 or 0 })
+			tw:Play()
+			tw.Completed:Connect(function() con:Disconnect() v:Destroy() end)
+		else
+			c.czesc.CanCollide = (not otworz) and c.kolizja or false
+		end
 	end
 end
 
@@ -300,14 +312,32 @@ end
 function S.Start()
 	lobby = workspace:FindFirstChild("Lobby")
 	autobus = game:GetService("ServerStorage"):FindFirstChild("Autobus")
-	-- brama: części ramy w ogrodzeniu
-	local og = W.znajdz("Otoczenie.Ogrodzenie")
-	if og then
+	-- brama: dwa skrzydła (pręty + rama + kłódka), blokada wyłączana przy otwarciu
+	local b = W.znajdz("Otoczenie.Ogrodzenie.Brama")
+	if b then
 		brama = {}
-		for _, d in ipairs(og:GetDescendants()) do
-			if d:IsA("BasePart") and (string.sub(d.Name, 1, 4) == "Rama" or d.Name == "BlokadaBramy") then
-				table.insert(brama, { czesc = d, zamk = d.CFrame, kolizja = d.CanCollide })
-				d.Anchored = true
+		for _, d in ipairs(b:GetDescendants()) do
+			if d:IsA("BasePart") then
+				if d.Name == "Pret" or string.sub(d.Name, 1, 4) == "Rama" or d.Name == "Klodka" then
+					local lewe = d.Position.X <= 0.05
+					local zawias = CFrame.new(lewe and -8 or 8, d.Position.Y, d.Position.Z)
+					table.insert(brama, { czesc = d, zamk = d.CFrame, skrzydlo = true, zawias = zawias, kat = lewe and -100 or 100 })
+					d.Anchored = true
+				elseif d.Name == "BlokadaBramy" then
+					table.insert(brama, { czesc = d, kolizja = d.CanCollide })
+				end
+			end
+		end
+	end
+	-- dziura w niewidzialnej ścianie przy bramie (brama sama blokuje, gdy zamknięta)
+	local ns = W.Mapa:FindFirstChild("NiewidzialneSciany")
+	if ns then
+		for _, g in ipairs(ns:GetChildren()) do
+			if g:IsA("BasePart") and g.Size.X > 200 and g.Position.Z < -100 and not g:GetAttribute("Podzielona") then
+				local x0, x1 = g.Position.X - g.Size.X / 2, g.Position.X + g.Size.X / 2
+				local l = g:Clone() l.Size = Vector3.new(-9 - x0, g.Size.Y, g.Size.Z) l.Position = Vector3.new((x0 - 9) / 2, g.Position.Y, g.Position.Z) l:SetAttribute("Podzielona", true) l.Parent = ns
+				local p = g:Clone() p.Size = Vector3.new(x1 - 9, g.Size.Y, g.Size.Z) p.Position = Vector3.new((x1 + 9) / 2, g.Position.Y, g.Position.Z) p:SetAttribute("Podzielona", true) p.Parent = ns
+				g:Destroy()
 			end
 		end
 	end

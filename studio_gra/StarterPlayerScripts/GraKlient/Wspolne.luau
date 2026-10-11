@@ -89,6 +89,30 @@ end
 
 function K.czasSerwera() return workspace:GetServerTimeNow() end
 
+-- blokada sterowania (cutscenki, zebrania, kamery). Działa bez PlayerModule.
+local CAS = game:GetService("ContextActionService")
+local blokady = {}
+function K.sterowanie(wlacz, powod)
+	powod = powod or "ogolny"
+	blokady[powod] = (not wlacz) or nil
+	local zablokowane = next(blokady) ~= nil
+	if zablokowane then
+		CAS:BindActionAtPriority("GraBlokadaRuchu", function() return Enum.ContextActionResult.Sink end, false, Enum.ContextActionPriority.High.Value + 50,
+			Enum.PlayerActions.CharacterForward, Enum.PlayerActions.CharacterBackward, Enum.PlayerActions.CharacterLeft,
+			Enum.PlayerActions.CharacterRight, Enum.PlayerActions.CharacterJump)
+	else
+		CAS:UnbindAction("GraBlokadaRuchu")
+	end
+	local pm = K.gracz:FindFirstChild("PlayerScripts") and K.gracz.PlayerScripts:FindFirstChild("PlayerModule")
+	if pm then
+		local ok, mod = pcall(require, pm)
+		if ok and mod then
+			local c = mod:GetControls()
+			if zablokowane then c:Disable() else c:Enable() end
+		end
+	end
+end
+
 function K.rolaDef() return K.stan.rola and K.C.Role[K.stan.rola] end
 function K.jestZly() local r = K.rolaDef() return r and r.zly end
 

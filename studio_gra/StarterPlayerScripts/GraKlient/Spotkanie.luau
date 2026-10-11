@@ -9,13 +9,7 @@ local doKonca, fazaZebrania = 0, nil
 local mojGlos = nil
 local zegarT, fazaT
 
-local function zablokujSterowanie(tak)
-	local ok, pm = pcall(function() return require(K.gracz.PlayerScripts:WaitForChild("PlayerModule")) end)
-	if ok and pm then
-		local c = pm:GetControls()
-		if tak then c:Disable() else c:Enable() end
-	end
-end
+local function zablokujSterowanie(tak) K.sterowanie(not tak, "zebranie") end
 
 ------------------------------------------------------------------ CUTSCENKA STARTU
 local function cutscenka(d)

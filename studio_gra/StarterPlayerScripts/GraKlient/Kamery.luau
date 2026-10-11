@@ -26,16 +26,14 @@ function Km.zamknij()
 	ekran.Visible = false
 	workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
 	K.wyslij("kamery", { w = false })
-	local ok, pm = pcall(function() return require(K.gracz.PlayerScripts:WaitForChild("PlayerModule")) end)
-	if ok then pm:GetControls():Enable() end
+	K.sterowanie(true, "kamery")
 end
 function Km.otworz()
 	if ogladam or #kamery == 0 then return end
 	ogladam = true
 	ekran.Visible = true
 	K.wyslij("kamery", { w = true })
-	local ok, pm = pcall(function() return require(K.gracz.PlayerScripts:WaitForChild("PlayerModule")) end)
-	if ok then pm:GetControls():Disable() end
+	K.sterowanie(false, "kamery")
 	ustawKamere()
 end
 

@@ -6,13 +6,7 @@ local Cs = {}
 local K, U, C
 local kino, con
 
-local function sterowanie(tak)
-	local ok, pm = pcall(function() return require(K.gracz.PlayerScripts:WaitForChild("PlayerModule")) end)
-	if ok and pm then
-		local c = pm:GetControls()
-		if tak then c:Enable() else c:Disable() end
-	end
-end
+local function sterowanie(tak) K.sterowanie(tak, "cutscenka") end
 
 local function pasy(pokaz)
 	if pokaz and not kino then
@@ -57,7 +51,7 @@ local function autobus(d)
 		local brama = d.brama
 		kamera(function(t)
 			local cel = (bus and bus.Parent and bus:GetPivot().Position) or brama
-			local oko = brama + Vector3.new(-6, 9, -26)
+			local oko = Vector3.new(brama.X - 34, 10, -171)
 			return CFrame.lookAt(oko, cel + Vector3.new(0, 3, 0))
 		end)
 	elseif d.etap == "wysiadka" then

@@ -90,6 +90,11 @@ function R.sprawdzWygrana()
 		end
 	end
 	local z, w = R.postep()
+	if R.solo then
+		-- test w pojedynkę: kończy się tylko zadaniami albo czasem
+		if w > 0 and z >= w then R.zwyciezca = { strona = "dobrzy", powod = "Wszystkie zadania zrobione!" } end
+		return
+	end
 	if zli == 0 then
 		R.zwyciezca = { strona = "dobrzy", powod = "Rozrabiaka złapany! Szkoła uratowana." }
 	elseif zli >= dobrzy then
@@ -114,8 +119,8 @@ local function przydzielRole(lista)
 	end
 	-- testy w Studio: atrybut TestRola na ServerStorage wymusza rolę pierwszego gracza
 	local test = game:GetService("ServerStorage"):GetAttribute("TestRola")
-	if test and C.Role[test] and #lista == 1 then
-		R.gracze[lista[1]].rola = test
+	if #lista == 1 then
+		R.gracze[lista[1]].rola = (test and C.Role[test]) and test or "Uczen"
 		return
 	end
 	daj("Rozrabiaka", rozklad.Rozrabiaka)
@@ -192,6 +197,7 @@ local function start()
 		if p.Character and p.Character:FindFirstChild("HumanoidRootPart") then table.insert(lista, p) end
 	end
 	if #lista == 0 then return false end
+	R.solo = #lista < 2
 	for _, p in ipairs(lista) do
 		R.gracze[p] = { rola = "Uczen", zyje = true, zadania = {}, zrobione = {}, dzwony = C.Czasy.DzwonowNaGracza, dyrektorMoc = true, ostatniaEliminacja = 0 }
 	end
