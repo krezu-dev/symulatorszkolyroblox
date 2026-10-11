@@ -200,6 +200,59 @@ local function scinki(par, srodek, z)
 end
 
 ------------------------------------------------------------------ ANIMACJA
+-- wspólny wstęp: skrzynka spada, szarpie się 3 razy i pęka
+local function wstep(root, H, podpisTekst)
+	-- skrzynka spada
+	local Ikony = require(ReplicatedStorage.Gra:WaitForChild("Ikony"))
+	local bok = math.floor(H * 0.34)
+	local cienSk = U.new("Frame", { BackgroundColor3 = TUSZ, BackgroundTransparency = 1, BorderSizePixel = 0, AnchorPoint = Vector2.new(0.5, 0.5),
+		Size = UDim2.fromOffset(bok * 0.2, bok * 0.06), Position = UDim2.new(0.5, 0, 0.5, bok * 0.48), ZIndex = 5 }, root)
+	U.corner(cienSk, UDim.new(1, 0))
+	local sk = U.new("ImageLabel", { Name = "Skrzynka", BackgroundTransparency = 1, Image = Ikony.SkrzynkaMlotkow or "",
+		ScaleType = Enum.ScaleType.Fit, AnchorPoint = Vector2.new(0.5, 1), Size = UDim2.fromOffset(bok, bok),
+		Position = UDim2.new(0.5, 0, -0.1, 0), ZIndex = 6 }, root)
+	local podpis = U.txt(root, { Text = podpisTekst, Font = Enum.Font.Bangers, TextColor3 = PAPIER, AnchorPoint = Vector2.new(0.5, 0),
+		Size = UDim2.fromOffset(bok * 1.4, bok * 0.18), Position = UDim2.new(0.5, 0, 0.5, bok * 0.58), TextTransparency = 1, ZIndex = 6 })
+	U.obrysTekstu(podpis, 2, TUSZ)
+	tw(sk, 0.42, { Position = UDim2.new(0.5, 0, 0.5, bok * 0.5) }, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+	tw(cienSk, 0.42, { Size = UDim2.fromOffset(bok * 0.9, bok * 0.12), BackgroundTransparency = 0.55 }, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+	task.wait(0.42)
+	graj("Bonk", 0.55, 0.8)
+	-- zgniecenie przy lądowaniu
+	sk.Size = UDim2.fromOffset(bok * 1.14, bok * 0.84)
+	tw(sk, 0.35, { Size = UDim2.fromOffset(bok, bok) }, Enum.EasingStyle.Back)
+	tw(podpis, 0.3, { TextTransparency = 0 })
+	task.spawn(trzes, root, 6, 0.18)
+	task.wait(0.45)
+
+	-- trzy szarpnięcia, coraz mocniejsze
+	for n, sila in ipairs({ 7, 11, 16 }) do
+		for j = 1, 4 do
+			local kat = (j % 2 == 0) and -sila or sila
+			tw(sk, 0.05, { Rotation = kat })
+			task.wait(0.05)
+		end
+		tw(sk, 0.08, { Rotation = 0 })
+		graj("Pstryk", 0.5, 0.9 + n * 0.12)
+		task.wait(n < 3 and 0.32 or 0.18)
+	end
+
+	-- otwarcie: skrzynka wyskakuje i znika, lecą ścinki
+	graj("Boing", 0.5, 1.1)
+	local srodek = Vector2.new(sk.AbsolutePosition.X + sk.AbsoluteSize.X / 2 - root.AbsolutePosition.X, sk.AbsolutePosition.Y + sk.AbsoluteSize.Y * 0.55 - root.AbsolutePosition.Y)
+	scinki(root, srodek, 8)
+	tw(sk, 0.2, { Size = UDim2.fromOffset(bok * 1.35, bok * 1.35), ImageTransparency = 1 })
+	tw(cienSk, 0.2, { BackgroundTransparency = 1 })
+	tw(podpis, 0.15, { TextTransparency = 1 })
+	local sp = podpis:FindFirstChildOfClass("UIStroke")
+	if sp then tw(sp, 0.15, { Transparency = 1 }) end
+	task.wait(0.15)
+	podpis:Destroy()
+	sk:Destroy()
+	cienSk:Destroy()
+
+end
+
 local function otworz(wynik)
 	if trwa then return end
 	trwa = true
@@ -252,55 +305,7 @@ local function otworz(wynik)
 		end
 	end)
 
-	-- skrzynka spada
-	local Ikony = require(ReplicatedStorage.Gra:WaitForChild("Ikony"))
-	local bok = math.floor(H * 0.34)
-	local cienSk = U.new("Frame", { BackgroundColor3 = TUSZ, BackgroundTransparency = 1, BorderSizePixel = 0, AnchorPoint = Vector2.new(0.5, 0.5),
-		Size = UDim2.fromOffset(bok * 0.2, bok * 0.06), Position = UDim2.new(0.5, 0, 0.5, bok * 0.48), ZIndex = 5 }, root)
-	U.corner(cienSk, UDim.new(1, 0))
-	local sk = U.new("ImageLabel", { Name = "Skrzynka", BackgroundTransparency = 1, Image = Ikony.SkrzynkaMlotkow or "",
-		ScaleType = Enum.ScaleType.Fit, AnchorPoint = Vector2.new(0.5, 1), Size = UDim2.fromOffset(bok, bok),
-		Position = UDim2.new(0.5, 0, -0.1, 0), ZIndex = 6 }, root)
-	local podpis = U.txt(root, { Text = "SKRZYNKA MŁOTÓW", Font = Enum.Font.Bangers, TextColor3 = PAPIER, AnchorPoint = Vector2.new(0.5, 0),
-		Size = UDim2.fromOffset(bok * 1.4, bok * 0.18), Position = UDim2.new(0.5, 0, 0.5, bok * 0.58), TextTransparency = 1, ZIndex = 6 })
-	U.obrysTekstu(podpis, 2, TUSZ)
-	tw(sk, 0.42, { Position = UDim2.new(0.5, 0, 0.5, bok * 0.5) }, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
-	tw(cienSk, 0.42, { Size = UDim2.fromOffset(bok * 0.9, bok * 0.12), BackgroundTransparency = 0.55 }, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
-	task.wait(0.42)
-	graj("Bonk", 0.55, 0.8)
-	-- zgniecenie przy lądowaniu
-	sk.Size = UDim2.fromOffset(bok * 1.14, bok * 0.84)
-	tw(sk, 0.35, { Size = UDim2.fromOffset(bok, bok) }, Enum.EasingStyle.Back)
-	tw(podpis, 0.3, { TextTransparency = 0 })
-	task.spawn(trzes, root, 6, 0.18)
-	task.wait(0.45)
-
-	-- trzy szarpnięcia, coraz mocniejsze
-	for n, sila in ipairs({ 7, 11, 16 }) do
-		if pominiete then break end
-		for j = 1, 4 do
-			local kat = (j % 2 == 0) and -sila or sila
-			tw(sk, 0.05, { Rotation = kat })
-			task.wait(0.05)
-		end
-		tw(sk, 0.08, { Rotation = 0 })
-		graj("Pstryk", 0.5, 0.9 + n * 0.12)
-		task.wait(n < 3 and 0.32 or 0.18)
-	end
-
-	-- otwarcie: skrzynka wyskakuje i znika, lecą ścinki
-	graj("Boing", 0.5, 1.1)
-	local srodek = Vector2.new(sk.AbsolutePosition.X + sk.AbsoluteSize.X / 2 - root.AbsolutePosition.X, sk.AbsolutePosition.Y + sk.AbsoluteSize.Y * 0.55 - root.AbsolutePosition.Y)
-	scinki(root, srodek, 8)
-	tw(sk, 0.2, { Size = UDim2.fromOffset(bok * 1.35, bok * 1.35), ImageTransparency = 1 })
-	tw(cienSk, 0.2, { BackgroundTransparency = 1 })
-	tw(podpis, 0.15, { TextTransparency = 1 })
-	local sp = podpis:FindFirstChildOfClass("UIStroke")
-	if sp then tw(sp, 0.15, { Transparency = 1 }) end
-	task.wait(0.15)
-	podpis:Destroy()
-	sk:Destroy()
-	cienSk:Destroy()
+	wstep(root, H, "SKRZYNKA MŁOTÓW")
 
 	-- taśma wjeżdża i się kręci
 	while #karty < ILE do task.wait() end
@@ -468,12 +473,157 @@ local function otworz(wynik)
 	ob.Activated:Connect(zamknij)
 end
 
+------------------------------------------------------------------ ANIMACJA ×10
+-- 10 kart grzbietem do góry, odkrywane po kolei od najsłabszej do najlepszej
+local function otworz10(dane)
+	if trwa then return end
+	trwa = true
+	pcall(K.sterowanie, false, "Skrzynka")
+	local wyniki = table.clone(dane.wyniki or {})
+	local function poziomR(id) for i, x in ipairs(C.RzadkosciMlotow) do if x.id == id then return i end end return 1 end
+	table.sort(wyniki, function(a, b) return poziomR(a.rzadkosc) < poziomR(b.rzadkosc) end)
+	local najlepszy = poziomR(wyniki[#wyniki] and wyniki[#wyniki].rzadkosc)
+
+	local gui = U.new("ScreenGui", { Name = "SkrzynkaGUI", ResetOnSpawn = false, IgnoreGuiInset = true, DisplayOrder = 60,
+		ZIndexBehavior = Enum.ZIndexBehavior.Sibling }, K.PlayerGui)
+	local root = U.new("Frame", { Name = "Root", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1) }, gui)
+	local tlo = U.new("TextButton", { Name = "Tlo", Text = "", AutoButtonColor = false, BackgroundColor3 = TUSZ,
+		BackgroundTransparency = 1, BorderSizePixel = 0, Size = UDim2.fromScale(1, 1), ZIndex = 1, Modal = true }, root)
+	tw(tlo, 0.25, { BackgroundTransparency = 0.18 })
+	local H = root.AbsoluteSize.Y
+	local szybko = false
+	tlo.Activated:Connect(function() szybko = true end)
+
+	wstep(root, H, "10× SKRZYNKA MŁOTÓW")
+
+	-- siatka 5×2
+	local kw = math.floor(H * 0.25)
+	local kh = math.floor(kw * 1.22)
+	local odst = math.floor(kw * 0.14)
+	local siatka = U.new("Frame", { Name = "Siatka", BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0.5),
+		Size = UDim2.fromOffset(kw * 5 + odst * 4, kh * 2 + odst), Position = UDim2.fromScale(0.5, 0.46), ZIndex = 10 }, root)
+	local karty = {}
+	for i, w in ipairs(wyniki) do
+		local kol, wiersz = (i - 1) % 5, math.floor((i - 1) / 5)
+		local slot = U.new("Frame", { Name = "Slot" .. i, BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0.5),
+			Size = UDim2.fromOffset(kw, kh), Position = UDim2.fromOffset(kol * (kw + odst) + kw / 2, wiersz * (kh + odst) + kh / 2), ZIndex = 10 }, siatka)
+		-- grzbiet: kartka w kratkę z pieczątką „?”
+		local grzbiet = U.new("Frame", { Name = "Grzbiet", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(0.5, 0.5), Rotation = math.random(-4, 4), ZIndex = 11 }, slot)
+		cien(grzbiet, 11, 3)
+		local gl = U.new("Frame", { BackgroundColor3 = PAPIER2, BorderSizePixel = 0, Size = UDim2.fromScale(1, 1), ZIndex = 12, ClipsDescendants = true }, grzbiet)
+		U.corner(gl, UDim.new(0, 6))
+		U.stroke(gl, 2.5, TUSZ)
+		for j = 1, 6 do
+			U.new("Frame", { BackgroundColor3 = LINIA, BackgroundTransparency = 0.5, BorderSizePixel = 0, Size = UDim2.new(1, 0, 0, 1), Position = UDim2.fromScale(0, j / 7), ZIndex = 12 }, gl)
+			U.new("Frame", { BackgroundColor3 = LINIA, BackgroundTransparency = 0.5, BorderSizePixel = 0, Size = UDim2.new(0, 1, 1, 0), Position = UDim2.fromScale(j / 7, 0), ZIndex = 12 }, gl)
+		end
+		local q = U.txt(gl, { Text = "?", Font = Enum.Font.Bangers, TextColor3 = CZERWONY, Size = UDim2.fromScale(0.6, 0.5), Position = UDim2.fromScale(0.2, 0.25), Rotation = -8, ZIndex = 13 })
+		U.obrysTekstu(q, 2, TUSZ)
+		local sk = U.new("UIScale", { Scale = 0 }, slot)
+		karty[i] = { slot = slot, grzbiet = grzbiet, w = w, skala = sk }
+	end
+	-- karty wylatują ze środka jedna po drugiej
+	for i, k in ipairs(karty) do
+		tw(k.skala, 0.3, { Scale = 1 }, Enum.EasingStyle.Back)
+		graj("Klik", 0.3, 0.9 + i * 0.03)
+		if not szybko then task.wait(0.06) end
+	end
+	task.wait(szybko and 0.1 or 0.45)
+
+	local nowe, duplikaty, zwrot = 0, 0, 0
+	local function odkryj(k)
+		local w = k.w
+		local r = rzadkosc(w.rzadkosc)
+		local poz = poziomR(w.rzadkosc)
+		-- obrót: zwężenie grzbietu, potem rozszerzenie przodu
+		tw(k.grzbiet, 0.11, { Size = UDim2.fromScale(0, 1) }, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+		task.wait(0.11)
+		k.grzbiet:Destroy()
+		local h = kartaMlota(k.slot, w.mlot, kw, 11)
+		h.AnchorPoint = Vector2.new(0.5, 0.5)
+		h.Position = UDim2.fromScale(0.5, 0.5)
+		h.Size = UDim2.fromScale(0, 1)
+		tw(h, 0.14, { Size = UDim2.fromScale(1, 1) }, Enum.EasingStyle.Back)
+		-- naklejka: NOWY / +zł
+		local tag, tf = U.karta(k.slot, "Tag", UDim2.fromScale(0.5, -0.02), UDim2.fromScale(0.8, 0.14), w.duplikat and PAPIER2 or ZOLTY, Vector2.new(0.5, 0.5), w.duplikat and 3 or -4, 2)
+		for _, d in ipairs(tag:GetDescendants()) do if d:IsA("GuiObject") then d.ZIndex = 20 end end
+		tag.ZIndex = 20
+		U.txt(tf, { Text = w.duplikat and ("+" .. (w.zwrot or 0) .. " zł") or "NOWY!", Font = Enum.Font.Bangers, Size = UDim2.fromScale(0.9, 0.8), Position = UDim2.fromScale(0.05, 0.1), ZIndex = 21 })
+		if w.duplikat then duplikaty += 1 zwrot += w.zwrot or 0 else nowe += 1 end
+		-- rzadsze: większy podskok, dźwięk i promienie za kartą
+		if poz >= 4 then
+			local pr = U.new("Frame", { BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0.5), Size = UDim2.fromScale(2.2, 2.2), Position = UDim2.fromScale(0.5, 0.5), ZIndex = 9 }, k.slot)
+			for j = 1, 8 do
+				local p = U.new("Frame", { BackgroundColor3 = r.kolor, BackgroundTransparency = 0.55, BorderSizePixel = 0, AnchorPoint = Vector2.new(0.5, 0.5),
+					Size = UDim2.new(0, math.max(6, kw * 0.12), 1, 0), Position = UDim2.fromScale(0.5, 0.5), Rotation = j * 22.5, ZIndex = 9 }, pr)
+			end
+			local skP = U.new("UIScale", { Scale = 0 }, pr)
+			tw(skP, 0.4, { Scale = 1 }, Enum.EasingStyle.Back)
+			task.spawn(function()
+				while pr.Parent do pr.Rotation += 0.6 RunService.RenderStepped:Wait() end
+			end)
+			graj(poz >= 5 and "Fajerwerk" or "Sukces", 0.55)
+			task.spawn(trzes, root, poz >= 5 and 12 or 7, 0.3)
+			k.skala.Scale = 1.25
+			tw(k.skala, 0.4, { Scale = 1 }, Enum.EasingStyle.Back)
+		else
+			graj("Pstryk", 0.45, 0.85 + poz * 0.08)
+			k.skala.Scale = 1.1
+			tw(k.skala, 0.25, { Scale = 1 }, Enum.EasingStyle.Back)
+		end
+		-- klik w kartę = załóż (tylko posiadane, czyli każdy wylosowany)
+		local b = U.new("TextButton", { Text = "", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), ZIndex = 25 }, k.slot)
+		b.Activated:Connect(function() K.wyslij("kup", { rodzaj = "mlot", id = w.mlot }) end)
+	end
+	for i, k in ipairs(karty) do
+		local poz = poziomR(k.w.rzadkosc)
+		if not szybko and i == #karty and poz >= 4 then
+			-- przed najlepszą kartą chwila napięcia: karta drży
+			for j = 1, 6 do
+				k.grzbiet.Rotation = (j % 2 == 0) and -6 or 6
+				task.wait(0.07)
+			end
+			k.grzbiet.Rotation = 0
+		end
+		odkryj(k)
+		if not szybko then task.wait(poz >= 4 and 0.7 or 0.32) end
+	end
+
+	-- podsumowanie
+	local napis = U.txt(root, { Text = "NOWE: " .. nowe .. "   ·   DUPLIKATY: " .. duplikaty .. (zwrot > 0 and ("  (+" .. zwrot .. " zł)") or ""),
+		Font = Enum.Font.Bangers, TextColor3 = PAPIER, AnchorPoint = Vector2.new(0.5, 0), Size = UDim2.fromOffset(kw * 4, kw * 0.17),
+		Position = UDim2.new(0.5, 0, 0.46, kh + odst * 1.2), TextTransparency = 1, ZIndex = 30 })
+	U.obrysTekstu(napis, 2.5, TUSZ)
+	tw(napis, 0.25, { TextTransparency = 0 })
+	local wsk = U.txt(root, { Text = "kliknij młot, żeby go założyć", TextColor3 = PAPIER, AnchorPoint = Vector2.new(0.5, 0),
+		Size = UDim2.fromOffset(kw * 3, kw * 0.11), Position = UDim2.new(0.5, 0, 0.46, kh + odst * 1.2 + kw * 0.19), ZIndex = 30 })
+	if zwrot > 0 then graj("Moneta", 0.6) end
+	local zamkniete = false
+	local ob = U.przyciskTekst(root, "Ok", "SUPER", UDim2.new(0.5, 0, 0.46, kh + odst * 1.2 + kw * 0.36), UDim2.fromOffset(kw * 0.9, kw * 0.22), PAPIER, TUSZ, Vector2.new(0.5, 0), 2)
+	for _, d in ipairs(ob:GetDescendants()) do if d:IsA("GuiObject") then d.ZIndex += 30 end end
+	ob.ZIndex = 38
+	ob.Activated:Connect(function()
+		if zamkniete then return end
+		zamkniete = true
+		tw(siatka, 0.25, { Position = UDim2.fromScale(0.5, 1.6) }, Enum.EasingStyle.Back, Enum.EasingDirection.In)
+		tw(tlo, 0.3, { BackgroundTransparency = 1 })
+		napis:Destroy() wsk:Destroy() ob:Destroy()
+		task.delay(0.3, function()
+			gui:Destroy()
+			trwa = false
+			pcall(K.sterowanie, true, "Skrzynka")
+		end)
+	end)
+end
+
 function S.Init(k)
 	K = k
 	U = K.Styl
 	C = K.C
-	K.na("Skrzynka", function(d)
-		local ok, err = pcall(otworz, d)
+	local function bezpiecznie(f, d)
+		while trwa do task.wait(0.25) end -- kolejka: kilka zakupów pod rząd odtwarza się po kolei
+		local ok, err = pcall(f, d)
 		if not ok then
 			warn("[Skrzynka] " .. tostring(err))
 			local g = K.PlayerGui:FindFirstChild("SkrzynkaGUI")
@@ -481,7 +631,9 @@ function S.Init(k)
 			trwa = false
 			pcall(K.sterowanie, true, "Skrzynka")
 		end
-	end)
+	end
+	K.na("Skrzynka", function(d) bezpiecznie(otworz, d) end)
+	K.na("Skrzynka10", function(d) bezpiecznie(otworz10, d) end)
 end
 
 return S
